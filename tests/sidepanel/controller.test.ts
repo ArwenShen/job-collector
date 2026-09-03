@@ -1,0 +1,271 @@
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { createSidePanelController, type SidePanelRepository, type SidePanelState } from "../../src/sidepanel/controller";
+import { extractActiveTab } from "../../src/sidepanel/extract-active-tab";
+import type { PageResult } from "../../src/extractors";
+import type { JobRecord } from "../../src/shared/job-record";
+
+const sampleRecord: JobRecord = {
+  schema_version: "1", source_site: "boss", source_job_id: "1",
+  source_url: "https://www.zhipin.com/job_detail/1.html", job_title: "AI产品经理",
+  company_name: "模思", salary: "40-70K·15薪", note: "", location: "上海",
+  experience: "3-5年", education: "本科", job_description: "完整JD",
+  company_description: "公司介绍", missing_fields: "",
+  collected_at: "2026-09-02T09:02:29.943Z", collector_version: "0.1.0",
+};
+
+function success(record: JobRecord | null, missingRequiredFields: Array<"job_title" | "job_description"> = []): PageResult {
+  return { kind: "success", extraction: { record, missingRequiredFields, diagnostics: [] } };
+}
+
+function createHarness(options: {
+  records?: JobRecord[];
+  extract?: () => Promise<PageResult>;
+  download?: (records: JobRecord[]) => void;
+  render?: (state: SidePanelState) => void;
+} = {}) {
+  const records = [...(options.records ?? [])];
+  const repository: SidePanelRepository = {
+    async save(value) {
+      const index = records.findIndex((record) =>
+        record.source_site === value.source_site && record.source_job_id === value.source_job_id,
+      );
+      if (index < 0) records.push({ ...value });
+      else records[index] = { ...value, note: records[index]!.note };
+    },
+    async list() { return records.map((record) => ({ ...record })); },
+    async has(value) {
+      return records.some((record) =>
+        record.source_site === value.source_site && record.source_job_id === value.source_job_id,
+      );
+    },
+  };
+  return {
+    records,
+    repository,
+    extract: options.extract ?? vi.fn().mockResolvedValue({ kind: "unsupported-site" }),
+    download: options.download ?? vi.fn(),
+    render: options.render ?? vi.fn(),
+  };
+}
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
+
+describe("side panel controller", () => {
+  it("loads stored rows without extracting on initialize", async () => {
+    const extract = vi.fn();
+    const harness = createHarness({ records: [sampleRecord], extract });
+    const controller = createSidePanelController(harness);
+    await controller.initialize();
+    expect(extract).not.toHaveBeenCalled();
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({ records: [sampleRecord] }));
+  });
+
+  it("extracts and saves the active tab on every collect click", async () => {
+    const second = { ...sampleRecord, source_job_id: "2", job_title: "第二个岗位" };
+    const extract = vi.fn().mockResolvedValueOnce(success(sampleRecord)).mockResolvedValueOnce(success(second));
+    const harness = createHarness({ extract });
+    const controller = createSidePanelController(harness);
+    await controller.initialize();
+    await controller.collect();
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+      notice: { kind: "success", text: "已收集当前职位" },
+    }));
+    await controller.collect();
+    expect(extract).toHaveBeenCalledTimes(2);
+    expect(harness.records.map((record) => record.source_job_id)).toEqual(["1", "2"]);
+  });
+
+  it("updates a duplicate in place and preserves its note", async () => {
+    const old = { ...sampleRecord, note: "重点关注" };
+    const updated = { ...sampleRecord, job_title: "更新后的岗位", note: "" };
+    const harness = createHarness({ records: [old], extract: vi.fn().mockResolvedValue(success(updated)) });
+    const controller = createSidePanelController(harness);
+    await controller.initialize();
+    await controller.collect();
+    expect(harness.records).toHaveLength(1);
+    expect(harness.records[0]).toMatchObject({ job_title: "更新后的岗位", note: "重点关注" });
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+      notice: { kind: "success", text: "已更新当前职位，没有新增重复记录" },
+    }));
+  });
+
+  it.each<PageResult>([
+    { kind: "unsupported-site" },
+    { kind: "not-detail-page", site: "boss" },
+  ])("keeps the list when collection is unavailable", async (page) => {
+    const harness = createHarness({ records: [sampleRecord], extract: vi.fn().mockResolvedValue(page) });
+    const save = vi.spyOn(harness.repository, "save");
+    const controller = createSidePanelController(harness);
+    await controller.initialize();
+    await controller.collect();
+    expect(save).not.toHaveBeenCalled();
+    expect(harness.records).toEqual([sampleRecord]);
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+      records: [sampleRecord], notice: { kind: "error", text: "请打开支持平台的职位详情页" }, busy: false,
+    }));
+  });
+
+  it("reports missing required fields in extractor order without saving", async () => {
+    const harness = createHarness({
+      records: [sampleRecord],
+      extract: vi.fn().mockResolvedValue(success(null, ["job_title", "job_description"])),
+    });
+    const save = vi.spyOn(harness.repository, "save");
+    const controller = createSidePanelController(harness);
+    await controller.initialize();
+    await controller.collect();
+    expect(save).not.toHaveBeenCalled();
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+      records: [sampleRecord],
+      notice: { kind: "error", text: "无法完整识别该岗位：缺少 job_title、job_description" },
+    }));
+  });
+
+  it.each([
+    ["Cannot access contents of url", "请在当前职位页再次点击扩展图标后重试"],
+    ["Missing host permission", "请在当前职位页再次点击扩展图标后重试"],
+    ["Cannot inject into chrome://settings", "请在当前职位页再次点击扩展图标后重试"],
+    ["tab disappeared", "无法读取当前页面，请打开职位详情后重试"],
+  ])("maps extraction error %s without losing rows", async (message, expected) => {
+    const harness = createHarness({ records: [sampleRecord], extract: vi.fn().mockRejectedValue(new Error(message)) });
+    const controller = createSidePanelController(harness);
+    await controller.initialize();
+    await controller.collect();
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+      records: [sampleRecord], notice: { kind: "error", text: expected }, busy: false,
+    }));
+  });
+
+  it("keeps visible rows and reports save failures", async () => {
+    const harness = createHarness({ records: [sampleRecord], extract: vi.fn().mockResolvedValue(success({ ...sampleRecord, source_job_id: "2" })) });
+    harness.repository.save = vi.fn().mockRejectedValue(new Error("storage unavailable"));
+    const controller = createSidePanelController(harness);
+    await controller.initialize();
+    await controller.collect();
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+      records: [sampleRecord], notice: { kind: "error", text: "保存失败，请重试" }, busy: false,
+    }));
+  });
+
+  it("treats identity lookup failures as save failures without writing", async () => {
+    const harness = createHarness({ extract: vi.fn().mockResolvedValue(success(sampleRecord)) });
+    harness.repository.has = vi.fn().mockRejectedValue(new Error("storage unavailable"));
+    const save = vi.spyOn(harness.repository, "save");
+    const controller = createSidePanelController(harness);
+    await controller.collect();
+    expect(save).not.toHaveBeenCalled();
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+      records: [], notice: { kind: "error", text: "保存失败，请重试" }, busy: false,
+    }));
+  });
+
+  it("keeps the previous rows when reloading after save fails", async () => {
+    const next = { ...sampleRecord, source_job_id: "2" };
+    const harness = createHarness({ records: [sampleRecord], extract: vi.fn().mockResolvedValue(success(next)) });
+    const originalList = harness.repository.list;
+    const controller = createSidePanelController(harness);
+    await controller.initialize();
+    harness.repository.list = vi.fn()
+      .mockImplementationOnce(async () => { throw new Error("storage unavailable"); })
+      .mockImplementation(originalList);
+    await controller.collect();
+    expect(harness.records.map((record) => record.source_job_id)).toEqual(["1", "2"]);
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+      records: [sampleRecord], notice: { kind: "error", text: "列表读取失败，请重试" }, busy: false,
+    }));
+  });
+
+  it("keeps the previous state and reports list failures", async () => {
+    const harness = createHarness({ records: [sampleRecord] });
+    const controller = createSidePanelController(harness);
+    await controller.initialize();
+    harness.repository.list = vi.fn().mockRejectedValue(new Error("storage unavailable"));
+    await controller.initialize();
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+      records: [sampleRecord], notice: { kind: "error", text: "列表读取失败，请重试" }, busy: false,
+    }));
+  });
+
+  it("reads and downloads the latest stable order without clearing", async () => {
+    const download = vi.fn();
+    const harness = createHarness({ records: [sampleRecord], download });
+    const controller = createSidePanelController(harness);
+    await controller.initialize();
+    harness.records.push({ ...sampleRecord, source_job_id: "2" });
+    await controller.exportCsv();
+    expect(download).toHaveBeenCalledWith([sampleRecord, { ...sampleRecord, source_job_id: "2" }]);
+    expect(harness.records).toHaveLength(2);
+  });
+
+  it("does not download an empty list and reports export failures", async () => {
+    const harness = createHarness();
+    const controller = createSidePanelController(harness);
+    await controller.exportCsv();
+    expect(harness.download).not.toHaveBeenCalled();
+    harness.repository.list = vi.fn().mockRejectedValue(new Error("storage unavailable"));
+    await controller.exportCsv();
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+      notice: { kind: "error", text: "导出失败，请重试" },
+    }));
+  });
+
+  it("renders busy during collection and ignores a concurrent collect", async () => {
+    let resolveExtract!: (page: PageResult) => void;
+    const extract = vi.fn(() => new Promise<PageResult>((resolve) => { resolveExtract = resolve; }));
+    const harness = createHarness({ extract });
+    const controller = createSidePanelController(harness);
+    const first = controller.collect();
+    await Promise.resolve();
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({ busy: true }));
+    await controller.collect();
+    expect(extract).toHaveBeenCalledTimes(1);
+    resolveExtract(success(sampleRecord));
+    await first;
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({ busy: false }));
+  });
+
+  it("renders snapshots that cannot mutate controller records", async () => {
+    const rendered: SidePanelState[] = [];
+    const harness = createHarness({ records: [sampleRecord], render: (state) => rendered.push(state) });
+    const controller = createSidePanelController(harness);
+    await controller.initialize();
+    rendered.at(-1)!.records[0]!.job_title = "外部篡改";
+    harness.repository.list = vi.fn().mockRejectedValue(new Error("storage unavailable"));
+    await controller.initialize();
+    expect(rendered.at(-1)!.records[0]!.job_title).toBe("AI产品经理");
+  });
+});
+
+describe("extractActiveTab", () => {
+  it("queries and extracts afresh on every call, then consumes the page result", async () => {
+    const query = vi.fn().mockResolvedValue([{ id: 7 }]);
+    let pageResult: PageResult | undefined = success(sampleRecord);
+    const executeScript = vi.fn(async (details: { files?: string[]; func?: () => unknown }) => {
+      if (details.files) return [];
+      const scope = globalThis as unknown as Record<string, unknown>;
+      scope.__JOB_COLLECTOR_RESULT__ = pageResult;
+      pageResult = undefined;
+      const result = details.func?.();
+      expect(scope).not.toHaveProperty("__JOB_COLLECTOR_RESULT__");
+      return [{ result }];
+    });
+    vi.stubGlobal("chrome", { tabs: { query }, scripting: { executeScript } });
+    expect(await extractActiveTab()).toEqual(success(sampleRecord));
+    pageResult = { kind: "not-detail-page", site: "boss" };
+    expect(await extractActiveTab()).toEqual({ kind: "not-detail-page", site: "boss" });
+    expect(query).toHaveBeenCalledTimes(2);
+    expect(query).toHaveBeenNthCalledWith(1, { active: true, currentWindow: true });
+    expect(executeScript).toHaveBeenCalledTimes(4);
+  });
+
+  it("returns unsupported when the active tab has no id or content has no result", async () => {
+    const query = vi.fn().mockResolvedValueOnce([{}]).mockResolvedValueOnce([{ id: 9 }]);
+    const executeScript = vi.fn().mockResolvedValueOnce([]).mockResolvedValueOnce([]);
+    vi.stubGlobal("chrome", { tabs: { query }, scripting: { executeScript } });
+    expect(await extractActiveTab()).toEqual({ kind: "unsupported-site" });
+    expect(executeScript).not.toHaveBeenCalled();
+    expect(await extractActiveTab()).toEqual({ kind: "unsupported-site" });
+  });
+});
