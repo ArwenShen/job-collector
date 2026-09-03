@@ -2,10 +2,16 @@
   "manifest_version": 3,
   "name": "岗位收集器",
   "description": "收集当前职位详情并导出为 CSV。",
-  "version": "0.1.0",
-  "permissions": ["activeTab", "scripting", "storage"],
+  "version": "0.2.0",
+  "permissions": ["activeTab", "scripting", "storage", "sidePanel"],
   "action": {
-    "default_title": "岗位收集器",
-    "default_popup": "popup/index.html"
+    "default_title": "岗位收集器"
+  },
+  "side_panel": {
+    "default_path": "sidepanel/index.html"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
   }
 }
