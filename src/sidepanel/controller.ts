@@ -45,6 +45,7 @@ export function createSidePanelController(deps: {
     clearConfirmOpen: false,
     busy: false,
   };
+  let listGeneration = 0;
 
   function cloneRecords(records: JobRecord[]): JobRecord[] {
     return records.map((record) => ({ ...record }));
@@ -59,8 +60,17 @@ export function createSidePanelController(deps: {
     });
   }
 
-  async function readList(): Promise<void> {
-    state.records = cloneRecords(await deps.repository.list());
+  async function readList(): Promise<boolean> {
+    const generation = ++listGeneration;
+    try {
+      const records = await deps.repository.list();
+      if (generation !== listGeneration) return false;
+      state.records = cloneRecords(records);
+      return true;
+    } catch (error) {
+      if (generation !== listGeneration) return false;
+      throw error;
+    }
   }
 
   function fail(text: string): void {
@@ -78,8 +88,7 @@ export function createSidePanelController(deps: {
   return {
     async initialize(): Promise<void> {
       try {
-        await readList();
-        render();
+        if (await readList()) render();
       } catch {
         fail("列表读取失败，请重试");
       }
@@ -88,6 +97,7 @@ export function createSidePanelController(deps: {
     async collect(): Promise<void> {
       if (state.busy) return;
       state.busy = true;
+      listGeneration += 1;
       render();
 
       try {
@@ -121,7 +131,7 @@ export function createSidePanelController(deps: {
         }
 
         try {
-          await readList();
+          if (!await readList()) return;
         } catch {
           state.notice = { kind: "error", text: "列表读取失败，请重试" };
           return;

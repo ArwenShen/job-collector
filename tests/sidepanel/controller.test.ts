@@ -298,6 +298,31 @@ describe("side panel controller", () => {
     expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({ busy: false }));
   });
 
+  it("ignores an older initialize list that resolves after collection", async () => {
+    let resolveInitialize!: (records: JobRecord[]) => void;
+    const initializeList = new Promise<JobRecord[]>((resolve) => { resolveInitialize = resolve; });
+    const next = { ...sampleRecord, source_job_id: "2", job_title: "第二个岗位" };
+    const harness = createHarness({ records: [sampleRecord], extract: vi.fn().mockResolvedValue(success(next)) });
+    const originalList = harness.repository.list;
+    harness.repository.list = vi.fn()
+      .mockImplementationOnce(() => initializeList)
+      .mockImplementation(originalList);
+    const controller = createSidePanelController(harness);
+
+    const initializing = controller.initialize();
+    await controller.collect();
+    const renderCountAfterCollect = vi.mocked(harness.render).mock.calls.length;
+    resolveInitialize([sampleRecord]);
+    await initializing;
+
+    expect(harness.render).toHaveBeenCalledTimes(renderCountAfterCollect);
+    harness.repository.list = vi.fn().mockRejectedValue(new Error("storage unavailable"));
+    await controller.initialize();
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+      records: [sampleRecord, expect.objectContaining({ source_job_id: "2" })],
+    }));
+  });
+
   it("renders snapshots that cannot mutate controller records", async () => {
     const rendered: SidePanelState[] = [];
     const harness = createHarness({ records: [sampleRecord], render: (state) => rendered.push(state) });
