@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>携程集团 · AI产品经理（对话AI Agent）</title>
+  <style>
+    :root {
+  --ui-tooltip-shadow: none;
+  --ui-tooltip-border: #e5e5e5;
+  --ui-tooltip-radius: 8px;
+}
+
+.ui-tooltip {
+  position: relative;
+}
+
+.ui-tooltip__surface {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 72px;
+  margin-top: 16px;
+  padding: 14px 16px;
+  color: #333333;
+  background: #ffffff;
+  border: 1px solid var(--ui-tooltip-border);
+  border-radius: var(--ui-tooltip-radius);
+  box-shadow: var(--ui-tooltip-shadow);
+  line-height: 1.6;
+}
+
+.ui-tooltip--svg:focus {
+  outline: 2px solid #0348ed;
+  outline-offset: 3px;
+}
+
+
+    :root {
+      color-scheme: light;
+      --ink: #171717;
+      --muted: #666;
+      --line: #dedede;
+      --soft: #f7f7f5;
+      --blue: #0348ed;
+      --red: #ff3700;
+      --orange: #fe7e0f;
+      --page: 1120px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: #fff; color: var(--ink); font: 15px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif; }
+    a { color: var(--blue); overflow-wrap: anywhere; }
+    a:focus-visible, summary:focus-visible { outline: 3px solid rgba(3, 72, 237, .25); outline-offset: 3px; }
+    main { width: min(var(--page), calc(100% - 40px)); margin: 0 auto; padding: 42px 0 80px; }
+    header { border-bottom: 1px solid var(--line); padding-bottom: 26px; }
+    h1 { font-size: clamp(30px, 5vw, 48px); line-height: 1.12; letter-spacing: -.03em; margin: 8px 0 12px; }
+    h2 { font-size: 25px; line-height: 1.3; margin: 48px 0 18px; }
+    h3 { font-size: 18px; margin: 24px 0 10px; }
+    p { margin: 8px 0; }
+    ul, ol { padding-left: 22px; }
+    .eyebrow { color: var(--blue); font-size: 12px; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+    .lede { font-size: 18px; max-width: 800px; }
+    .section-description { color: var(--muted); margin: -10px 0 18px; max-width: 800px; }
+    .muted { color: var(--muted); }
+    .meta, .chips { display: flex; flex-wrap: wrap; gap: 8px 14px; color: var(--muted); }
+    .meta > * { min-width: 0; overflow-wrap: anywhere; }
+    .chip { border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .card { border: 1px solid var(--line); padding: 18px; min-width: 0; overflow-wrap: anywhere; }
+    .card h3:first-child { margin-top: 0; }
+    .facts { display: grid; grid-template-columns: 140px 1fr; margin: 0; border-top: 1px solid var(--line); }
+    .facts dt, .facts dd { border-bottom: 1px solid var(--line); margin: 0; padding: 10px 0; }
+    .facts dt { color: var(--muted); font-weight: 700; padding-right: 14px; }
+    .product-basis { border-left: 3px solid var(--blue); padding-left: 12px; }
+    .charts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .chart { display: flex; min-width: 0; flex-direction: column; border: 1px solid var(--line); padding: 10px; text-align: center; overflow: hidden; }
+    .chart h3 { margin: 6px 0 0; }
+    .chart svg { display: block; width: 100%; height: auto; margin: 0 auto; }
+    .radar-point { cursor: pointer; outline: none; }
+    .radar-hit { fill: transparent; }
+    .radar-dot { transform-box: fill-box; transform-origin: center; transition: transform .18s ease, fill .18s ease; }
+    .radar-label { font-size: 15px; font-weight: 700; transition: fill .18s ease; }
+    .radar-point:hover .radar-dot, .radar-point:focus .radar-dot { fill: var(--blue); transform: scale(1.55); }
+    .radar-point:hover .radar-label, .radar-point:focus .radar-label { fill: var(--blue); }
+    .radar-point:focus-visible .radar-hit { stroke: var(--blue); stroke-width: 2; }
+    .radar-description { min-height: 5.4rem; margin: 0 8px 8px; border-radius: 0; border-width: 1px 0 0; color: var(--muted); }
+    .radar-description[data-active="true"] { color: var(--ink); }
+    .capability-panel { border: 1px solid var(--line); margin-top: 14px; }
+    .capability-panel > summary { cursor: pointer; font-weight: 700; padding: 13px 15px; }
+    .capability-panel[open] > summary { border-bottom: 1px solid var(--line); }
+    .capability-panel-body { padding: 0 14px 14px; }
+    .score-list { display: grid; gap: 10px; }
+    details.capability { border: 1px solid var(--line); }
+    details.capability > summary { cursor: pointer; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; list-style-position: inside; padding: 13px 15px; font-weight: 700; }
+    details.capability[open] > summary { border-bottom: 1px solid var(--line); }
+    .score { color: var(--ink); font-variant-numeric: tabular-nums; }
+    .score-current { color: var(--blue); }
+    .details-body { padding: 12px 16px 16px; }
+    .details-body h4 { color: var(--muted); font-size: 13px; margin: 13px 0 4px; }
+    .details-body ul { margin: 5px 0; }
+    .capability-conclusion { font-size: 16px; }
+    .risk { border-left: 3px solid var(--orange); padding-left: 11px; }
+    .source-links, .source-citation { color: var(--muted); font-size: 13px; font-weight: 400; }
+    .source-citation { text-decoration-color: #aaa; text-underline-offset: 2px; }
+    .insight-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px; }
+    .task-list li, .metric-list li { margin-bottom: 10px; }
+    .basis { color: var(--muted); display: block; font-size: 13px; }
+    .competitor-link { font-weight: 700; }
+    .experience-map { border-left: 3px solid var(--blue); }
+    footer { border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; margin-top: 48px; padding-top: 18px; }
+    @media (max-width: 920px) {
+      .charts { grid-template-columns: 1fr 1fr; }
+      .chart:last-child { grid-column: 1 / -1; max-width: 540px; width: 100%; justify-self: center; }
+      .grid.three { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 680px) {
+      main { width: min(var(--page), calc(100% - 28px)); padding-top: 24px; }
+      .grid, .grid.three, .charts, .insight-grid { grid-template-columns: 1fr; }
+      .chart:last-child { grid-column: auto; }
+      .facts { grid-template-columns: 1fr; }
+      .facts dt { border-bottom: 0; padding-bottom: 0; }
+      details.capability > summary { grid-template-columns: minmax(0, 1fr) auto; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .radar-dot, .radar-label { transition: none; }
+    }
+    @media print {
+      @page { size: A4; margin: 14mm; }
+      body { font-size: 10pt; }
+      main { width: 100%; padding: 0; }
+      .charts { grid-template-columns: 1fr 1fr 1fr; }
+      .capability-panel > .capability-panel-body { display: block !important; }
+      details.capability > .details-body, details.capability:not([open]) > .details-body { display: block !important; }
+      details.capability, .card, .chart { break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+    }
+    /* Course-design report contract: pure white, restrained hierarchy, semantic accents. */
+    :root { --line: #e5e5e5; --page: 1280px; --radius: 24px; }
+    body { font-family: Geist, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif; }
+    main { width: min(var(--page), calc(100% - 48px)); padding-top: 40px; }
+    .report-layout { display: grid; grid-template-columns: 208px minmax(0, 1fr); gap: 48px; }
+    .report-sidebar { min-width: 0; max-width: 100%; position: sticky; top: 24px; align-self: start; border-right: 1px solid var(--line); padding: 12px 24px 12px 0; }
+    .report-sidebar strong { display: block; margin-bottom: 16px; }
+    .report-sidebar a { display: block; color: var(--muted); padding: 7px 0; text-decoration: none; }
+    .report-sidebar a:hover, .report-sidebar a.active { color: var(--blue); }
+    .report-content { min-width: 0; }
+    header { padding: 28px 0 56px; }
+    h1 { font-size: clamp(34px, 5vw, 54px); line-height: 1.05; letter-spacing: -.04em; }
+    h2 { font-size: clamp(28px, 3vw, 40px); line-height: 1.12; letter-spacing: -.025em; margin-top: clamp(48px, 7vw, 80px); }
+    .lede { font-size: 19px; color: #333; }
+    .report-score-note { margin: 0 0 24px; border-left: 3px solid var(--orange); padding: 4px 0 4px 16px; color: #444; }
+    .grid { gap: 16px; }
+    .card, .chart, .capability-panel { border-radius: var(--radius); }
+    .card { padding: 20px; }
+    .charts { gap: 16px; }
+    .chart { padding: 20px; text-align: left; }
+    .chart svg { max-width: 420px; }
+    .radar-description { margin: 0; padding-top: 12px; }
+    .capability-panel { overflow: hidden; margin-top: 16px; }
+    .capability-panel > summary { padding: 20px; }
+    .capability-panel-body { padding: 0; }
+    .capability-panel-body > h3 { padding: 20px; margin: 0; border-bottom: 1px solid var(--line); }
+    .score-list { gap: 0; }
+    details.capability { border: 0; border-bottom: 1px solid var(--line); }
+    details.capability > summary { padding: 18px 20px; }
+    .details-body { padding: 16px 20px 20px; }
+    .risk { border-left-color: var(--red); }
+    .insight-grid { gap: 48px; }
+    .task-list { list-style: decimal-leading-zero; }
+    .task-list li, .metric-list li { padding: 10px 0; border-bottom: 1px solid var(--line); }
+    .market-context { margin-top: 16px; }
+    @media (max-width: 920px) {
+      .report-layout { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+      .report-sidebar { position: static; display: flex; gap: 18px; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--line); padding: 8px 0; }
+      .report-sidebar strong { display: none; }
+      .report-sidebar a { white-space: nowrap; }
+    }
+    @media (max-width: 680px) {
+      main { width: calc(100% - 24px); padding-top: 12px; }
+      .card, .chart, .capability-panel { border-radius: 16px; }
+    }
+    @media print { .report-sidebar { display: none; } .report-layout { display: block; } }
+  </style>
+</head>
+<body>
+  <main>
+<div class="report-layout"><aside class="report-sidebar" aria-label="报告目录"><strong>岗位分析</strong><a href="#top">岗位概览</a><a href="#capabilities">能力模型</a><a href="#tasks">隐含任务</a><a href="#metrics">隐含指标</a><a href="#market">产品赛道</a><a href="#products">对应产品</a><a href="#competition">学习参照物</a><a href="#company">公司概况</a><a href="#sources">来源</a></aside><div class="report-content">
+<header id="top">
+  <div class="eyebrow">AI Job Analysis / 携程集团</div>
+  <h1>AI产品经理（对话AI Agent）</h1>
+  <p class="lede">嵌入携程与 Trip.com 旅行平台的对话式 AI 助手，通过多轮交互完成旅行问答、推荐、行程规划、实时可预订结果连接和行程持续服务。</p>
+  <div class="meta">原始职位：<a class="source-citation" href="https://www.zhipin.com/job_detail/f10ab439a66083520nJ52N20FVRW.html" title="AI 产品经理（对话 AI Agent）职位页面">[引用1]</a><span>岗位 ID：boss-f10ab439a66083520nj52n20fvrw-156a500152</span></div>
+</header>
+<section id="capabilities">
+  <h2>岗位能力模型</h2>
+  <p class="section-description">从产品规模、业务复杂性与交付约束出发，展示各项能力需要达到的难度深度。</p>
+  <p class="report-score-note"><strong>评分说明：</strong>分数表示岗位任务对该能力提出的复杂度，不表示使用频率、重要程度或候选人的个人水平。</p>
+  <div class="charts"><article class="chart" data-capability-group="ai_solution_design"><h3>AI 方案设计</h3><svg viewBox="0 0 460 330" role="img" aria-label="AI 方案设计能力难度雷达图" data-radar-chart="true"><rect width="460" height="330" fill="#fff"/><polygon points="230.0,144.0 248.2,154.5 248.2,175.5 230.0,186.0 211.8,175.5 211.8,154.5" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,123.0 266.4,144.0 266.4,186.0 230.0,207.0 193.6,186.0 193.6,144.0" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,102.0 284.6,133.5 284.6,196.5 230.0,228.0 175.4,196.5 175.4,133.5" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,81.0 302.7,123.0 302.7,207.0 230.0,249.0 157.3,207.0 157.3,123.0" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,60.0 320.9,112.5 320.9,217.5 230.0,270.0 139.1,217.5 139.1,112.5" fill="none" stroke="#dedede" stroke-width="1"/><line x1="230.0" y1="165.0" x2="230.0" y2="60.0" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="320.9" y2="112.5" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="320.9" y2="217.5" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="230.0" y2="270.0" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="139.1" y2="217.5" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="139.1" y2="112.5" stroke="#dedede"/><polygon points="230.0,81.0 302.7,123.0 302.7,207.0 230.0,249.0 166.3,201.8 157.3,123.0" fill="rgba(3,72,237,.14)" stroke="#0348ed" stroke-width="2"/><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于旅行 Skill 需综合高难度实时知识、交易 Tool 和记忆并支持自主任务选择，难度较高，需要候选人能设计可靠的领域能力编排。" tabindex="0" role="img" aria-label="Skill，8/10" aria-describedby="ai-solution-description"><circle class="radar-hit" cx="230.0" cy="81.0" r="15"/><circle class="radar-dot" cx="230.0" cy="81.0" r="5" fill="#0348ed"/><text class="radar-label" x="230.0" y="28.5" text-anchor="middle" font-size="15" font-weight="700" fill="#444">Skill (<tspan fill="#0348ed">8</tspan><tspan fill="#171717">/10)</tspan></text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于旅行知识高度异构、全球化且包含持续变化的库存价格与规则，难度较高，需要候选人能设计实时、可信且可追溯的知识方案。" tabindex="0" role="img" aria-label="知识库，8/10" aria-describedby="ai-solution-description"><circle class="radar-hit" cx="302.7" cy="123.0" r="15"/><circle class="radar-dot" cx="302.7" cy="123.0" r="5" fill="#0348ed"/><text class="radar-label" x="348.2" y="96.8" text-anchor="start" font-size="15" font-weight="700" fill="#444">知识库 (<tspan fill="#0348ed">8</tspan><tspan fill="#171717">/10)</tspan></text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于 Tool 横跨实时旅行库存和有交易副作用的订单链路且失败会传播，难度较高，需要候选人能设计安全、可确认且可恢复的工具体系。" tabindex="0" role="img" aria-label="Agent Tool，8/10" aria-describedby="ai-solution-description"><circle class="radar-hit" cx="302.7" cy="207.0" r="15"/><circle class="radar-dot" cx="302.7" cy="207.0" r="5" fill="#0348ed"/><text class="radar-label" x="348.2" y="233.2" text-anchor="start" font-size="15" font-weight="700" fill="#444">Agent Tool (<tspan fill="#0348ed">8</tspan><tspan fill="#171717">/10)</tspan></text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于旅行工作流跨多轮、多状态、交易确认和长期行程服务并包含重新规划分支，难度较高，需要候选人能设计可恢复的会话编排体系。" tabindex="0" role="img" aria-label="工作流，8/10" aria-describedby="ai-solution-description"><circle class="radar-hit" cx="230.0" cy="249.0" r="15"/><circle class="radar-dot" cx="230.0" cy="249.0" r="5" fill="#0348ed"/><text class="radar-label" x="230.0" y="301.5" text-anchor="middle" font-size="15" font-weight="700" fill="#444">工作流 (<tspan fill="#0348ed">8</tspan><tspan fill="#171717">/10)</tspan></text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于跨会话行程与用户偏好直接影响后续决策且存在过期冲突风险，难度较高，需要候选人能设计分层、可更新的旅行记忆机制。" tabindex="0" role="img" aria-label="记忆，7/10" aria-describedby="ai-solution-description"><circle class="radar-hit" cx="166.3" cy="201.8" r="15"/><circle class="radar-dot" cx="166.3" cy="201.8" r="5" fill="#0348ed"/><text class="radar-label" x="111.8" y="233.3" text-anchor="end" font-size="15" font-weight="700" fill="#444">记忆 (<tspan fill="#0348ed">7</tspan><tspan fill="#171717">/10)</tspan></text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于原型需连接真实旅行数据与工具并验证多轮状态、记忆和异常恢复，难度较高，需要候选人能构建支撑上线决策的高保真 Agent Demo。" tabindex="0" role="img" aria-label="Demo原型，8/10" aria-describedby="ai-solution-description"><circle class="radar-hit" cx="157.3" cy="123.0" r="15"/><circle class="radar-dot" cx="157.3" cy="123.0" r="5" fill="#0348ed"/><text class="radar-label" x="111.8" y="96.7" text-anchor="end" font-size="15" font-weight="700" fill="#444">Demo原型 (<tspan fill="#0348ed">8</tspan><tspan fill="#171717">/10)</tspan></text></g></svg><p class="radar-description ui-tooltip__surface" data-active="false" id="ai-solution-description" role="tooltip">悬停或聚焦任一维度，查看能力结论。</p></article><article class="chart" data-capability-group="hard_skills"><h3>硬实力</h3><svg viewBox="0 0 460 330" role="img" aria-label="硬实力难度雷达图" data-radar-chart="true"><rect width="460" height="330" fill="#fff"/><polygon points="230.0,144.0 250.0,158.5 242.3,182.0 217.7,182.0 210.0,158.5" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,123.0 269.9,152.0 254.7,199.0 205.3,199.0 190.1,152.0" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,102.0 289.9,145.5 267.0,216.0 193.0,216.0 170.1,145.5" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,81.0 309.9,139.0 279.4,233.0 180.6,233.0 150.1,139.0" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,60.0 329.9,132.6 291.7,249.9 168.3,249.9 130.1,132.6" fill="none" stroke="#dedede" stroke-width="1"/><line x1="230.0" y1="165.0" x2="230.0" y2="60.0" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="329.9" y2="132.6" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="291.7" y2="249.9" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="168.3" y2="249.9" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="130.1" y2="132.6" stroke="#dedede"/><polygon points="230.0,81.0 309.9,139.0 279.4,233.0 180.6,233.0 150.1,139.0" fill="rgba(3,72,237,.14)" stroke="#0348ed" stroke-width="2"/><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于全球旅行者需求异构、旅程阶段多且结果受实时交易约束，难度较高，需要候选人能定义完整的对话旅行产品与任务边界。" tabindex="0" role="img" aria-label="需求定义，8/10" aria-describedby="hard-skills-description"><circle class="radar-hit" cx="230.0" cy="81.0" r="15"/><circle class="radar-dot" cx="230.0" cy="81.0" r="5" fill="#0348ed"/><text class="radar-label" x="230.0" y="28.5" text-anchor="middle" font-size="15" font-weight="700" fill="#444">需求定义 (<tspan fill="#0348ed">8</tspan><tspan fill="#171717">/10)</tspan></text><rect x="199.0" y="32.5" width="62.0" height="17" rx="8.5" fill="#fff3e8" stroke="#fe7e0f"/><text x="230.0" y="45.0" text-anchor="middle" font-size="9.5" font-weight="700" fill="#fe7e0f" data-dimension-tag="大数据洞察">大数据洞察</text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于多类 Agent 机制强耦合并受到实时数据、交易可靠性和恢复约束，难度较高，需要候选人能设计完整的对话旅行解决方案。" tabindex="0" role="img" aria-label="AI方案设计，8/10" aria-describedby="hard-skills-description"><circle class="radar-hit" cx="309.9" cy="139.0" r="15"/><circle class="radar-dot" cx="309.9" cy="139.0" r="5" fill="#0348ed"/><text class="radar-label" x="359.8" y="122.8" text-anchor="start" font-size="15" font-weight="700" fill="#444">AI方案设计 (<tspan fill="#0348ed">8</tspan><tspan fill="#171717">/10)</tspan></text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于产品跨模型、搜索、库存、交易和多语言客户端且依赖复杂，难度较高，需要候选人能推动对话 Agent 在真实旅行链路中稳定上线。" tabindex="0" role="img" aria-label="开发落地，8/10" aria-describedby="hard-skills-description"><circle class="radar-hit" cx="279.4" cy="233.0" r="15"/><circle class="radar-dot" cx="279.4" cy="233.0" r="5" fill="#0348ed"/><text class="radar-label" x="310.2" y="275.4" text-anchor="start" font-size="15" font-weight="700" fill="#444">开发落地 (<tspan fill="#0348ed">8</tspan><tspan fill="#171717">/10)</tspan></text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于评测对象跨多语言旅行场景和多系统链路且错误会影响真实交易，难度较高，需要候选人能建设端到端评测与 badcase 归因闭环。" tabindex="0" role="img" aria-label="评测迭代，8/10" aria-describedby="hard-skills-description"><circle class="radar-hit" cx="180.6" cy="233.0" r="15"/><circle class="radar-dot" cx="180.6" cy="233.0" r="5" fill="#0348ed"/><text class="radar-label" x="149.8" y="275.4" text-anchor="end" font-size="15" font-weight="700" fill="#444">评测迭代 (<tspan fill="#0348ed">8</tspan><tspan fill="#171717">/10)</tspan></text><rect x="67.8" y="279.4" width="82.0" height="17" rx="8.5" fill="#fff3e8" stroke="#fe7e0f"/><text x="149.8" y="291.9" text-anchor="end" font-size="9.5" font-weight="700" fill="#fe7e0f" data-dimension-tag="大数据反馈分析">大数据反馈分析</text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于 AI 助手贯穿全球多品类旅行决策并直接影响订单转化与长期信任，难度较高，需要候选人能优化从对话帮助到交易结果的完整漏斗。" tabindex="0" role="img" aria-label="增长商业，8/10" aria-describedby="hard-skills-description"><circle class="radar-hit" cx="150.1" cy="139.0" r="15"/><circle class="radar-dot" cx="150.1" cy="139.0" r="5" fill="#0348ed"/><text class="radar-label" x="100.2" y="122.8" text-anchor="end" font-size="15" font-weight="700" fill="#444">增长商业 (<tspan fill="#0348ed">8</tspan><tspan fill="#171717">/10)</tspan></text></g></svg><p class="radar-description ui-tooltip__surface" data-active="false" id="hard-skills-description" role="tooltip">悬停或聚焦任一维度，查看能力结论。</p></article><article class="chart" data-capability-group="soft_skills"><h3>软实力</h3><svg viewBox="0 0 460 330" role="img" aria-label="软实力难度雷达图" data-radar-chart="true"><rect width="460" height="330" fill="#fff"/><polygon points="230.0,144.0 248.2,175.5 211.8,175.5" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,123.0 266.4,186.0 193.6,186.0" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,102.0 284.6,196.5 175.4,196.5" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,81.0 302.7,207.0 157.3,207.0" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,60.0 320.9,217.5 139.1,217.5" fill="none" stroke="#dedede" stroke-width="1"/><line x1="230.0" y1="165.0" x2="230.0" y2="60.0" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="320.9" y2="217.5" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="139.1" y2="217.5" stroke="#dedede"/><polygon points="230.0,91.5 302.7,207.0 157.3,207.0" fill="rgba(3,72,237,.14)" stroke="#0348ed" stroke-width="2"/><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于需要协调多专业团队且问题经常跨越模型、旅行业务和交易系统，难度较高，需要候选人能推动复杂问题形成明确决策。" tabindex="0" role="img" aria-label="沟通，7/10" aria-describedby="soft-skills-description"><circle class="radar-hit" cx="230.0" cy="91.5" r="15"/><circle class="radar-dot" cx="230.0" cy="91.5" r="5" fill="#0348ed"/><text class="radar-label" x="230.0" y="28.5" text-anchor="middle" font-size="15" font-weight="700" fill="#444">沟通 (<tspan fill="#0348ed">7</tspan><tspan fill="#171717">/10)</tspan></text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于技术、交互与交易模式同时变化且创新必须在全球真实旅行链路中验证，难度较高，需要候选人能把前沿能力转化为可衡量的新产品范式。" tabindex="0" role="img" aria-label="创新，8/10" aria-describedby="soft-skills-description"><circle class="radar-hit" cx="302.7" cy="207.0" r="15"/><circle class="radar-dot" cx="302.7" cy="207.0" r="5" fill="#0348ed"/><text class="radar-label" x="348.2" y="233.2" text-anchor="start" font-size="15" font-weight="700" fill="#444">创新 (<tspan fill="#0348ed">8</tspan><tspan fill="#171717">/10)</tspan></text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于多条强依赖能力线并行且模型与业务系统均存在不确定性，难度较高，需要候选人能确定关键路径并持续交付可验收结果。" tabindex="0" role="img" aria-label="执行，8/10" aria-describedby="soft-skills-description"><circle class="radar-hit" cx="157.3" cy="207.0" r="15"/><circle class="radar-dot" cx="157.3" cy="207.0" r="5" fill="#0348ed"/><text class="radar-label" x="111.8" y="233.3" text-anchor="end" font-size="15" font-weight="700" fill="#444">执行 (<tspan fill="#0348ed">8</tspan><tspan fill="#171717">/10)</tspan></text></g></svg><p class="radar-description ui-tooltip__surface" data-active="false" id="soft-skills-description" role="tooltip">悬停或聚焦任一维度，查看能力结论。</p></article></div><details class="capability-panel"><summary>查看 14 项能力详情</summary><div class="capability-panel-body"><h3>AI 方案设计</h3><div class="score-list"><details class="capability"><summary><span>Skill 设计能力</span><strong class="score">(<span class="score-current">8</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于旅行 Skill 需综合高难度实时知识、交易 Tool 和记忆并支持自主任务选择，难度较高，需要候选人能设计可靠的领域能力编排。</p><h4>来源事实</h4><ul><li>岗位直接负责 Skill、任务规划、Tool、Memory 和多 Agent 协同。</li><li>产品需要完成旅行问答、推荐、规划和交易衔接等不同领域任务。</li></ul><h4>隐含任务</h4><ul><li>定义旅行 Skill 的适用场景、选择条件、上下文和结果验证。</li><li>编排实时知识、用户记忆与预订工具依赖。</li></ul><h4>难度驱动因素</h4><ul><li>Agent 需根据旅行阶段和用户约束自主选择搜索、规划或服务方法。</li><li>直接依赖的知识库与 Tool 均达到高难度，增加时效、权限和结果验证负担。</li><li>记忆和多 Agent 协作进一步增加上下文传递与失败归因复杂度。</li></ul><p class="risk"><strong>需要避免：</strong>避免按旅行品类堆叠提示词，缺少 Skill 选择边界、依赖契约和可验证结果。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/f10ab439a66083520nJ52N20FVRW.html" title="AI 产品经理（对话 AI Agent）职位页面">[引用1]</a>、<a class="source-citation" href="https://www.trip.com/newsroom/introducing-tripgenie-groundbreaking-ai-travel-assistant/" title="Introducing TripGenie AI Travel Assistant">[引用2]</a></p></div></details><details class="capability"><summary><span>知识库设计能力</span><strong class="score">(<span class="score-current">8</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于旅行知识高度异构、全球化且包含持续变化的库存价格与规则，难度较高，需要候选人能设计实时、可信且可追溯的知识方案。</p><h4>来源事实</h4><ul><li>产品整合目的地、榜单、点评、行程、库存、价格和旅行规则。</li><li>年报明确提示 AI 旅行信息可能出现不完整、错误或过期风险。</li></ul><h4>隐含任务</h4><ul><li>定义静态旅行内容与实时库存价格的检索和引用策略。</li><li>处理来源时效、冲突、地域语言与结果可追溯性。</li></ul><h4>难度驱动因素</h4><ul><li>知识来源跨结构化库存、规则、用户点评和目的地内容。</li><li>价格、可用性、航班状态和政策持续变化。</li><li>多语言和全球目的地扩大知识异构性。</li><li>错误知识会直接影响预订决策和行程安排。</li></ul><p class="risk"><strong>需要避免：</strong>避免把模型记忆当作实时事实源，忽略时间戳、来源、冲突和可预订性验证。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.trip.com/newsroom/introducing-tripgenie-groundbreaking-ai-travel-assistant/" title="Introducing TripGenie AI Travel Assistant">[引用2]</a>、<a class="source-citation" href="https://investors.trip.com/static-files/2c1c16ec-d225-4e46-b653-fb8776f2431c" title="Trip.com Group 2025 Form 20-F">[引用4]</a></p></div></details><details class="capability"><summary><span>Agent Tool 设计</span><strong class="score">(<span class="score-current">8</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于 Tool 横跨实时旅行库存和有交易副作用的订单链路且失败会传播，难度较高，需要候选人能设计安全、可确认且可恢复的工具体系。</p><h4>来源事实</h4><ul><li>岗位直接负责工具调用与 CLI，产品需连接搜索筛选、行程保存和预订结果。</li><li>集团正在推进复杂多步骤的 Agentic 搜索与预订。</li></ul><h4>隐含任务</h4><ul><li>定义搜索、筛选、保存、提醒与预订 Tool 的契约和调用条件。</li><li>设计价格变化、库存失效、重复执行和交易确认的异常处理。</li></ul><h4>难度驱动因素</h4><ul><li>工具横跨多类旅行商品、库存、订单和行程系统。</li><li>实时价格与可用性可能在对话和执行之间变化。</li><li>预订相关操作具有资金与订单副作用，需要确认和审计。</li><li>多步骤调用失败会改变后续行程规划。</li></ul><p class="risk"><strong>需要避免：</strong>避免只验证 API 返回，遗漏价格二次确认、幂等、权限、失败补偿和人工接管。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/f10ab439a66083520nJ52N20FVRW.html" title="AI 产品经理（对话 AI Agent）职位页面">[引用1]</a>、<a class="source-citation" href="https://www.trip.com/newsroom/introducing-tripgenie-groundbreaking-ai-travel-assistant/" title="Introducing TripGenie AI Travel Assistant">[引用2]</a>、<a class="source-citation" href="https://investors.trip.com/static-files/2c1c16ec-d225-4e46-b653-fb8776f2431c" title="Trip.com Group 2025 Form 20-F">[引用4]</a></p></div></details><details class="capability"><summary><span>工作流设计</span><strong class="score">(<span class="score-current">8</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于旅行工作流跨多轮、多状态、交易确认和长期行程服务并包含重新规划分支，难度较高，需要候选人能设计可恢复的会话编排体系。</p><h4>来源事实</h4><ul><li>岗位直接负责意图识别、状态追踪、上下文管理和对话恢复。</li><li>旅行流程从信息收集、方案比较延伸到预订、提醒与售后。</li></ul><h4>隐含任务</h4><ul><li>设计旅行会话状态、槽位、分支、确认、暂停和恢复逻辑。</li><li>处理多人协作、行程变更和售后转接流程。</li></ul><h4>难度驱动因素</h4><ul><li>多轮会话包含缺失条件追问、方案比较、用户确认和交易跳转。</li><li>库存变化与用户修改会使流程回退或重新规划。</li><li>行程保存、协作、提醒和售后跨越较长时间状态。</li><li>多 Agent 协同要求明确任务移交与共享状态。</li></ul><p class="risk"><strong>需要避免：</strong>避免只设计线性对话脚本，导致条件变化、跨会话恢复和多 Agent 移交时状态错乱。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/f10ab439a66083520nJ52N20FVRW.html" title="AI 产品经理（对话 AI Agent）职位页面">[引用1]</a>、<a class="source-citation" href="https://www.trip.com/newsroom/introducing-tripgenie-groundbreaking-ai-travel-assistant/" title="Introducing TripGenie AI Travel Assistant">[引用2]</a>、<a class="source-citation" href="https://www.trip.com/newsroom/tripgenie-new-features-2/" title="TripGenie Unveils New Features for Effortless Travel Planning">[引用3]</a></p></div></details><details class="capability"><summary><span>记忆能力</span><strong class="score">(<span class="score-current">7</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于跨会话行程与用户偏好直接影响后续决策且存在过期冲突风险，难度较高，需要候选人能设计分层、可更新的旅行记忆机制。</p><h4>来源事实</h4><ul><li>岗位直接负责记忆管理与上下文。</li><li>TripGenie 可保存结构化行程以供后续继续细化，并依据用户偏好调整结果。</li></ul><h4>隐含任务</h4><ul><li>区分会话状态、行程事实、长期偏好和同行人协作信息。</li><li>定义记忆写入、召回、更新和过期规则。</li></ul><h4>难度驱动因素</h4><ul><li>旅行规划跨多次会话且结果依赖已选日期、地点、预算和预订状态。</li><li>偏好、同行人意见与真实订单具有不同可信度和生命周期。</li><li>过期记忆可能触发错误推荐或与当前行程冲突。</li></ul><p class="risk"><strong>需要避免：</strong>避免把全部历史对话长期保留，缺少事实更新、偏好置信度、删除和隐私边界。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/f10ab439a66083520nJ52N20FVRW.html" title="AI 产品经理（对话 AI Agent）职位页面">[引用1]</a>、<a class="source-citation" href="https://www.trip.com/newsroom/introducing-tripgenie-groundbreaking-ai-travel-assistant/" title="Introducing TripGenie AI Travel Assistant">[引用2]</a></p></div></details><details class="capability"><summary><span>Demo 原型设计</span><strong class="score">(<span class="score-current">8</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于原型需连接真实旅行数据与工具并验证多轮状态、记忆和异常恢复，难度较高，需要候选人能构建支撑上线决策的高保真 Agent Demo。</p><h4>来源事实</h4><ul><li>岗位负责 0→1 对话产品，并需输出原型、交互规范和验收标准。</li><li>岗位要求对接模型、Prompt、Skill、CLI 和评测完成方案闭环。</li></ul><h4>隐含任务</h4><ul><li>连接真实旅行数据、模型和搜索工具制作高保真多轮原型。</li><li>模拟缺失条件、库存变化、工具失败、恢复和交易确认。</li></ul><h4>难度驱动因素</h4><ul><li>原型需要同时验证语言交互、实时旅行数据和工具执行。</li><li>多轮状态、记忆与多 Agent 协作必须在真实任务中联合测试。</li><li>原型结果直接支撑架构、交互和上线验收决策。</li></ul><p class="risk"><strong>需要避免：</strong>避免只演示理想问答，掩盖实时数据变化、工具失败和状态恢复问题。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/f10ab439a66083520nJ52N20FVRW.html" title="AI 产品经理（对话 AI Agent）职位页面">[引用1]</a>、<a class="source-citation" href="https://www.trip.com/newsroom/introducing-tripgenie-groundbreaking-ai-travel-assistant/" title="Introducing TripGenie AI Travel Assistant">[引用2]</a></p></div></details></div><h3>硬实力</h3><div class="score-list"><details class="capability"><summary><span>需求与定义</span><strong class="score">(<span class="score-current">8</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于全球旅行者需求异构、旅程阶段多且结果受实时交易约束，难度较高，需要候选人能定义完整的对话旅行产品与任务边界。</p><h4>来源事实</h4><ul><li>产品服务全球旅行者并覆盖灵感、规划、预订、行中与售后阶段。</li><li>岗位需要从 0 到 1 定义智能助手、多轮机器人和 Agent 产品架构。</li></ul><h4>隐含任务</h4><ul><li>拆解不同旅程阶段、用户约束和旅行商品的对话需求。</li><li>定义助手、搜索预订工具与原有 App 页面之间的产品边界。</li></ul><h4>难度驱动因素</h4><ul><li>用户语言、目的地、预算、同行人和偏好高度多样。</li><li>机票、酒店、景点与行程规划的决策条件和变化节奏不同。</li><li>需求结果需要连接真实库存、价格、规则和交易页面。</li></ul><p class="risk"><strong>需要避免：</strong>避免把旅行需求简化为通用问答，遗漏实时约束、用户决策阶段和可执行结果。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/f10ab439a66083520nJ52N20FVRW.html" title="AI 产品经理（对话 AI Agent）职位页面">[引用1]</a>、<a class="source-citation" href="https://www.trip.com/newsroom/introducing-tripgenie-groundbreaking-ai-travel-assistant/" title="Introducing TripGenie AI Travel Assistant">[引用2]</a>、<a class="source-citation" href="https://investors.trip.com/" title="Trip.com Group Investor Relations">[引用5]</a></p></div></details><details class="capability"><summary><span>AI 方案设计</span><strong class="score">(<span class="score-current">8</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于多类 Agent 机制强耦合并受到实时数据、交易可靠性和恢复约束，难度较高，需要候选人能设计完整的对话旅行解决方案。</p><h4>来源事实</h4><ul><li>岗位直接负责 Harness、任务规划、Tool、Skill、记忆、多 Agent、状态追踪和恢复。</li><li>产品需把旅行内容、用户偏好和实时可预订结果组合为端到端服务。</li></ul><h4>隐含任务</h4><ul><li>设计多轮旅行 Agent 的规划、知识、工具、记忆与工作流体系。</li><li>处理事实准确性、交易控制和异常恢复。</li></ul><h4>难度驱动因素</h4><ul><li>六类 Agent 机制强耦合并共同决定旅行任务是否完成。</li><li>知识与库存持续变化，工具结果会改变后续规划状态。</li><li>预订相关动作带来价格、规则、权限和错误后果约束。</li></ul><p class="risk"><strong>需要避免：</strong>避免只优化模型回答，忽略知识 grounding、工具执行、状态连续性和交易控制。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/f10ab439a66083520nJ52N20FVRW.html" title="AI 产品经理（对话 AI Agent）职位页面">[引用1]</a>、<a class="source-citation" href="https://www.trip.com/newsroom/introducing-tripgenie-groundbreaking-ai-travel-assistant/" title="Introducing TripGenie AI Travel Assistant">[引用2]</a>、<a class="source-citation" href="https://investors.trip.com/static-files/2c1c16ec-d225-4e46-b653-fb8776f2431c" title="Trip.com Group 2025 Form 20-F">[引用4]</a></p></div></details><details class="capability"><summary><span>开发与落地</span><strong class="score">(<span class="score-current">8</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于产品跨模型、搜索、库存、交易和多语言客户端且依赖复杂，难度较高，需要候选人能推动对话 Agent 在真实旅行链路中稳定上线。</p><h4>来源事实</h4><ul><li>岗位需要联动研发、算法和运营完成产品落地与迭代。</li><li>TripGenie 已嵌入移动 App 并连接旅行搜索、行程和预订页面。</li></ul><h4>隐含任务</h4><ul><li>推动模型、会话引擎、旅行搜索、库存与交易系统协同上线。</li><li>制定 PRD、原型、交互规范和验收标准。</li></ul><h4>难度驱动因素</h4><ul><li>Agent 依赖模型、内容、搜索、库存、订单和客户端多个系统类别。</li><li>实时价格与可用性变化要求端到端数据和交互保持一致。</li><li>多语言与全球市场扩大了测试、发布和运营协作范围。</li></ul><p class="risk"><strong>需要避免：</strong>避免只验收对话界面，忽略搜索、库存、订单和行程状态的端到端一致性。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/f10ab439a66083520nJ52N20FVRW.html" title="AI 产品经理（对话 AI Agent）职位页面">[引用1]</a>、<a class="source-citation" href="https://www.trip.com/newsroom/introducing-tripgenie-groundbreaking-ai-travel-assistant/" title="Introducing TripGenie AI Travel Assistant">[引用2]</a>、<a class="source-citation" href="https://www.trip.com/newsroom/tripgenie-new-features-2/" title="TripGenie Unveils New Features for Effortless Travel Planning">[引用3]</a></p></div></details><details class="capability"><summary><span>评测与迭代</span><strong class="score">(<span class="score-current">8</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于评测对象跨多语言旅行场景和多系统链路且错误会影响真实交易，难度较高，需要候选人能建设端到端评测与 badcase 归因闭环。</p><h4>来源事实</h4><ul><li>岗位要求建立效果评测并对 badcase 做闭环优化。</li><li>AI 输出可能涉及行程、库存、票价规则和取消政策等高时效旅行信息。</li></ul><h4>隐含任务</h4><ul><li>分层评测意图、规划、事实、Tool、对话状态和最终任务结果。</li><li>结合线上行为、订单转化和 badcase 定位问题来源。</li></ul><h4>难度驱动因素</h4><ul><li>旅行任务覆盖多语言、多商品和多个旅程阶段，样本异构。</li><li>失败可能来自模型、知识时效、Tool、库存变化或对话状态。</li><li>错误信息可能影响真实购买决策、行程安排和用户信任。</li></ul><p class="risk"><strong>需要避免：</strong>避免只看语言流畅度，遗漏事实准确、工具执行、状态恢复和交易后果。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/f10ab439a66083520nJ52N20FVRW.html" title="AI 产品经理（对话 AI Agent）职位页面">[引用1]</a>、<a class="source-citation" href="https://investors.trip.com/static-files/2c1c16ec-d225-4e46-b653-fb8776f2431c" title="Trip.com Group 2025 Form 20-F">[引用4]</a></p></div></details><details class="capability"><summary><span>增长与商业化</span><strong class="score">(<span class="score-current">8</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于 AI 助手贯穿全球多品类旅行决策并直接影响订单转化与长期信任，难度较高，需要候选人能优化从对话帮助到交易结果的完整漏斗。</p><h4>来源事实</h4><ul><li>TripGenie 将推荐与行程直接连接到机票、酒店和其他旅行产品预订。</li><li>官方使用回访、停留时间和订单转化衡量 AI 助手价值。</li></ul><h4>隐含任务</h4><ul><li>优化从旅行灵感、推荐和行程规划到可预订结果的转化路径。</li><li>平衡帮助质量、用户信任与商业推荐效果。</li></ul><h4>难度驱动因素</h4><ul><li>不同旅行商品的价格、佣金、决策周期和转化路径不同。</li><li>全球用户、多语言和多目的地形成显著市场差异。</li><li>推荐质量与商业转化相互影响，错误引导会损害长期信任。</li></ul><p class="risk"><strong>需要避免：</strong>避免用商业排序牺牲建议可信度，导致短期点击提升但长期留存与转化受损。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.trip.com/newsroom/introducing-tripgenie-groundbreaking-ai-travel-assistant/" title="Introducing TripGenie AI Travel Assistant">[引用2]</a>、<a class="source-citation" href="https://www.trip.com/newsroom/tripgenie-new-features-2/" title="TripGenie Unveils New Features for Effortless Travel Planning">[引用3]</a>、<a class="source-citation" href="https://investors.trip.com/" title="Trip.com Group Investor Relations">[引用5]</a></p></div></details></div><h3>软实力</h3><div class="score-list"><details class="capability"><summary><span>沟通力</span><strong class="score">(<span class="score-current">7</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于需要协调多专业团队且问题经常跨越模型、旅行业务和交易系统，难度较高，需要候选人能推动复杂问题形成明确决策。</p><h4>来源事实</h4><ul><li>岗位需要联动研发、算法和运营团队并独立推进复杂 AI 产品项目。</li></ul><h4>隐含任务</h4><ul><li>协调模型效果、产品体验、旅行运营与交易系统的优先级。</li><li>用 PRD、原型和验收标准形成跨团队共识。</li></ul><h4>难度驱动因素</h4><ul><li>算法、工程、旅行运营和交易团队使用不同目标与评估语言。</li><li>Agent badcase 常跨多个系统，需要共同归因和排期。</li></ul><p class="risk"><strong>需要避免：</strong>避免用泛化 AI 问题代替可定位事实，造成跨团队责任模糊。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/f10ab439a66083520nJ52N20FVRW.html" title="AI 产品经理（对话 AI Agent）职位页面">[引用1]</a></p></div></details><details class="capability"><summary><span>创新能力</span><strong class="score">(<span class="score-current">8</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于技术、交互与交易模式同时变化且创新必须在全球真实旅行链路中验证，难度较高，需要候选人能把前沿能力转化为可衡量的新产品范式。</p><h4>来源事实</h4><ul><li>岗位负责对话 AI 产品 0→1，并持续跟踪行业技术和交互范式。</li><li>集团正在推进从旅行规划到复杂多步骤搜索与预订的原生 Agent。</li></ul><h4>隐含任务</h4><ul><li>探索新的多 Agent、语言界面和交易型对话机制。</li><li>用原型和评测验证其在真实旅行场景中的价值。</li></ul><h4>难度驱动因素</h4><ul><li>Agent 技术、对话交互和旅行交易模式同时快速演进。</li><li>创新必须在实时库存、用户信任和商业结果约束下验证。</li><li>全球产品还需处理语言和市场差异。</li></ul><p class="risk"><strong>需要避免：</strong>避免追逐新框架而没有明确旅行任务、用户价值和风险验证。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/f10ab439a66083520nJ52N20FVRW.html" title="AI 产品经理（对话 AI Agent）职位页面">[引用1]</a>、<a class="source-citation" href="https://investors.trip.com/static-files/2c1c16ec-d225-4e46-b653-fb8776f2431c" title="Trip.com Group 2025 Form 20-F">[引用4]</a></p></div></details><details class="capability"><summary><span>执行能力</span><strong class="score">(<span class="score-current">8</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于多条强依赖能力线并行且模型与业务系统均存在不确定性，难度较高，需要候选人能确定关键路径并持续交付可验收结果。</p><h4>来源事实</h4><ul><li>岗位需要从 0 到 1 搭建产品并独立推进架构、交互、评测和上线。</li></ul><h4>隐含任务</h4><ul><li>管理 Harness、会话编排、工具、记忆、评测和多 Agent 的依赖。</li><li>持续推动 badcase 从发现到修复上线。</li></ul><h4>难度驱动因素</h4><ul><li>多条核心能力线并行且相互依赖。</li><li>模型不确定性与实时业务系统变化会反复影响计划。</li><li>岗位承担产品架构和最终落地的完整结果责任。</li></ul><p class="risk"><strong>需要避免：</strong>避免同时铺开全部 Agent 能力却没有关键路径、验证顺序和清晰验收门槛。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/f10ab439a66083520nJ52N20FVRW.html" title="AI 产品经理（对话 AI Agent）职位页面">[引用1]</a></p></div></details></div></div></details>
+</section>
+<div class="insight-grid">
+<section id="tasks">
+  <h2>隐含任务</h2>
+  <p class="section-description">结合 JD、产品机制与业务场景，推演入职后最可能承担的核心工作。</p>
+  <ol class="task-list"><li><strong>规划问道与 TripGenie 对话助手的产品架构、能力边界和迭代路线</strong><span class="basis">JD 要求负责对话 AI 产品整体规划与 0→1 落地，官方资料确认集团的 AI 旅行助手产品线。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/f10ab439a66083520nJ52N20FVRW.html" title="AI 产品经理（对话 AI Agent）职位页面">[引用1]</a>、<a class="source-citation" href="https://www.trip.com/newsroom/introducing-tripgenie-groundbreaking-ai-travel-assistant/" title="Introducing TripGenie AI Travel Assistant">[引用2]</a>、<a class="source-citation" href="https://investors.trip.com/static-files/2c1c16ec-d225-4e46-b653-fb8776f2431c" title="Trip.com Group 2025 Form 20-F">[引用4]</a></span></li><li><strong>拆解旅行规划 Agent、搜索预订工具和多 Agent 协同机制</strong><span class="basis">JD 直接要求 Agent Harness、工具调用、任务规划和多 Agent 方案设计。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/f10ab439a66083520nJ52N20FVRW.html" title="AI 产品经理（对话 AI Agent）职位页面">[引用1]</a></span></li><li><strong>设计意图识别、槽位追问、状态追踪、上下文和对话恢复逻辑</strong><span class="basis">JD 明确负责会话编排，TripGenie 官方说明会对不完整信息发起追问并支持多轮细化。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/f10ab439a66083520nJ52N20FVRW.html" title="AI 产品经理（对话 AI Agent）职位页面">[引用1]</a>、<a class="source-citation" href="https://www.trip.com/newsroom/introducing-tripgenie-groundbreaking-ai-travel-assistant/" title="Introducing TripGenie AI Travel Assistant">[引用2]</a></span></li><li><strong>将实时库存、价格、点评、榜单和预订入口接入对话结果</strong><span class="basis">TripGenie 需要基于旅行内容与实时可预订结果生成可执行建议。 · <a class="source-citation" href="https://www.trip.com/newsroom/introducing-tripgenie-groundbreaking-ai-travel-assistant/" title="Introducing TripGenie AI Travel Assistant">[引用2]</a>、<a class="source-citation" href="https://investors.trip.com/static-files/2c1c16ec-d225-4e46-b653-fb8776f2431c" title="Trip.com Group 2025 Form 20-F">[引用4]</a></span></li><li><strong>建立覆盖旅行事实、工具执行、会话成功和交易衔接的 Agent 评测体系</strong><span class="basis">JD 要求效果评测与 badcase 闭环，年报强调错误旅行信息可能带来用户与合规风险。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/f10ab439a66083520nJ52N20FVRW.html" title="AI 产品经理（对话 AI Agent）职位页面">[引用1]</a>、<a class="source-citation" href="https://investors.trip.com/static-files/2c1c16ec-d225-4e46-b653-fb8776f2431c" title="Trip.com Group 2025 Form 20-F">[引用4]</a></span></li><li><strong>通过 Prompt、Skill、Context 和模型选择优化效果、成本与体验</strong><span class="basis">JD 要求对接大模型并负责 Prompt、Skill 与评测迭代。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/f10ab439a66083520nJ52N20FVRW.html" title="AI 产品经理（对话 AI Agent）职位页面">[引用1]</a></span></li><li><strong>联动算法、研发和运营完成 PRD、原型、交互规范与验收</strong><span class="basis">JD 明确列出跨团队推进和完整产品交付物。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/f10ab439a66083520nJ52N20FVRW.html" title="AI 产品经理（对话 AI Agent）职位页面">[引用1]</a></span></li></ol>
+</section>
+<section id="metrics">
+  <h2>隐含指标</h2>
+  <p class="section-description">区分岗位资料明确提出与基于任务推定的衡量方式，不设定未经证实的目标值。</p>
+  <ul class="metric-list"><li><strong>对话任务成功率</strong> <span class="chip">推定</span><span class="basis">衡量用户是否在多轮交互中完成问答、推荐、规划或预订衔接目标。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/f10ab439a66083520nJ52N20FVRW.html" title="AI 产品经理（对话 AI Agent）职位页面">[引用1]</a>、<a class="source-citation" href="https://www.trip.com/newsroom/introducing-tripgenie-groundbreaking-ai-travel-assistant/" title="Introducing TripGenie AI Travel Assistant">[引用2]</a></span></li><li><strong>有效追问与槽位补全率</strong> <span class="chip">推定</span><span class="basis">衡量系统能否识别缺失条件并用最少轮次补齐旅行决策信息。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/f10ab439a66083520nJ52N20FVRW.html" title="AI 产品经理（对话 AI Agent）职位页面">[引用1]</a>、<a class="source-citation" href="https://www.trip.com/newsroom/introducing-tripgenie-groundbreaking-ai-travel-assistant/" title="Introducing TripGenie AI Travel Assistant">[引用2]</a></span></li><li><strong>旅行事实准确率</strong> <span class="chip">推定</span><span class="basis">降低库存、价格、规则和行程信息错误对用户决策的影响。 · <a class="source-citation" href="https://investors.trip.com/static-files/2c1c16ec-d225-4e46-b653-fb8776f2431c" title="Trip.com Group 2025 Form 20-F">[引用4]</a></span></li><li><strong>工具调用有效完成率</strong> <span class="chip">推定</span><span class="basis">衡量搜索、筛选、行程保存和预订衔接是否正确执行。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/f10ab439a66083520nJ52N20FVRW.html" title="AI 产品经理（对话 AI Agent）职位页面">[引用1]</a>、<a class="source-citation" href="https://www.trip.com/newsroom/introducing-tripgenie-groundbreaking-ai-travel-assistant/" title="Introducing TripGenie AI Travel Assistant">[引用2]</a></span></li><li><strong>行程生成用户回访率</strong> <span class="chip">明确</span><span class="basis">Trip.com 官方用回访提升衡量 TripGenie 行程推荐对持续使用的价值。 · <a class="source-citation" href="https://www.trip.com/newsroom/tripgenie-new-features-2/" title="TripGenie Unveils New Features for Effortless Travel Planning">[引用3]</a></span></li><li><strong>AI 助手订单转化率</strong> <span class="chip">明确</span><span class="basis">Trip.com 官方披露使用 TripGenie 推荐的用户订单转化率表现，用于衡量规划到交易的价值。 · <a class="source-citation" href="https://www.trip.com/newsroom/tripgenie-new-features-2/" title="TripGenie Unveils New Features for Effortless Travel Planning">[引用3]</a></span></li><li><strong>badcase 闭环时长</strong> <span class="chip">推定</span><span class="basis">衡量线上失败从发现、归因到模型、Prompt、Tool 或流程修复的效率。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/f10ab439a66083520nJ52N20FVRW.html" title="AI 产品经理（对话 AI Agent）职位页面">[引用1]</a></span></li></ul>
+</section>
+</div>
+<section id="market">
+  <h2>产品赛道判断</h2>
+  <p class="section-description">先从横向平台/垂直行业、客户倾向和行业属性定位公司，再判断岗位产品与 AI / Agent 的真实角色。</p>
+  <div class="chips"><span class="chip">在线旅游</span><span class="chip">住宿与交通预订</span><span class="chip">旅行服务</span></div>
+  <article class="card market-context" data-market-context="true"><p><strong>核心问题：</strong>把分散、实时变化且带交易约束的旅行信息转化为可信的多轮决策与可执行行程，减少搜索、比较、预订和变更成本</p><p><strong>目标用户：</strong>需要规划、比较和预订住宿、交通、景点与行程，并在旅行中获得动态提醒和服务支持的全球个人旅行者</p><p><strong>客户倾向：</strong>混合</p><p><strong>AI / Agent 角色：</strong>产品本体</p><p><strong>核心场景：</strong>旅行灵感与目的地问答、多条件机酒搜索和个性化推荐、多日或多目的地行程规划、实时库存、价格与可预订结果连接、行程保存、协作、提醒和售后支持</p><p><strong>主营业务：</strong>垂直行业：全球一站式在线旅游平台，覆盖旅行灵感、规划、预订、行中服务和售后；旅游行业属性强</p><p><strong>现有产品矩阵：</strong>携程 Ctrip、Trip.com、去哪儿 Qunar、Skyscanner、问道与 TripGenie AI 旅行助手</p><p class="source-links">来源：<a class="source-citation" href="https://www.zhipin.com/job_detail/f10ab439a66083520nJ52N20FVRW.html" title="AI 产品经理（对话 AI Agent）职位页面">[引用1]</a>、<a class="source-citation" href="https://www.trip.com/newsroom/introducing-tripgenie-groundbreaking-ai-travel-assistant/" title="Introducing TripGenie AI Travel Assistant">[引用2]</a>、<a class="source-citation" href="https://www.trip.com/newsroom/tripgenie-new-features-2/" title="TripGenie Unveils New Features for Effortless Travel Planning">[引用3]</a>、<a class="source-citation" href="https://investors.trip.com/static-files/2c1c16ec-d225-4e46-b653-fb8776f2431c" title="Trip.com Group 2025 Form 20-F">[引用4]</a>、<a class="source-citation" href="https://investors.trip.com/" title="Trip.com Group Investor Relations">[引用5]</a></p></article>
+</section>
+<section id="products">
+  <h2>岗位对应产品</h2>
+  <p class="section-description">结合 CSV 产品线索、岗位职责和公司官方资料，确定岗位实际服务的业务产品。</p>
+  <div class="grid"><article class="card product-basis"><h3>问道 / TripGenie AI 旅行助手</h3><p>嵌入携程与 Trip.com 旅行平台的对话式 AI 助手，通过多轮交互完成旅行问答、推荐、行程规划、实时可预订结果连接和行程持续服务。</p><p class="muted">JD 的对话 Agent、会话编排、工具调用、记忆管理和多 Agent 职责，与集团年报确认的问道、TripGenie 及官方产品机制高度一致。 · 置信度 high</p><p class="source-links">来源：<a class="source-citation" href="https://www.zhipin.com/job_detail/f10ab439a66083520nJ52N20FVRW.html" title="AI 产品经理（对话 AI Agent）职位页面">[引用1]</a>、<a class="source-citation" href="https://www.trip.com/newsroom/introducing-tripgenie-groundbreaking-ai-travel-assistant/" title="Introducing TripGenie AI Travel Assistant">[引用2]</a>、<a class="source-citation" href="https://www.trip.com/newsroom/tripgenie-new-features-2/" title="TripGenie Unveils New Features for Effortless Travel Planning">[引用3]</a>、<a class="source-citation" href="https://investors.trip.com/static-files/2c1c16ec-d225-4e46-b653-fb8776f2431c" title="Trip.com Group 2025 Form 20-F">[引用4]</a></p></article></div>
+</section>
+<section id="competition">
+  <h2>学习参照物</h2>
+  <p class="section-description">只展示目标用户有重叠、核心问题相近、核心场景相近的产品，用来学习其产品设计与落地方法，不要求能够相互替代。</p>
+  <div class="grid three"><article class="card" data-matched-product-id="wendao-tripgenie"><h3><a class="competitor-link" href="https://ir.expediagroup.com/news-and-events/news/news-details/2024/Put-Your-Trip-on-Autopilot-Expedia-Group-Introduces-New-Innovations-at-EXPLORE-to-Take-the-Stress-out-of-Travel-and-Enhance-Partner-Experience/default.aspx">Expedia Romie</a></h3><p>贯穿旅行灵感、规划、购物、预订与行中变化处理的个性化 AI 旅行助手。</p><p class="muted"><strong>可学习：</strong>可参照其群聊信息提取、邮件行程整合、实时动态提醒、异常替代方案和全旅程连续服务。</p><p class="source-links">来源：<a class="source-citation" href="https://ir.expediagroup.com/news-and-events/news/news-details/2024/Put-Your-Trip-on-Autopilot-Expedia-Group-Introduces-New-Innovations-at-EXPLORE-to-Take-the-Stress-out-of-Travel-and-Enhance-Partner-Experience/default.aspx" title="Expedia Group Introduces Romie">[引用7]</a>、<a class="source-citation" href="https://www.trip.com/newsroom/introducing-tripgenie-groundbreaking-ai-travel-assistant/" title="Introducing TripGenie AI Travel Assistant">[引用2]</a>、<a class="source-citation" href="https://www.trip.com/newsroom/tripgenie-new-features-2/" title="TripGenie Unveils New Features for Effortless Travel Planning">[引用3]</a></p></article><article class="card" data-matched-product-id="wendao-tripgenie"><h3><a class="competitor-link" href="https://blog.google/products-and-platforms/products/search/book-travel-ai-mode/">Google AI Mode Travel</a></h3><p>利用航班、酒店、地图和合作伙伴实时数据，在对话中完成旅行比较、行程规划、价格跟踪与酒店预订。</p><p class="muted"><strong>可学习：</strong>可参照其实时价格与库存 grounding、条件追问、价格跟踪、交易确认和合作平台履约边界。</p><p class="source-links">来源：<a class="source-citation" href="https://blog.google/products-and-platforms/products/search/book-travel-ai-mode/" title="How to book travel with AI Mode in Google Search">[引用8]</a>、<a class="source-citation" href="https://www.trip.com/newsroom/introducing-tripgenie-groundbreaking-ai-travel-assistant/" title="Introducing TripGenie AI Travel Assistant">[引用2]</a></p></article></div>
+</section>
+<section id="company">
+  <h2>公司概况</h2>
+  <p class="section-description">补充公司的性质、规模、经营情况、核心客户或用户，以及当前发展阶段。</p>
+  <dl class="facts"><dt>性质</dt><dd>上市民企</dd><dt>规模</dt><dd>旗下包括携程、Trip.com、去哪儿和 Skyscanner，向全球旅行者提供住宿、交通、度假与商旅服务</dd><dt>经营情况</dt><dd>2026 年第一季度净营业收入 162 亿元，同比增长 17%；国际平台预订同比增长约 65%，入境游预订同比增长约 90%</dd><dt>核心客户 / 用户</dt><dd>主要用户为全球个人旅行者，同时服务企业商旅客户、住宿和交通供应商及目的地合作伙伴</dd><dt>阶段</dt><dd>纳斯达克与香港联交所双重上市后的全球规模经营阶段</dd><dt>主要来源</dt><dd><a class="source-citation" href="https://investors.trip.com/" title="Trip.com Group Investor Relations">[引用5]</a>、<a class="source-citation" href="https://investors.trip.com/zh-hans/news-releases/news-release-details/tripcom-group-limited-reports-unaudited-first-quarter-2026/" title="携程集团发布 2026 年第一季度财务业绩">[引用6]</a>、<a class="source-citation" href="https://investors.trip.com/static-files/2c1c16ec-d225-4e46-b653-fb8776f2431c" title="Trip.com Group 2025 Form 20-F">[引用4]</a></dd></dl>
+</section>
+<section id="sources"><h2>来源</h2><ol><li id="source-job-posting"><a class="source-citation" href="https://www.zhipin.com/job_detail/f10ab439a66083520nJ52N20FVRW.html" title="AI 产品经理（对话 AI Agent）职位页面">[引用1]</a> — BOSS 直聘，访问于 2026-08-29</li><li id="source-tripgenie-product"><a class="source-citation" href="https://www.trip.com/newsroom/introducing-tripgenie-groundbreaking-ai-travel-assistant/" title="Introducing TripGenie AI Travel Assistant">[引用2]</a> — Trip.com，访问于 2026-08-29</li><li id="source-tripgenie-features"><a class="source-citation" href="https://www.trip.com/newsroom/tripgenie-new-features-2/" title="TripGenie Unveils New Features for Effortless Travel Planning">[引用3]</a> — Trip.com Group，访问于 2026-08-29</li><li id="source-tripcom-2025-annual-report"><a class="source-citation" href="https://investors.trip.com/static-files/2c1c16ec-d225-4e46-b653-fb8776f2431c" title="Trip.com Group 2025 Form 20-F">[引用4]</a> — Trip.com Group，访问于 2026-08-29</li><li id="source-tripcom-ir"><a class="source-citation" href="https://investors.trip.com/" title="Trip.com Group Investor Relations">[引用5]</a> — Trip.com Group，访问于 2026-08-29</li><li id="source-tripcom-2026-q1"><a class="source-citation" href="https://investors.trip.com/zh-hans/news-releases/news-release-details/tripcom-group-limited-reports-unaudited-first-quarter-2026/" title="携程集团发布 2026 年第一季度财务业绩">[引用6]</a> — Trip.com Group，访问于 2026-08-29</li><li id="source-expedia-romie"><a class="source-citation" href="https://ir.expediagroup.com/news-and-events/news/news-details/2024/Put-Your-Trip-on-Autopilot-Expedia-Group-Introduces-New-Innovations-at-EXPLORE-to-Take-the-Stress-out-of-Travel-and-Enhance-Partner-Experience/default.aspx" title="Expedia Group Introduces Romie">[引用7]</a> — Expedia Group，访问于 2026-08-29</li><li id="source-google-ai-mode-travel"><a class="source-citation" href="https://blog.google/products-and-platforms/products/search/book-travel-ai-mode/" title="How to book travel with AI Mode in Google Search">[引用8]</a> — Google，访问于 2026-08-29</li></ol><h3>调研限制</h3><ul><li>JD 未直接写出产品品牌，问道与 TripGenie 的归属依据岗位的对话旅行 Agent 机制、携程公开 AI 产品矩阵及最新年报交叉确认。</li><li>公开资料未披露岗位具体服务中国携程 App、国际 Trip.com，还是两者共用的 Agent Harness，因此按同一 AI 旅行助手产品线分析。</li><li>JD 未披露具体 Tool 数量、记忆周期和多 Agent 拓扑，不据此编造系统规模或精确性能目标。</li></ul></section>
+<footer>岗位 ID：boss-f10ab439a66083520nj52n20fvrw-156a500152 · 生成时间：2026-08-29T12:24:00+08:00</footer></div></div>
+</main>
+  <script>
+    (() => {
+      const points = document.querySelectorAll('.radar-point');
+      const setContent = (point) => {
+        const description = point.closest('.chart')?.querySelector('.radar-description');
+        if (!description) return;
+        description.textContent = point.dataset.capabilityConclusion || '';
+        description.dataset.active = 'true';
+      };
+
+      const resetContent = (point) => {
+        const description = point.closest('.chart')?.querySelector('.radar-description');
+        if (!description) return;
+        description.textContent = '悬停或聚焦任一维度，查看能力结论。';
+        description.dataset.active = 'false';
+      };
+
+      points.forEach((point) => {
+        point.addEventListener('pointerenter', () => setContent(point));
+        point.addEventListener('pointerleave', () => resetContent(point));
+        point.addEventListener('focus', () => setContent(point));
+        point.addEventListener('blur', () => resetContent(point));
+      });
+
+      const navLinks = [...document.querySelectorAll('.report-sidebar a[href^="#"]')];
+      const sections = navLinks.map((link) => document.querySelector(link.getAttribute('href'))).filter(Boolean);
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+          const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+          if (!visible) return;
+          navLinks.forEach((link) => link.classList.toggle('active', link.getAttribute('href') === `#${visible.target.id}`));
+        }, { rootMargin: '-20% 0px -65%', threshold: [0, .2, .6] });
+        sections.forEach((section) => observer.observe(section));
+      }
+    })();
+  </script>
+</body>
+</html>

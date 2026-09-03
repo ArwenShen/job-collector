@@ -1,0 +1,55 @@
+{
+  "normalization_version": "1.1",
+  "parsed_at": "2026-08-29T03:41:17.142337+00:00",
+  "source_path": "/Users/shensanshi/Desktop/‼️项目整理2026/岗位分析/job-collector-2026-08-29-1139.csv",
+  "input_encoding": "utf-8-sig",
+  "headers": [
+    "schema_version",
+    "source_site",
+    "source_job_id",
+    "source_url",
+    "job_title",
+    "company_name",
+    "salary",
+    "note",
+    "location",
+    "experience",
+    "education",
+    "job_description",
+    "company_description",
+    "missing_fields",
+    "collected_at",
+    "collector_version"
+  ],
+  "record_count": 1,
+  "unique_record_count": 1,
+  "duplicate_count": 0,
+  "blocking_record_count": 0,
+  "duplicates": [],
+  "records": [
+    {
+      "schema_version": "1",
+      "source_site": "boss",
+      "source_job_id": "138380ca6afc27580nZy3Ni1GVpU",
+      "source_url": "https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html",
+      "job_title": "AI产品经理（agent）",
+      "company_name": "作业帮",
+      "salary": "40-70K·15薪",
+      "location": "北京",
+      "experience": "3-5年",
+      "education": "本科",
+      "job_description": "你将深度参与\r\n1.Agent能力边界设计:定义主agent与子agent的分工原则-什么任务值得隔离上下文派发出去，什么必须留在主线;失败时如何降级。\r\n2.知识供给体系:决定鄂些知识做成skil(程序性、⼈⼯糟写、完整⾃治)，哪些进检索库(陈述性、海量、碎片化)，并建立skill的撰写规范与版本治理，\r\n3.⼯具与权限设计:agent可以调用哪些工具、哪些动作需要人类确认，设计\"自治程度\"的产品化分级。\r\n4.评估体系:为不确定性产品建立评估方法一不是测\"功能是否正确，而是测“行为是否得体”:该问不问、该停不停、简报写不清，都是缺陷，\r\n5.失败模式管理:建立agent 产品特有的failure taxonomy(失败分类法)一上下文滋出、委托简报失真、知识过时、过度自信，并为每关设计产品级护栏。\r\n硬性要求：\r\n1.至少6个月深度使用并构建过agent 类产品(不是\"用过ChatGPT’，是设计过工具调用、多步任务、上下文管理的产品)。\r\n2.能不借助工程师，独立讲清以下三组区别，并举出真实设计案例:\r\n子agent vs 传统垂关bot\r\nskill vs RAG\r\n上下文窗口作为稀缺资源的产品含义\r\n3.亲手写过 prompt/系统提示词并迭代过至少一个完整版本周期，对\"自然语言即接口”有肌肉记忆。\r\n4.能读懂agent的执行轨迹(trace)并从中定位产品问题，而不是只看最终输出。\r\n加分项：\r\n1.写过被他人实际使用的skill/工具定义/agent配置。\r\n2.有传统NLP对话系统(意图+槽位)的经验目能清晰说出自己哪些旧直觉被推翻了 经历过范式迁移并完成认知更新的人，比只有新范式经验的人更稀缺。\r\n3.有评估集(eval set)建设经验，",
+      "company_description": "作业帮成立于2015年，作为“数字教育的开拓者”，以“科技为人、成就非凡”为使命，致力于用科技手段助力教育普惠。作业帮始终坚持“教育+科技”双引擎战略，在学习工具产品、智能硬件、智能图书等业务领域深入布局。\r\n作业帮是“国家高新技术企业”、教育部认定的“中国暨中关村独角兽企业”、德勤“高科技高成长中国50强”、“全球独角兽企业500强”，入选“福布斯中国最具创新力企业榜”。",
+      "missing_fields": "",
+      "collected_at": "2026-08-25T00:08:09.350Z",
+      "collector_version": "0.1.2",
+      "row_number": 2,
+      "job_id": "boss-138380ca6afc27580nzy3ni1gvpu-76d12a5921",
+      "extra_fields": {
+        "note": ""
+      },
+      "blocking_errors": [],
+      "warnings": []
+    }
+  ]
+}

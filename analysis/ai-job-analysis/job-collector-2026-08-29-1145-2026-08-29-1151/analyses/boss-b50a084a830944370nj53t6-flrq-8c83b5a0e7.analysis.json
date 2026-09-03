@@ -1,0 +1,584 @@
+{
+  "schema_version": "3.4",
+  "generated_at": "2026-08-29T11:56:03+08:00",
+  "research_date": "2026-08-29",
+  "job": {
+    "job_id": "boss-b50a084a830944370nj53t6-flrq-8c83b5a0e7",
+    "title": "多模态大模型项目交付经理（2B / FDE）",
+    "company_name": "模思",
+    "source_url": "https://www.zhipin.com/job_detail/b50a084a830944370nJ53t6-FlRQ.html"
+  },
+  "research": {
+    "status": "complete",
+    "search_queries": [
+      "模思智能 官方 MOSS 多模态模型 产品",
+      "模思智能 融资 创始团队 2026",
+      "OpenMOSS GitHub MOSS Audio TTS VL MOVA",
+      "Alibaba Cloud Model Studio agent RAG multimodal official",
+      "Amazon Bedrock agents knowledge bases enterprise official"
+    ],
+    "limitations": [
+      "JD 未披露具体客户名称、项目规模、合同金额和团队人数，因此不推断绝对交付规模或量化目标。",
+      "企业 AI 全栈交付方案是根据 JD 中 IaaS、PaaS、MaaS、Agent、Studio、知识库和部署责任归纳的解决方案形态，不等同于已确认的单一产品品牌。",
+      "公开资料未证明公司收入集中于金融、政府、制造、能源或运营商，相关行业仅作为岗位经验加分项，不据此认定强垂直行业属性。"
+    ]
+  },
+  "industry_tags": [
+    "企业软件",
+    "人工智能基础设施",
+    "数字内容技术"
+  ],
+  "market_context": {
+    "primary_business": "横向平台：以多模态基础模型和企业 AI 全栈方案连接文本、图像、视频与音频能力；行业属性弱",
+    "existing_product_matrix": [
+      "MOSS-Audio 音频理解模型",
+      "MOSS-TTS 语音生成模型族",
+      "MOSS-VL 视觉语言模型",
+      "MOVA 视频与音频联合生成模型",
+      "企业 MaaS、Agent、Studio 与推理部署方案"
+    ],
+    "target_users": "需要把多模态模型、Agent、知识库和推理服务接入生产环境的企业业务、IT 与 AI 团队",
+    "core_problem": "把仍有技术不确定性的多模态模型能力转化为可集成、可部署、可验收并能完成回款的企业解决方案",
+    "core_scenarios": [
+      "客户业务调研与多模态场景澄清",
+      "PoC 与模型效果验证",
+      "API、Agent 和知识库集成",
+      "公有云或私有化推理部署",
+      "上线支持、故障定位与项目验收"
+    ],
+    "technology_role": "product_core",
+    "source_refs": [
+      "job-posting",
+      "company-site",
+      "openmoss-github",
+      "funding-news"
+    ]
+  },
+  "company_overview": {
+    "ownership": "其他民企",
+    "size": "成立于 2024 年的早期团队，由上海创智学院与复旦大学联合孵化；员工总数未披露",
+    "operating_condition": "2026 年完成数亿元天使轮融资，并持续发布 MOSS-Audio、MOSS-TTS、MOSS-VL 和 MOVA 等模型",
+    "customer_type": "To B",
+    "core_customers": "需要部署多模态模型服务、生成式 AI 应用和行业解决方案的企业客户",
+    "stage": "天使轮后的产品验证与商业交付扩张阶段",
+    "source_refs": [
+      "company-site",
+      "funding-news",
+      "openmoss-github",
+      "job-posting"
+    ]
+  },
+  "products": [
+    {
+      "product_id": "moss-multimodal-model-suite",
+      "name": "MOSS 多模态模型产品线",
+      "summary": "覆盖音频理解、语音生成、视觉语言理解以及视频与音频联合生成的多模态模型产品线。",
+      "identification_basis": "responsibility_inferred",
+      "basis_note": "JD 明确要求交付多模态大模型，模思官网与 OpenMOSS 官方仓库确认了对应模型矩阵。",
+      "confidence": "high",
+      "source_refs": [
+        "job-posting",
+        "company-site",
+        "openmoss-github"
+      ]
+    },
+    {
+      "product_id": "enterprise-ai-full-stack-solution",
+      "name": "企业 AI 全栈交付方案",
+      "summary": "组合 IaaS、PaaS、MaaS、Agent、Studio、API、知识库、模型服务和推理部署形成企业项目方案。",
+      "identification_basis": "solution_core_products",
+      "basis_note": "JD 对岗位交付范围、跨层组件和云上或私有化部署方式有直接描述，据此归纳为解决方案产品。",
+      "confidence": "high",
+      "source_refs": [
+        "job-posting",
+        "company-site"
+      ]
+    }
+  ],
+  "competitors": [
+    {
+      "matched_product_id": "enterprise-ai-full-stack-solution",
+      "name": "阿里云百炼 Model Studio",
+      "summary": "面向企业开发者的一站式生成式 AI 平台，覆盖模型 API、Agent、知识库、插件、工作流和多模态生成。",
+      "url": "https://www.alibabacloud.com/help/en/model-studio/",
+      "learning_value": "可参照其把模型、知识库、插件、Agent 和工作流组织为可配置应用并通过 API 发布的产品结构。",
+      "target_users_overlap": true,
+      "target_users_evidence": "双方均服务需要把基础模型接入业务系统并交付生产应用的企业开发与 AI 团队。",
+      "core_problem_similarity": true,
+      "core_problem_evidence": "双方都解决从模型能力到企业应用集成、部署和持续运行之间的工程鸿沟。",
+      "core_scenarios_similarity": true,
+      "core_scenarios_evidence": "双方均覆盖模型 API、Agent、RAG 知识库、多模态能力和应用发布。",
+      "source_refs": [
+        "alibaba-model-studio",
+        "alibaba-agent-docs",
+        "job-posting"
+      ]
+    },
+    {
+      "matched_product_id": "enterprise-ai-full-stack-solution",
+      "name": "Amazon Bedrock",
+      "summary": "面向企业构建和扩展生成式 AI 应用的托管平台，提供基础模型、Agents、Knowledge Bases 与企业级安全能力。",
+      "url": "https://aws.amazon.com/bedrock/",
+      "learning_value": "可参照其在模型选择、Agent 编排、企业数据接入、安全控制和生产化运维之间的产品分层。",
+      "target_users_overlap": true,
+      "target_users_evidence": "双方均面向负责生成式 AI 应用集成、治理和生产部署的企业技术团队。",
+      "core_problem_similarity": true,
+      "core_problem_evidence": "双方都帮助企业在可控基础设施上组合模型、私有数据与业务系统。",
+      "core_scenarios_similarity": true,
+      "core_scenarios_evidence": "双方均覆盖基础模型调用、Agent、RAG 知识库、API 集成和生产部署。",
+      "source_refs": [
+        "aws-bedrock",
+        "aws-bedrock-docs",
+        "job-posting"
+      ]
+    }
+  ],
+  "possible_tasks": [
+    {
+      "task": "澄清企业客户业务目标、使用场景、项目范围和验收边界",
+      "basis": "JD 要求深入理解客户场景，并对范围、质量、验收和回款负责。",
+      "source_refs": ["job-posting"]
+    },
+    {
+      "task": "制定文本、图像、视频和音频场景的 AI 方案、实施路径与里程碑",
+      "basis": "JD 明确要求围绕多模态场景输出解决方案、实施路径和阶段计划。",
+      "source_refs": ["job-posting", "company-site", "openmoss-github"]
+    },
+    {
+      "task": "组织 PoC、模型效果验证、API 联调和上线初期故障定位",
+      "basis": "JD 将 PoC、API 对接、上线支持和初步排障列为 FDE 型交付职责。",
+      "source_refs": ["job-posting"]
+    },
+    {
+      "task": "协调 Infra、算法、平台和应用团队完成公有云或私有化部署",
+      "basis": "JD 要求拉通多专业团队，并覆盖模型服务、推理部署和行业应用。",
+      "source_refs": ["job-posting"]
+    },
+    {
+      "task": "管理进度、质量、风险、变更、验收和回款的端到端交付闭环",
+      "basis": "JD 明确要求对项目关键交付与商业闭环结果负责。",
+      "source_refs": ["job-posting"]
+    },
+    {
+      "task": "沉淀可复用的行业方案、交付方法和项目资产",
+      "basis": "JD 要求把项目经验沉淀为行业方案与交付方法论。",
+      "source_refs": ["job-posting"]
+    }
+  ],
+  "key_metrics": [
+    {
+      "metric": "关键里程碑按期完成率",
+      "basis": "inferred",
+      "reason": "衡量跨团队依赖和客户决策变化下的计划兑现能力。",
+      "source_refs": ["job-posting"]
+    },
+    {
+      "metric": "PoC 验证通过率",
+      "basis": "inferred",
+      "reason": "衡量模型效果与技术路径是否满足客户场景和后续上线条件。",
+      "source_refs": ["job-posting"]
+    },
+    {
+      "metric": "API 联调问题平均关闭时长",
+      "basis": "inferred",
+      "reason": "衡量 FDE 型现场问题定位和跨团队推进效率。",
+      "source_refs": ["job-posting"]
+    },
+    {
+      "metric": "项目一次验收通过率",
+      "basis": "inferred",
+      "reason": "衡量需求边界、质量标准和交付物是否在上线前形成一致。",
+      "source_refs": ["job-posting"]
+    },
+    {
+      "metric": "重大范围变更闭环率",
+      "basis": "inferred",
+      "reason": "衡量变更影响是否完成评估、决策、计划调整和客户确认。",
+      "source_refs": ["job-posting"]
+    },
+    {
+      "metric": "到期回款完成率",
+      "basis": "inferred",
+      "reason": "衡量项目交付是否最终转化为合同约定的商业结果。",
+      "source_refs": ["job-posting"]
+    }
+  ],
+  "capabilities": {
+    "hard_skills": [
+      {
+        "id": "demand_definition",
+        "name": "需求与定义",
+        "dimension_tag": "企业客户需求洞察",
+        "score": 8,
+        "confidence": "high",
+        "facts": [
+          "岗位需要深入客户现场理解业务场景，并把问题转成可执行的技术任务。",
+          "交付范围横跨文本、图像、视频和音频，并包含范围、变更与验收管理。"
+        ],
+        "critical_tasks": [
+          "识别客户真实目标、关键角色与场景约束。",
+          "定义项目范围、技术边界、里程碑和验收标准。"
+        ],
+        "difficulty_factors": [
+          "企业业务人员、IT 团队和内部算法工程团队使用不同的问题表达。",
+          "多模态场景的输入输出、质量判断和技术可行性差异明显。",
+          "需求定义直接影响变更、验收和回款，错误边界会传导到商业结果。"
+        ],
+        "avoid": "避免把客户的解决方案愿望直接翻译为功能清单，导致范围、模型边界和验收口径失控。",
+        "conclusion": "由于需要在多类企业角色、多模态场景和商业验收约束之间建立一致边界，难度较高，需要候选人能把模糊业务问题定义为可实施且可验收的项目需求。",
+        "source_refs": ["job-posting"]
+      },
+      {
+        "id": "ai_solution_design",
+        "name": "AI 方案设计",
+        "score": 5,
+        "confidence": "medium",
+        "facts": [
+          "岗位需要组合模型服务、API、Agent、知识库和推理部署完成企业方案。",
+          "JD 强调 PoC 与集成验收，但没有要求主导长期记忆或复杂 Agent 内部机制。"
+        ],
+        "critical_tasks": [
+          "为客户场景选择模型、知识库、Agent、API 与部署组合。",
+          "通过 PoC 验证关键效果和集成可行性。"
+        ],
+        "difficulty_factors": [
+          "知识库、Agent Tool 和多模态模型存在多个中等复杂度的组合取舍。",
+          "方案需要兼顾效果、接口、部署环境和交付周期。",
+          "岗位主要负责方案集成与交付，AI 内部机制的设计范围有限。"
+        ],
+        "avoid": "避免只用模型或 Agent 名称包装方案，而没有明确数据、接口、效果验证和部署边界。",
+        "conclusion": "由于需要组合多类 AI 组件但对长期记忆和复杂自主流程的设计责任有限，难度中等，需要候选人能选型并验证可落地的企业 AI 方案。",
+        "source_refs": ["job-posting", "company-site", "openmoss-github"]
+      },
+      {
+        "id": "development_delivery",
+        "name": "开发与落地",
+        "score": 8,
+        "confidence": "high",
+        "facts": [
+          "岗位需要协调 Infra、模型算法、平台工程和应用工程团队。",
+          "交付包含 PoC、API 联调、模型服务、推理部署、上线支持和初步排障。"
+        ],
+        "critical_tasks": [
+          "拆解跨团队依赖并推动模型与业务系统联调。",
+          "处理公有云或私有化环境的上线阻塞与质量风险。"
+        ],
+        "difficulty_factors": [
+          "IaaS、PaaS、MaaS、Agent 和应用层形成较长技术依赖链。",
+          "公有云与私有化部署带来环境、权限和运维条件差异。",
+          "岗位需在客户现场承担初步排障并推动多个专业团队闭环。",
+          "上线质量与项目验收、回款直接关联。"
+        ],
+        "avoid": "避免只维护项目计划而无法理解接口、模型服务和部署问题对交付路径的影响。",
+        "conclusion": "由于交付横跨多层技术栈、多专业团队和不同部署环境且上线质量直接影响验收，难度较高，需要候选人能推动端到端技术落地并解决现场阻塞。",
+        "source_refs": ["job-posting"]
+      },
+      {
+        "id": "evaluation_iteration",
+        "name": "评测与迭代",
+        "dimension_tag": "专业领域评测",
+        "score": 7,
+        "confidence": "high",
+        "facts": [
+          "岗位需要负责 PoC、模型效果验证、质量管理和最终验收。",
+          "模型产品覆盖语音、音频、视觉语言以及视频与音频生成。"
+        ],
+        "critical_tasks": [
+          "把客户业务目标转成各模态可执行的验证方案和验收口径。",
+          "根据 PoC、联调和上线反馈推动模型或系统问题迭代。"
+        ],
+        "difficulty_factors": [
+          "文本、图像、视频和音频需要不同样本、指标与人工判断方式。",
+          "客户业务效果与通用模型指标之间需要建立可解释映射。",
+          "验收判断影响上线与付款，质量口径需要在项目前期保持一致。"
+        ],
+        "avoid": "避免只报告模型通用基准分数，忽略客户真实输入、失败样本和业务验收条件。",
+        "conclusion": "由于多模态效果需要用不同方法验证并映射到客户验收和付款条件，难度较高，需要候选人能建立场景化评测并推动问题闭环。",
+        "source_refs": ["job-posting", "company-site", "openmoss-github"]
+      },
+      {
+        "id": "growth_commercialization",
+        "name": "增长与商业化",
+        "score": 6,
+        "confidence": "high",
+        "facts": [
+          "岗位对项目验收与回款结果负责。",
+          "岗位需要沉淀行业方案、交付方法和可复用资产。"
+        ],
+        "critical_tasks": [
+          "让技术交付满足合同验收并支持按期回款。",
+          "把单项目经验转化为可复制的售前与交付资产。"
+        ],
+        "difficulty_factors": [
+          "商业结果受需求边界、模型效果、上线质量和客户决策共同影响。",
+          "多个候选行业的业务流程和验收关注点存在差异。",
+          "岗位承担项目商业闭环，但不负责完整市场增长、定价和渠道体系。"
+        ],
+        "avoid": "避免把技术上线当作项目结束，遗漏验收材料、客户确认、变更结算和回款条件。",
+        "conclusion": "由于需要把复杂技术交付转化为验收、回款和可复用方案但不覆盖完整市场增长体系，难度中等，需要候选人能管理项目商业闭环。",
+        "source_refs": ["job-posting"]
+      }
+    ],
+    "soft_skills": [
+      {
+        "id": "communication",
+        "name": "沟通力",
+        "score": 8,
+        "confidence": "high",
+        "facts": [
+          "岗位需要面向客户调研、汇报、协调预期并处理现场压力。",
+          "内部协作覆盖 Infra、算法、平台、应用和项目管理角色。"
+        ],
+        "critical_tasks": [
+          "在客户业务语言与内部技术语言之间进行准确翻译。",
+          "在范围、质量、进度和变更冲突中促成可执行决策。"
+        ],
+        "difficulty_factors": [
+          "客户与内部多专业团队的目标、术语和风险关注点不同。",
+          "变更、验收和回款阶段存在显著利益分歧。",
+          "现场问题处理要求快速同步事实并稳定各方预期。"
+        ],
+        "avoid": "避免只传递信息而不澄清决策人、承诺边界、责任人和下一步动作。",
+        "conclusion": "由于需要协调多专业团队与企业客户且沟通结果直接影响范围、验收和回款，难度较高，需要候选人能完成跨业务与技术的决策沟通。",
+        "source_refs": ["job-posting"]
+      },
+      {
+        "id": "innovation",
+        "name": "创新能力",
+        "score": 6,
+        "confidence": "medium",
+        "facts": [
+          "公司产品覆盖仍快速演进的多模态理解与生成模型。",
+          "岗位需要把客户问题转化为 PoC 和新的行业解决方案。"
+        ],
+        "critical_tasks": [
+          "在模型能力边界内设计可验证的场景方案。",
+          "从项目实践中抽象可复用的交付方法与资产。"
+        ],
+        "difficulty_factors": [
+          "多模态模型效果与客户预期之间存在技术不确定性。",
+          "行业方案需要在成熟组件和新模型能力之间做取舍。",
+          "创新主要受交付目标约束，不是开放式基础研究。"
+        ],
+        "avoid": "避免追求新技术展示而忽略客户问题、验证成本和最终可交付性。",
+        "conclusion": "由于需要把快速演进的多模态能力转成受交付约束的客户方案，难度中等，需要候选人能通过 PoC 验证新方案并沉淀复用方法。",
+        "source_refs": ["job-posting", "company-site", "openmoss-github"]
+      },
+      {
+        "id": "execution",
+        "name": "执行能力",
+        "score": 8,
+        "confidence": "high",
+        "facts": [
+          "岗位对进度、质量、风险、变更、验收和回款承担端到端责任。",
+          "岗位需要接受客户现场办公和出差，并参与联调与上线支持。"
+        ],
+        "critical_tasks": [
+          "并行推进方案、PoC、集成、部署、验收和回款任务线。",
+          "识别关键路径并在现场及时升级和关闭风险。"
+        ],
+        "difficulty_factors": [
+          "项目包含多条相互依赖的技术与商务任务线。",
+          "资源来自多个专业团队，岗位通常不拥有直接管理权。",
+          "客户现场问题和需求变更会打乱原计划。",
+          "交付窗口与验收、回款节点形成明确结果压力。"
+        ],
+        "avoid": "避免只追踪状态而没有明确关键路径、风险阈值、升级机制和结果责任。",
+        "conclusion": "由于多条技术与商务任务线并行且跨团队依赖和现场变化会直接影响交付结果，难度较高，需要候选人能持续推进关键路径直到验收回款。",
+        "source_refs": ["job-posting"]
+      }
+    ],
+    "ai_solution_design": [
+      {
+        "id": "skill_design",
+        "name": "Skill 设计能力",
+        "score": 4,
+        "confidence": "low",
+        "facts": [
+          "JD 提到 Agent 和行业应用集成，但没有要求定义 Agent 自主选择的领域方法或 Skill 规范。"
+        ],
+        "critical_tasks": [
+          "在项目方案中确认 Agent 能力边界和可复用任务模块。"
+        ],
+        "difficulty_factors": [
+          "岗位主要集成现有 Agent、模型服务和知识库，领域 Skill 内部设计责任有限。",
+          "可确认的工作集中在方案选型、接口联调和验收。"
+        ],
+        "avoid": "避免把项目交付步骤误当作 Agent 可自主调用的领域 Skill。",
+        "conclusion": "由于岗位主要集成现有 Agent 能力且未承担复杂领域 Skill 的内部设计，难度较低，需要候选人能界定可复用任务模块及其交付边界。",
+        "source_refs": ["job-posting"]
+      },
+      {
+        "id": "knowledge_base_design",
+        "name": "知识库设计能力",
+        "score": 6,
+        "confidence": "medium",
+        "facts": [
+          "JD 将知识库列为企业 AI 全栈交付中的组成部分。",
+          "岗位需要把客户业务问题转化为可集成并可验收的技术任务。"
+        ],
+        "critical_tasks": [
+          "定义企业知识接入、检索验证和更新责任边界。",
+          "将知识库与模型、Agent 和客户接口进行集成测试。"
+        ],
+        "difficulty_factors": [
+          "企业项目可能涉及多类文档、权限与部署环境。",
+          "检索结果需要与客户场景和模型回答共同验收。",
+          "JD 未要求岗位负责复杂知识图谱或高频知识治理。"
+        ],
+        "avoid": "避免把文档上传等同于知识库完成，忽略切分、权限、检索质量和更新机制。",
+        "conclusion": "由于需要把企业知识与模型、Agent 和部署环境联合验证但深层治理责任有限，难度中等，需要候选人能设计知识接入与检索验收方案。",
+        "source_refs": ["job-posting"]
+      },
+      {
+        "id": "agent_tool_design",
+        "name": "Agent Tool 设计",
+        "score": 6,
+        "confidence": "medium",
+        "facts": [
+          "JD 要求交付 Agent、API 对接和行业应用。",
+          "岗位需要在客户现场完成联调、初步排障并转化技术任务。"
+        ],
+        "critical_tasks": [
+          "定义 Agent 与客户 API 的输入输出、权限和异常处理边界。",
+          "验证工具调用结果并推动接口问题闭环。"
+        ],
+        "difficulty_factors": [
+          "客户 API 与内部模型服务需要跨组织联调。",
+          "权限、超时、失败重试和错误反馈会影响端到端任务。",
+          "JD 未显示岗位负责多个高风险写操作或复杂审批补偿。"
+        ],
+        "avoid": "避免只确认接口可调用，忽略权限、幂等、错误码、超时和人工接管条件。",
+        "conclusion": "由于需要集成多类企业 API 并处理权限与失败边界但高风险写操作责任不明确，难度中等，需要候选人能定义并验收可靠的 Agent Tool 契约。",
+        "source_refs": ["job-posting"]
+      },
+      {
+        "id": "workflow_design",
+        "name": "工作流设计",
+        "score": 4,
+        "confidence": "low",
+        "facts": [
+          "JD 要求制定项目实施路径和里程碑，但没有明确要求设计由 AI 执行的长流程状态机。"
+        ],
+        "critical_tasks": [
+          "识别客户 AI 应用中的基础步骤、人工节点和系统边界。"
+        ],
+        "difficulty_factors": [
+          "可确认的流程复杂度主要来自项目交付，而不是 AI 业务工作流本身。",
+          "没有直接证据显示需要暂停恢复、回滚补偿或多角色审批编排。"
+        ],
+        "avoid": "避免把项目管理流程直接当作 Agent 工作流设计证据。",
+        "conclusion": "由于 AI 业务流程的分支、状态和补偿要求缺少直接证据且确认范围有限，难度较低，需要候选人能梳理基础步骤与人工系统边界。",
+        "source_refs": ["job-posting"]
+      },
+      {
+        "id": "memory_design",
+        "name": "记忆能力",
+        "score": 2,
+        "confidence": "low",
+        "facts": [
+          "JD 聚焦企业项目交付、模型服务和系统集成，没有提出跨会话长期记忆责任。"
+        ],
+        "critical_tasks": [
+          "确认客户场景是否只需会话上下文或项目级状态保存。"
+        ],
+        "difficulty_factors": [
+          "岗位核心价值不依赖长期用户关系或持续个性化。",
+          "没有证据显示需要处理记忆更正、遗忘和跨会话连续性。"
+        ],
+        "avoid": "避免在没有业务价值和治理要求时引入长期记忆，增加隐私与错误累积风险。",
+        "conclusion": "由于岗位核心任务对长期用户状态依赖很弱且记忆治理约束很少，属于基础难度，需要候选人能确认会话上下文与状态保存的最低必要范围。",
+        "source_refs": ["job-posting"]
+      },
+      {
+        "id": "demo_prototyping",
+        "name": "Demo 原型设计",
+        "score": 7,
+        "confidence": "high",
+        "facts": [
+          "岗位需要参与客户 PoC、模型效果验证、API 对接和上线支持。",
+          "方案可能组合多模态模型、知识库、Agent 和真实客户系统。"
+        ],
+        "critical_tasks": [
+          "构建连接真实模型与客户接口的高保真 PoC。",
+          "用 PoC 验证效果、延迟、异常和部署可行性。"
+        ],
+        "difficulty_factors": [
+          "原型需要接入真实模型服务、客户 API 或数据。",
+          "多模态输入输出带来不同效果与性能验证方式。",
+          "PoC 结果直接决定技术路径、项目范围和上线判断。",
+          "仍需模拟错误、超时和环境约束等生产条件。"
+        ],
+        "avoid": "避免制作只展示理想路径的演示，掩盖真实数据、接口、延迟和失败场景。",
+        "conclusion": "由于 PoC 需要连接真实多模态模型和客户系统并承担技术路径验证责任，难度较高，需要候选人能构建接近生产约束的高保真原型。",
+        "source_refs": ["job-posting", "company-site", "openmoss-github"]
+      }
+    ]
+  },
+  "sources": [
+    {
+      "id": "job-posting",
+      "title": "多模态大模型项目交付经理职位页面",
+      "publisher": "BOSS 直聘",
+      "url": "https://www.zhipin.com/job_detail/b50a084a830944370nJ53t6-FlRQ.html",
+      "accessed_at": "2026-08-29",
+      "type": "job"
+    },
+    {
+      "id": "company-site",
+      "title": "模思智能官网",
+      "publisher": "上海模思智能科技有限公司",
+      "url": "https://home.mosi.cn/",
+      "accessed_at": "2026-08-29",
+      "type": "company"
+    },
+    {
+      "id": "funding-news",
+      "title": "模思智能完成数亿元天使轮融资",
+      "publisher": "新京报",
+      "url": "https://www.bjnews.com.cn/detail/1775013217129133.html",
+      "accessed_at": "2026-08-29",
+      "type": "news"
+    },
+    {
+      "id": "openmoss-github",
+      "title": "OpenMOSS 官方开源模型组织",
+      "publisher": "OpenMOSS",
+      "url": "https://github.com/OpenMOSS",
+      "accessed_at": "2026-08-29",
+      "type": "product"
+    },
+    {
+      "id": "alibaba-model-studio",
+      "title": "Alibaba Cloud Model Studio Overview",
+      "publisher": "Alibaba Cloud",
+      "url": "https://www.alibabacloud.com/help/en/model-studio/",
+      "accessed_at": "2026-08-29",
+      "type": "competitor"
+    },
+    {
+      "id": "alibaba-agent-docs",
+      "title": "Model Studio Agent Application",
+      "publisher": "Alibaba Cloud",
+      "url": "https://www.alibabacloud.com/help/en/model-studio/single-agent-application",
+      "accessed_at": "2026-08-29",
+      "type": "competitor"
+    },
+    {
+      "id": "aws-bedrock",
+      "title": "Amazon Bedrock",
+      "publisher": "Amazon Web Services",
+      "url": "https://aws.amazon.com/bedrock/",
+      "accessed_at": "2026-08-29",
+      "type": "competitor"
+    },
+    {
+      "id": "aws-bedrock-docs",
+      "title": "What is Amazon Bedrock",
+      "publisher": "Amazon Web Services",
+      "url": "https://docs.aws.amazon.com/bedrock/latest/userguide/what-is-bedrock.html",
+      "accessed_at": "2026-08-29",
+      "type": "competitor"
+    }
+  ]
+}

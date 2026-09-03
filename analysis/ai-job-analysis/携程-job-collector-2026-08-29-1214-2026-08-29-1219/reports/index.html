@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI 岗位分析</title>
+  <style>
+    :root {
+  --ui-tooltip-shadow: none;
+  --ui-tooltip-border: #e5e5e5;
+  --ui-tooltip-radius: 8px;
+}
+
+.ui-tooltip {
+  position: relative;
+}
+
+.ui-tooltip__surface {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 72px;
+  margin-top: 16px;
+  padding: 14px 16px;
+  color: #333333;
+  background: #ffffff;
+  border: 1px solid var(--ui-tooltip-border);
+  border-radius: var(--ui-tooltip-radius);
+  box-shadow: var(--ui-tooltip-shadow);
+  line-height: 1.6;
+}
+
+.ui-tooltip--svg:focus {
+  outline: 2px solid #0348ed;
+  outline-offset: 3px;
+}
+
+
+    :root {
+      color-scheme: light;
+      --ink: #171717;
+      --muted: #666;
+      --line: #dedede;
+      --soft: #f7f7f5;
+      --blue: #0348ed;
+      --red: #ff3700;
+      --orange: #fe7e0f;
+      --page: 1120px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: #fff; color: var(--ink); font: 15px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif; }
+    a { color: var(--blue); overflow-wrap: anywhere; }
+    a:focus-visible, summary:focus-visible { outline: 3px solid rgba(3, 72, 237, .25); outline-offset: 3px; }
+    main { width: min(var(--page), calc(100% - 40px)); margin: 0 auto; padding: 42px 0 80px; }
+    header { border-bottom: 1px solid var(--line); padding-bottom: 26px; }
+    h1 { font-size: clamp(30px, 5vw, 48px); line-height: 1.12; letter-spacing: -.03em; margin: 8px 0 12px; }
+    h2 { font-size: 25px; line-height: 1.3; margin: 48px 0 18px; }
+    h3 { font-size: 18px; margin: 24px 0 10px; }
+    p { margin: 8px 0; }
+    ul, ol { padding-left: 22px; }
+    .eyebrow { color: var(--blue); font-size: 12px; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+    .lede { font-size: 18px; max-width: 800px; }
+    .section-description { color: var(--muted); margin: -10px 0 18px; max-width: 800px; }
+    .muted { color: var(--muted); }
+    .meta, .chips { display: flex; flex-wrap: wrap; gap: 8px 14px; color: var(--muted); }
+    .meta > * { min-width: 0; overflow-wrap: anywhere; }
+    .chip { border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .card { border: 1px solid var(--line); padding: 18px; min-width: 0; overflow-wrap: anywhere; }
+    .card h3:first-child { margin-top: 0; }
+    .facts { display: grid; grid-template-columns: 140px 1fr; margin: 0; border-top: 1px solid var(--line); }
+    .facts dt, .facts dd { border-bottom: 1px solid var(--line); margin: 0; padding: 10px 0; }
+    .facts dt { color: var(--muted); font-weight: 700; padding-right: 14px; }
+    .product-basis { border-left: 3px solid var(--blue); padding-left: 12px; }
+    .charts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .chart { display: flex; min-width: 0; flex-direction: column; border: 1px solid var(--line); padding: 10px; text-align: center; overflow: hidden; }
+    .chart h3 { margin: 6px 0 0; }
+    .chart svg { display: block; width: 100%; height: auto; margin: 0 auto; }
+    .radar-point { cursor: pointer; outline: none; }
+    .radar-hit { fill: transparent; }
+    .radar-dot { transform-box: fill-box; transform-origin: center; transition: transform .18s ease, fill .18s ease; }
+    .radar-label { font-size: 15px; font-weight: 700; transition: fill .18s ease; }
+    .radar-point:hover .radar-dot, .radar-point:focus .radar-dot { fill: var(--blue); transform: scale(1.55); }
+    .radar-point:hover .radar-label, .radar-point:focus .radar-label { fill: var(--blue); }
+    .radar-point:focus-visible .radar-hit { stroke: var(--blue); stroke-width: 2; }
+    .radar-description { min-height: 5.4rem; margin: 0 8px 8px; border-radius: 0; border-width: 1px 0 0; color: var(--muted); }
+    .radar-description[data-active="true"] { color: var(--ink); }
+    .capability-panel { border: 1px solid var(--line); margin-top: 14px; }
+    .capability-panel > summary { cursor: pointer; font-weight: 700; padding: 13px 15px; }
+    .capability-panel[open] > summary { border-bottom: 1px solid var(--line); }
+    .capability-panel-body { padding: 0 14px 14px; }
+    .score-list { display: grid; gap: 10px; }
+    details.capability { border: 1px solid var(--line); }
+    details.capability > summary { cursor: pointer; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; list-style-position: inside; padding: 13px 15px; font-weight: 700; }
+    details.capability[open] > summary { border-bottom: 1px solid var(--line); }
+    .score { color: var(--ink); font-variant-numeric: tabular-nums; }
+    .score-current { color: var(--blue); }
+    .details-body { padding: 12px 16px 16px; }
+    .details-body h4 { color: var(--muted); font-size: 13px; margin: 13px 0 4px; }
+    .details-body ul { margin: 5px 0; }
+    .capability-conclusion { font-size: 16px; }
+    .risk { border-left: 3px solid var(--orange); padding-left: 11px; }
+    .source-links, .source-citation { color: var(--muted); font-size: 13px; font-weight: 400; }
+    .source-citation { text-decoration-color: #aaa; text-underline-offset: 2px; }
+    .insight-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px; }
+    .task-list li, .metric-list li { margin-bottom: 10px; }
+    .basis { color: var(--muted); display: block; font-size: 13px; }
+    .competitor-link { font-weight: 700; }
+    .experience-map { border-left: 3px solid var(--blue); }
+    footer { border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; margin-top: 48px; padding-top: 18px; }
+    @media (max-width: 920px) {
+      .charts { grid-template-columns: 1fr 1fr; }
+      .chart:last-child { grid-column: 1 / -1; max-width: 540px; width: 100%; justify-self: center; }
+      .grid.three { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 680px) {
+      main { width: min(var(--page), calc(100% - 28px)); padding-top: 24px; }
+      .grid, .grid.three, .charts, .insight-grid { grid-template-columns: 1fr; }
+      .chart:last-child { grid-column: auto; }
+      .facts { grid-template-columns: 1fr; }
+      .facts dt { border-bottom: 0; padding-bottom: 0; }
+      details.capability > summary { grid-template-columns: minmax(0, 1fr) auto; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .radar-dot, .radar-label { transition: none; }
+    }
+    @media print {
+      @page { size: A4; margin: 14mm; }
+      body { font-size: 10pt; }
+      main { width: 100%; padding: 0; }
+      .charts { grid-template-columns: 1fr 1fr 1fr; }
+      .capability-panel > .capability-panel-body { display: block !important; }
+      details.capability > .details-body, details.capability:not([open]) > .details-body { display: block !important; }
+      details.capability, .card, .chart { break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+    }
+    /* Course-design report contract: pure white, restrained hierarchy, semantic accents. */
+    :root { --line: #e5e5e5; --page: 1280px; --radius: 24px; }
+    body { font-family: Geist, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif; }
+    main { width: min(var(--page), calc(100% - 48px)); padding-top: 40px; }
+    .report-layout { display: grid; grid-template-columns: 208px minmax(0, 1fr); gap: 48px; }
+    .report-sidebar { min-width: 0; max-width: 100%; position: sticky; top: 24px; align-self: start; border-right: 1px solid var(--line); padding: 12px 24px 12px 0; }
+    .report-sidebar strong { display: block; margin-bottom: 16px; }
+    .report-sidebar a { display: block; color: var(--muted); padding: 7px 0; text-decoration: none; }
+    .report-sidebar a:hover, .report-sidebar a.active { color: var(--blue); }
+    .report-content { min-width: 0; }
+    header { padding: 28px 0 56px; }
+    h1 { font-size: clamp(34px, 5vw, 54px); line-height: 1.05; letter-spacing: -.04em; }
+    h2 { font-size: clamp(28px, 3vw, 40px); line-height: 1.12; letter-spacing: -.025em; margin-top: clamp(48px, 7vw, 80px); }
+    .lede { font-size: 19px; color: #333; }
+    .report-score-note { margin: 0 0 24px; border-left: 3px solid var(--orange); padding: 4px 0 4px 16px; color: #444; }
+    .grid { gap: 16px; }
+    .card, .chart, .capability-panel { border-radius: var(--radius); }
+    .card { padding: 20px; }
+    .charts { gap: 16px; }
+    .chart { padding: 20px; text-align: left; }
+    .chart svg { max-width: 420px; }
+    .radar-description { margin: 0; padding-top: 12px; }
+    .capability-panel { overflow: hidden; margin-top: 16px; }
+    .capability-panel > summary { padding: 20px; }
+    .capability-panel-body { padding: 0; }
+    .capability-panel-body > h3 { padding: 20px; margin: 0; border-bottom: 1px solid var(--line); }
+    .score-list { gap: 0; }
+    details.capability { border: 0; border-bottom: 1px solid var(--line); }
+    details.capability > summary { padding: 18px 20px; }
+    .details-body { padding: 16px 20px 20px; }
+    .risk { border-left-color: var(--red); }
+    .insight-grid { gap: 48px; }
+    .task-list { list-style: decimal-leading-zero; }
+    .task-list li, .metric-list li { padding: 10px 0; border-bottom: 1px solid var(--line); }
+    .market-context { margin-top: 16px; }
+    @media (max-width: 920px) {
+      .report-layout { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+      .report-sidebar { position: static; display: flex; gap: 18px; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--line); padding: 8px 0; }
+      .report-sidebar strong { display: none; }
+      .report-sidebar a { white-space: nowrap; }
+    }
+    @media (max-width: 680px) {
+      main { width: calc(100% - 24px); padding-top: 12px; }
+      .card, .chart, .capability-panel { border-radius: 16px; }
+    }
+    @media print { .report-sidebar { display: none; } .report-layout { display: block; } }
+  </style>
+</head>
+<body>
+  <main><header><div class="eyebrow">AI Job Analysis</div><h1>岗位分析</h1><p class="lede">共 1 份独立岗位报告。</p></header><section><h2>报告</h2><div class="grid"><article class="card"><h3><a href="boss-f10ab439a66083520nj52n20fvrw-156a500152/report.html">携程集团 · AI产品经理（对话AI Agent）</a></h3><div class="chips"><span class="chip">在线旅游</span><span class="chip">住宿与交通预订</span><span class="chip">旅行服务</span></div></article></div></section></main>
+  <script>
+    (() => {
+      const points = document.querySelectorAll('.radar-point');
+      const setContent = (point) => {
+        const description = point.closest('.chart')?.querySelector('.radar-description');
+        if (!description) return;
+        description.textContent = point.dataset.capabilityConclusion || '';
+        description.dataset.active = 'true';
+      };
+
+      const resetContent = (point) => {
+        const description = point.closest('.chart')?.querySelector('.radar-description');
+        if (!description) return;
+        description.textContent = '悬停或聚焦任一维度，查看能力结论。';
+        description.dataset.active = 'false';
+      };
+
+      points.forEach((point) => {
+        point.addEventListener('pointerenter', () => setContent(point));
+        point.addEventListener('pointerleave', () => resetContent(point));
+        point.addEventListener('focus', () => setContent(point));
+        point.addEventListener('blur', () => resetContent(point));
+      });
+
+      const navLinks = [...document.querySelectorAll('.report-sidebar a[href^="#"]')];
+      const sections = navLinks.map((link) => document.querySelector(link.getAttribute('href'))).filter(Boolean);
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+          const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+          if (!visible) return;
+          navLinks.forEach((link) => link.classList.toggle('active', link.getAttribute('href') === `#${visible.target.id}`));
+        }, { rootMargin: '-20% 0px -65%', threshold: [0, .2, .6] });
+        sections.forEach((section) => observer.observe(section));
+      }
+    })();
+  </script>
+</body>
+</html>

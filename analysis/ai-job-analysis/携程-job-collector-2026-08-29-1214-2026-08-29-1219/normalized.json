@@ -1,0 +1,55 @@
+{
+  "normalization_version": "1.1",
+  "parsed_at": "2026-08-29T04:19:44.984937+00:00",
+  "source_path": "/Users/shensanshi/Desktop/‼️项目整理2026/岗位分析/携程-job-collector-2026-08-29-1214.csv",
+  "input_encoding": "utf-8-sig",
+  "headers": [
+    "schema_version",
+    "source_site",
+    "source_job_id",
+    "source_url",
+    "job_title",
+    "company_name",
+    "salary",
+    "note",
+    "location",
+    "experience",
+    "education",
+    "job_description",
+    "company_description",
+    "missing_fields",
+    "collected_at",
+    "collector_version"
+  ],
+  "record_count": 1,
+  "unique_record_count": 1,
+  "duplicate_count": 0,
+  "blocking_record_count": 0,
+  "duplicates": [],
+  "records": [
+    {
+      "schema_version": "1",
+      "source_site": "boss",
+      "source_job_id": "f10ab439a66083520nJ52N20FVRW",
+      "source_url": "https://www.zhipin.com/job_detail/f10ab439a66083520nJ52N20FVRW.html",
+      "job_title": "AI产品经理（对话AI Agent）",
+      "company_name": "携程集团",
+      "salary": "30-60K·15薪",
+      "location": "上海",
+      "experience": "3-5年",
+      "education": "本科",
+      "job_description": "一、岗位描述\r\n【岗位职责】\r\n1.负责对话类 AI 产品整体规划与 0-1 落地，包括智能助手、对话机器人、多轮交互产品等，制定产品架构图与迭代策略。\r\n2.主导AI Agent/Harness设计与能力建设，完成智能体拆解、⼯具调⽤、任务规划、记忆管理与多 Agent 协同⽅案设计。\r\n3.负责会话编排工作，设计对话流程、意图识别、状态追踪、上下文管理与对话恢复逻辑，提升对话成功率与⽤户体验。\r\n4.对接大模型能力，进行Prompt 工程、Skill、CLI、效果评测与 badcase 闭环优化。\r\n5.联动研发、算法、运营团队，推进产品落地与迭代，输出 PRD、原型、交互规范与验收标准。\r\n6.跟踪行业前沿技术与竞品动态，持续优化对话交互范式，提升产品核心竞争力。\r\n【任职要求】\r\n1.本科及以上学历，计算机、人工智能、软件工程等相关专业优先。有一定编码能力优先。\r\n2.5 年及以上产品经理经验，其中 3 年以上聚焦对话类 AI、大模型应用、智能客服 / 助手等相关产品实战经验。\r\n3.熟练掌握AI Agent 设计与会话编排能力，有从 0 到 1 搭建对话系统或智能体产品的完整落地案例。\r\n4.熟悉大模型技术原理、上下文管理、提示词工程、评测体系，了解 LangChain/LangGraph 等 Agent 框架优先。\r\n5.具备优秀的需求拆解、逻辑架构与数据驱动迭代能力，能独立推进复杂 AI 产品项目。\r\n6.英语优秀优先，具备图像/视频等AI项目经验优先\r\n7.沟通协作能力强，结果导向，能跨部门高效推动项目落地。",
+      "company_description": "携程集团是全球领先的一站式旅游服务供货商，旗下品牌包括Trip.com、携程、Skyscanner及去哪儿网。携程集团于1999年创立，2003年在纳斯达克上市（NASDAQ: TCOM），2021年在香港交易所正式挂牌（HKEX: 09961）。携程集团为世界各地旅客全方位搜罗及整合旅游信息，让用户可以轻松预订旅游产品及服务，做出最精明的选择。集团品牌已构建先进成熟的交易平台，包括移动客户端、网页，以及24小时全球客户服务支持。通过携程集团丰富的产品及创新的营销策略，合作伙伴及供货商得以接触快速增长的全球用户。携程集团一直毋忘初衷，秉承「追求完美旅程，共建美好世界」的宗旨，致力为所有用户打造完美的旅行体验。",
+      "missing_fields": "",
+      "collected_at": "2026-08-29T04:14:50.552Z",
+      "collector_version": "0.1.2",
+      "row_number": 2,
+      "job_id": "boss-f10ab439a66083520nj52n20fvrw-156a500152",
+      "extra_fields": {
+        "note": ""
+      },
+      "blocking_errors": [],
+      "warnings": []
+    }
+  ]
+}

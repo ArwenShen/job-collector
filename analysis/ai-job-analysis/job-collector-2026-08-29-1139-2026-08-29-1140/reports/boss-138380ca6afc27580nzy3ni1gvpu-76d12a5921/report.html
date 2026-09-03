@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>作业帮 · AI产品经理（agent）</title>
+  <style>
+    :root {
+  --ui-tooltip-shadow: none;
+  --ui-tooltip-border: #e5e5e5;
+  --ui-tooltip-radius: 8px;
+}
+
+.ui-tooltip {
+  position: relative;
+}
+
+.ui-tooltip__surface {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 72px;
+  margin-top: 16px;
+  padding: 14px 16px;
+  color: #333333;
+  background: #ffffff;
+  border: 1px solid var(--ui-tooltip-border);
+  border-radius: var(--ui-tooltip-radius);
+  box-shadow: var(--ui-tooltip-shadow);
+  line-height: 1.6;
+}
+
+.ui-tooltip--svg:focus {
+  outline: 2px solid #0348ed;
+  outline-offset: 3px;
+}
+
+
+    :root {
+      color-scheme: light;
+      --ink: #171717;
+      --muted: #666;
+      --line: #dedede;
+      --soft: #f7f7f5;
+      --blue: #0348ed;
+      --red: #ff3700;
+      --orange: #fe7e0f;
+      --page: 1120px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: #fff; color: var(--ink); font: 15px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif; }
+    a { color: var(--blue); overflow-wrap: anywhere; }
+    a:focus-visible, summary:focus-visible { outline: 3px solid rgba(3, 72, 237, .25); outline-offset: 3px; }
+    main { width: min(var(--page), calc(100% - 40px)); margin: 0 auto; padding: 42px 0 80px; }
+    header { border-bottom: 1px solid var(--line); padding-bottom: 26px; }
+    h1 { font-size: clamp(30px, 5vw, 48px); line-height: 1.12; letter-spacing: -.03em; margin: 8px 0 12px; }
+    h2 { font-size: 25px; line-height: 1.3; margin: 48px 0 18px; }
+    h3 { font-size: 18px; margin: 24px 0 10px; }
+    p { margin: 8px 0; }
+    ul, ol { padding-left: 22px; }
+    .eyebrow { color: var(--blue); font-size: 12px; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+    .lede { font-size: 18px; max-width: 800px; }
+    .section-description { color: var(--muted); margin: -10px 0 18px; max-width: 800px; }
+    .muted { color: var(--muted); }
+    .meta, .chips { display: flex; flex-wrap: wrap; gap: 8px 14px; color: var(--muted); }
+    .meta > * { min-width: 0; overflow-wrap: anywhere; }
+    .chip { border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .card { border: 1px solid var(--line); padding: 18px; min-width: 0; overflow-wrap: anywhere; }
+    .card h3:first-child { margin-top: 0; }
+    .facts { display: grid; grid-template-columns: 140px 1fr; margin: 0; border-top: 1px solid var(--line); }
+    .facts dt, .facts dd { border-bottom: 1px solid var(--line); margin: 0; padding: 10px 0; }
+    .facts dt { color: var(--muted); font-weight: 700; padding-right: 14px; }
+    .product-basis { border-left: 3px solid var(--blue); padding-left: 12px; }
+    .charts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .chart { display: flex; min-width: 0; flex-direction: column; border: 1px solid var(--line); padding: 10px; text-align: center; overflow: hidden; }
+    .chart h3 { margin: 6px 0 0; }
+    .chart svg { display: block; width: 100%; height: auto; margin: 0 auto; }
+    .radar-point { cursor: pointer; outline: none; }
+    .radar-hit { fill: transparent; }
+    .radar-dot { transform-box: fill-box; transform-origin: center; transition: transform .18s ease, fill .18s ease; }
+    .radar-label { font-size: 15px; font-weight: 700; transition: fill .18s ease; }
+    .radar-point:hover .radar-dot, .radar-point:focus .radar-dot { fill: var(--blue); transform: scale(1.55); }
+    .radar-point:hover .radar-label, .radar-point:focus .radar-label { fill: var(--blue); }
+    .radar-point:focus-visible .radar-hit { stroke: var(--blue); stroke-width: 2; }
+    .radar-description { min-height: 5.4rem; margin: 0 8px 8px; border-radius: 0; border-width: 1px 0 0; color: var(--muted); }
+    .radar-description[data-active="true"] { color: var(--ink); }
+    .capability-panel { border: 1px solid var(--line); margin-top: 14px; }
+    .capability-panel > summary { cursor: pointer; font-weight: 700; padding: 13px 15px; }
+    .capability-panel[open] > summary { border-bottom: 1px solid var(--line); }
+    .capability-panel-body { padding: 0 14px 14px; }
+    .score-list { display: grid; gap: 10px; }
+    details.capability { border: 1px solid var(--line); }
+    details.capability > summary { cursor: pointer; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; list-style-position: inside; padding: 13px 15px; font-weight: 700; }
+    details.capability[open] > summary { border-bottom: 1px solid var(--line); }
+    .score { color: var(--ink); font-variant-numeric: tabular-nums; }
+    .score-current { color: var(--blue); }
+    .details-body { padding: 12px 16px 16px; }
+    .details-body h4 { color: var(--muted); font-size: 13px; margin: 13px 0 4px; }
+    .details-body ul { margin: 5px 0; }
+    .capability-conclusion { font-size: 16px; }
+    .risk { border-left: 3px solid var(--orange); padding-left: 11px; }
+    .source-links, .source-citation { color: var(--muted); font-size: 13px; font-weight: 400; }
+    .source-citation { text-decoration-color: #aaa; text-underline-offset: 2px; }
+    .insight-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px; }
+    .task-list li, .metric-list li { margin-bottom: 10px; }
+    .basis { color: var(--muted); display: block; font-size: 13px; }
+    .competitor-link { font-weight: 700; }
+    .experience-map { border-left: 3px solid var(--blue); }
+    footer { border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; margin-top: 48px; padding-top: 18px; }
+    @media (max-width: 920px) {
+      .charts { grid-template-columns: 1fr 1fr; }
+      .chart:last-child { grid-column: 1 / -1; max-width: 540px; width: 100%; justify-self: center; }
+      .grid.three { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 680px) {
+      main { width: min(var(--page), calc(100% - 28px)); padding-top: 24px; }
+      .grid, .grid.three, .charts, .insight-grid { grid-template-columns: 1fr; }
+      .chart:last-child { grid-column: auto; }
+      .facts { grid-template-columns: 1fr; }
+      .facts dt { border-bottom: 0; padding-bottom: 0; }
+      details.capability > summary { grid-template-columns: minmax(0, 1fr) auto; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .radar-dot, .radar-label { transition: none; }
+    }
+    @media print {
+      @page { size: A4; margin: 14mm; }
+      body { font-size: 10pt; }
+      main { width: 100%; padding: 0; }
+      .charts { grid-template-columns: 1fr 1fr 1fr; }
+      .capability-panel > .capability-panel-body { display: block !important; }
+      details.capability > .details-body, details.capability:not([open]) > .details-body { display: block !important; }
+      details.capability, .card, .chart { break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+    }
+    /* Course-design report contract: pure white, restrained hierarchy, semantic accents. */
+    :root { --line: #e5e5e5; --page: 1280px; --radius: 24px; }
+    body { font-family: Geist, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif; }
+    main { width: min(var(--page), calc(100% - 48px)); padding-top: 40px; }
+    .report-layout { display: grid; grid-template-columns: 208px minmax(0, 1fr); gap: 48px; }
+    .report-sidebar { min-width: 0; max-width: 100%; position: sticky; top: 24px; align-self: start; border-right: 1px solid var(--line); padding: 12px 24px 12px 0; }
+    .report-sidebar strong { display: block; margin-bottom: 16px; }
+    .report-sidebar a { display: block; color: var(--muted); padding: 7px 0; text-decoration: none; }
+    .report-sidebar a:hover, .report-sidebar a.active { color: var(--blue); }
+    .report-content { min-width: 0; }
+    header { padding: 28px 0 56px; }
+    h1 { font-size: clamp(34px, 5vw, 54px); line-height: 1.05; letter-spacing: -.04em; }
+    h2 { font-size: clamp(28px, 3vw, 40px); line-height: 1.12; letter-spacing: -.025em; margin-top: clamp(48px, 7vw, 80px); }
+    .lede { font-size: 19px; color: #333; }
+    .report-score-note { margin: 0 0 24px; border-left: 3px solid var(--orange); padding: 4px 0 4px 16px; color: #444; }
+    .grid { gap: 16px; }
+    .card, .chart, .capability-panel { border-radius: var(--radius); }
+    .card { padding: 20px; }
+    .charts { gap: 16px; }
+    .chart { padding: 20px; text-align: left; }
+    .chart svg { max-width: 420px; }
+    .radar-description { margin: 0; padding-top: 12px; }
+    .capability-panel { overflow: hidden; margin-top: 16px; }
+    .capability-panel > summary { padding: 20px; }
+    .capability-panel-body { padding: 0; }
+    .capability-panel-body > h3 { padding: 20px; margin: 0; border-bottom: 1px solid var(--line); }
+    .score-list { gap: 0; }
+    details.capability { border: 0; border-bottom: 1px solid var(--line); }
+    details.capability > summary { padding: 18px 20px; }
+    .details-body { padding: 16px 20px 20px; }
+    .risk { border-left-color: var(--red); }
+    .insight-grid { gap: 48px; }
+    .task-list { list-style: decimal-leading-zero; }
+    .task-list li, .metric-list li { padding: 10px 0; border-bottom: 1px solid var(--line); }
+    .market-context { margin-top: 16px; }
+    @media (max-width: 920px) {
+      .report-layout { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+      .report-sidebar { position: static; display: flex; gap: 18px; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--line); padding: 8px 0; }
+      .report-sidebar strong { display: none; }
+      .report-sidebar a { white-space: nowrap; }
+    }
+    @media (max-width: 680px) {
+      main { width: calc(100% - 24px); padding-top: 12px; }
+      .card, .chart, .capability-panel { border-radius: 16px; }
+    }
+    @media print { .report-sidebar { display: none; } .report-layout { display: block; } }
+  </style>
+</head>
+<body>
+  <main>
+<div class="report-layout"><aside class="report-sidebar" aria-label="报告目录"><strong>岗位分析</strong><a href="#top">岗位概览</a><a href="#capabilities">能力模型</a><a href="#tasks">隐含任务</a><a href="#metrics">隐含指标</a><a href="#market">产品赛道</a><a href="#products">对应产品</a><a href="#competition">学习参照物</a><a href="#company">公司概况</a><a href="#sources">来源</a></aside><div class="report-content">
+<header id="top">
+  <div class="eyebrow">AI Job Analysis / 作业帮</div>
+  <h1>AI产品经理（agent）</h1>
+  <p class="lede">面向学生与家长，将搜题答疑、智能追问、作业批改、薄弱点诊断和个性化练习整合为 AI 学习体验。</p>
+  <div class="meta">原始职位：<a class="source-citation" href="https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html" title="作业帮 AI产品经理（agent）职位页面">[引用1]</a><span>岗位 ID：boss-138380ca6afc27580nzy3ni1gvpu-76d12a5921</span></div>
+</header>
+<section id="capabilities">
+  <h2>岗位能力模型</h2>
+  <p class="section-description">从产品规模、业务复杂性与交付约束出发，展示各项能力需要达到的难度深度。</p>
+  <p class="report-score-note"><strong>评分说明：</strong>分数表示岗位任务对该能力提出的复杂度，不表示使用频率、重要程度或候选人的个人水平。</p>
+  <div class="charts"><article class="chart" data-capability-group="ai_solution_design"><h3>AI 方案设计</h3><svg viewBox="0 0 460 330" role="img" aria-label="AI 方案设计能力难度雷达图" data-radar-chart="true"><rect width="460" height="330" fill="#fff"/><polygon points="230.0,144.0 248.2,154.5 248.2,175.5 230.0,186.0 211.8,175.5 211.8,154.5" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,123.0 266.4,144.0 266.4,186.0 230.0,207.0 193.6,186.0 193.6,144.0" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,102.0 284.6,133.5 284.6,196.5 230.0,228.0 175.4,196.5 175.4,133.5" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,81.0 302.7,123.0 302.7,207.0 230.0,249.0 157.3,207.0 157.3,123.0" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,60.0 320.9,112.5 320.9,217.5 230.0,270.0 139.1,217.5 139.1,112.5" fill="none" stroke="#dedede" stroke-width="1"/><line x1="230.0" y1="165.0" x2="230.0" y2="60.0" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="320.9" y2="112.5" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="320.9" y2="217.5" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="230.0" y2="270.0" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="139.1" y2="217.5" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="139.1" y2="112.5" stroke="#dedede"/><polygon points="230.0,81.0 302.7,123.0 293.7,201.8 230.0,228.0 193.6,186.0 175.4,133.5" fill="rgba(3,72,237,.14)" stroke="#0348ed" stroke-width="2"/><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于 Skill 要编排高难度知识与权限 Tool 并处理委派、验证和降级，难度较高，需要候选人能设计可复用、可治理且可恢复的专业能力。" tabindex="0" role="img" aria-label="Skill，8/10" aria-describedby="ai-solution-description"><circle class="radar-hit" cx="230.0" cy="81.0" r="15"/><circle class="radar-dot" cx="230.0" cy="81.0" r="5" fill="#0348ed"/><text class="radar-label" x="230.0" y="28.5" text-anchor="middle" font-size="15" font-weight="700" fill="#444">Skill (<tspan fill="#0348ed">8</tspan><tspan fill="#171717">/10)</tspan></text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于教育知识规模大、形态异构且需要在 Skill 与检索库之间治理版本和过期问题，要求很高，需要候选人能设计可更新、可追溯的知识供给体系。" tabindex="0" role="img" aria-label="知识库，8/10" aria-describedby="ai-solution-description"><circle class="radar-hit" cx="302.7" cy="123.0" r="15"/><circle class="radar-dot" cx="302.7" cy="123.0" r="5" fill="#0348ed"/><text class="radar-label" x="348.2" y="96.8" text-anchor="start" font-size="15" font-weight="700" fill="#444">知识库 (<tspan fill="#0348ed">8</tspan><tspan fill="#171717">/10)</tspan></text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于 Tool 调用涉及多 Agent 权限传递、人工确认和自治分级，难度较高，需要候选人能设计安全契约、护栏和失败接管机制。" tabindex="0" role="img" aria-label="Agent Tool，7/10" aria-describedby="ai-solution-description"><circle class="radar-hit" cx="293.7" cy="201.8" r="15"/><circle class="radar-dot" cx="293.7" cy="201.8" r="5" fill="#0348ed"/><text class="radar-label" x="348.2" y="233.2" text-anchor="start" font-size="15" font-weight="700" fill="#444">Agent Tool (<tspan fill="#0348ed">7</tspan><tspan fill="#171717">/10)</tspan></text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于失败治理包含多类触发、降级、人工确认和恢复分支，难度中等，需要候选人能设计可观测且可回归的状态流程。" tabindex="0" role="img" aria-label="工作流，6/10" aria-describedby="ai-solution-description"><circle class="radar-hit" cx="230.0" cy="228.0" r="15"/><circle class="radar-dot" cx="230.0" cy="228.0" r="5" fill="#0348ed"/><text class="radar-label" x="230.0" y="301.5" text-anchor="middle" font-size="15" font-weight="700" fill="#444">工作流 (<tspan fill="#0348ed">6</tspan><tspan fill="#171717">/10)</tspan></text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于当前任务主要处理短周期上下文隔离而长期状态约束有限，难度较低，需要候选人能定义基础的上下文保留、压缩和失效规则。" tabindex="0" role="img" aria-label="记忆，4/10" aria-describedby="ai-solution-description"><circle class="radar-hit" cx="193.6" cy="186.0" r="15"/><circle class="radar-dot" cx="193.6" cy="186.0" r="5" fill="#0348ed"/><text class="radar-label" x="111.8" y="233.3" text-anchor="end" font-size="15" font-weight="700" fill="#444">记忆 (<tspan fill="#0348ed">4</tspan><tspan fill="#171717">/10)</tspan></text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于原型要联动多 Agent、知识、Tool 和评测并完成轨迹驱动迭代，难度中等，需要候选人能构建可运行且可比较版本的 Agent Demo。" tabindex="0" role="img" aria-label="Demo原型，6/10" aria-describedby="ai-solution-description"><circle class="radar-hit" cx="175.4" cy="133.5" r="15"/><circle class="radar-dot" cx="175.4" cy="133.5" r="5" fill="#0348ed"/><text class="radar-label" x="111.8" y="96.7" text-anchor="end" font-size="15" font-weight="700" fill="#444">Demo原型 (<tspan fill="#0348ed">6</tspan><tspan fill="#171717">/10)</tspan></text></g></svg><p class="radar-description ui-tooltip__surface" data-active="false" id="ai-solution-description" role="tooltip">悬停或聚焦任一维度，查看能力结论。</p></article><article class="chart" data-capability-group="hard_skills"><h3>硬实力</h3><svg viewBox="0 0 460 330" role="img" aria-label="硬实力难度雷达图" data-radar-chart="true"><rect width="460" height="330" fill="#fff"/><polygon points="230.0,144.0 250.0,158.5 242.3,182.0 217.7,182.0 210.0,158.5" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,123.0 269.9,152.0 254.7,199.0 205.3,199.0 190.1,152.0" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,102.0 289.9,145.5 267.0,216.0 193.0,216.0 170.1,145.5" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,81.0 309.9,139.0 279.4,233.0 180.6,233.0 150.1,139.0" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,60.0 329.9,132.6 291.7,249.9 168.3,249.9 130.1,132.6" fill="none" stroke="#dedede" stroke-width="1"/><line x1="230.0" y1="165.0" x2="230.0" y2="60.0" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="329.9" y2="132.6" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="291.7" y2="249.9" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="168.3" y2="249.9" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="130.1" y2="132.6" stroke="#dedede"/><polygon points="230.0,91.5 299.9,142.3 267.0,216.0 180.6,233.0 200.0,155.3" fill="rgba(3,72,237,.14)" stroke="#0348ed" stroke-width="2"/><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于岗位要在多类教育场景和多种 Agent 机制之间定义行为与验收边界，难度较高，需要候选人能把不确定行为转化为可执行的产品规则。" tabindex="0" role="img" aria-label="需求定义，7/10" aria-describedby="hard-skills-description"><circle class="radar-hit" cx="230.0" cy="91.5" r="15"/><circle class="radar-dot" cx="230.0" cy="91.5" r="5" fill="#0348ed"/><text class="radar-label" x="230.0" y="28.5" text-anchor="middle" font-size="15" font-weight="700" fill="#444">需求定义 (<tspan fill="#0348ed">7</tspan><tspan fill="#171717">/10)</tspan></text><rect x="199.0" y="32.5" width="62.0" height="17" rx="8.5" fill="#fff3e8" stroke="#fe7e0f"/><text x="230.0" y="45.0" text-anchor="middle" font-size="9.5" font-weight="700" fill="#fe7e0f" data-dimension-tag="大数据洞察">大数据洞察</text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于六类 AI 方案组件需要耦合并共同满足权限、上下文和行为质量约束，难度较高，需要候选人能设计可验证且可降级的整体 Agent 方案。" tabindex="0" role="img" aria-label="AI方案设计，7/10" aria-describedby="hard-skills-description"><circle class="radar-hit" cx="299.9" cy="142.3" r="15"/><circle class="radar-dot" cx="299.9" cy="142.3" r="5" fill="#0348ed"/><text class="radar-label" x="359.8" y="122.8" text-anchor="start" font-size="15" font-weight="700" fill="#444">AI方案设计 (<tspan fill="#0348ed">7</tspan><tspan fill="#171717">/10)</tspan></text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于多个 Agent 组件需要按版本联动并通过执行轨迹闭环验证，难度中等，需要候选人能协调产品设计、配置迭代和工程验收。" tabindex="0" role="img" aria-label="开发落地，6/10" aria-describedby="hard-skills-description"><circle class="radar-hit" cx="267.0" cy="216.0" r="15"/><circle class="radar-dot" cx="267.0" cy="216.0" r="5" fill="#0348ed"/><text class="radar-label" x="310.2" y="275.4" text-anchor="start" font-size="15" font-weight="700" fill="#444">开发落地 (<tspan fill="#0348ed">6</tspan><tspan fill="#171717">/10)</tspan></text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于评测需覆盖多步轨迹、开放式行为标准和面向未成年学习用户的质量风险，要求很高，需要候选人能建立可归因、可回归的 Agent 评测体系。" tabindex="0" role="img" aria-label="评测迭代，8/10" aria-describedby="hard-skills-description"><circle class="radar-hit" cx="180.6" cy="233.0" r="15"/><circle class="radar-dot" cx="180.6" cy="233.0" r="5" fill="#0348ed"/><text class="radar-label" x="149.8" y="275.4" text-anchor="end" font-size="15" font-weight="700" fill="#444">评测迭代 (<tspan fill="#0348ed">8</tspan><tspan fill="#171717">/10)</tspan></text><rect x="67.8" y="279.4" width="82.0" height="17" rx="8.5" fill="#fff3e8" stroke="#fe7e0f"/><text x="149.8" y="291.9" text-anchor="end" font-size="9.5" font-weight="700" fill="#fe7e0f" data-dimension-tag="大数据反馈分析">大数据反馈分析</text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于岗位公开职责仅涉及自治程度的产品分级而商业链路范围有限，难度较低，需要候选人能把技术分层翻译为基础的用户价值与权益边界。" tabindex="0" role="img" aria-label="增长商业，3/10" aria-describedby="hard-skills-description"><circle class="radar-hit" cx="200.0" cy="155.3" r="15"/><circle class="radar-dot" cx="200.0" cy="155.3" r="5" fill="#0348ed"/><text class="radar-label" x="100.2" y="122.8" text-anchor="end" font-size="15" font-weight="700" fill="#444">增长商业 (<tspan fill="#0348ed">3</tspan><tspan fill="#171717">/10)</tspan></text></g></svg><p class="radar-description ui-tooltip__surface" data-active="false" id="hard-skills-description" role="tooltip">悬停或聚焦任一维度，查看能力结论。</p></article><article class="chart" data-capability-group="soft_skills"><h3>软实力</h3><svg viewBox="0 0 460 330" role="img" aria-label="软实力难度雷达图" data-radar-chart="true"><rect width="460" height="330" fill="#fff"/><polygon points="230.0,144.0 248.2,175.5 211.8,175.5" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,123.0 266.4,186.0 193.6,186.0" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,102.0 284.6,196.5 175.4,196.5" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,81.0 302.7,207.0 157.3,207.0" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,60.0 320.9,217.5 139.1,217.5" fill="none" stroke="#dedede" stroke-width="1"/><line x1="230.0" y1="165.0" x2="230.0" y2="60.0" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="320.9" y2="217.5" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="139.1" y2="217.5" stroke="#dedede"/><polygon points="230.0,102.0 302.7,207.0 175.4,196.5" fill="rgba(3,72,237,.14)" stroke="#0348ed" stroke-width="2"/><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于岗位要跨产品与工程语境解释多组易混概念并形成团队规范，难度中等，需要候选人能用案例和边界条件推动共同理解。" tabindex="0" role="img" aria-label="沟通，6/10" aria-describedby="soft-skills-description"><circle class="radar-hit" cx="230.0" cy="102.0" r="15"/><circle class="radar-dot" cx="230.0" cy="102.0" r="5" fill="#0348ed"/><text class="radar-label" x="230.0" y="28.5" text-anchor="middle" font-size="15" font-weight="700" fill="#444">沟通 (<tspan fill="#0348ed">6</tspan><tspan fill="#171717">/10)</tspan></text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于 Agent 产品范式、行为评测和失败治理都缺少完全成熟的方法，难度较高，需要候选人能用真实实验建立并修正新的产品框架。" tabindex="0" role="img" aria-label="创新，8/10" aria-describedby="soft-skills-description"><circle class="radar-hit" cx="302.7" cy="207.0" r="15"/><circle class="radar-dot" cx="302.7" cy="207.0" r="5" fill="#0348ed"/><text class="radar-label" x="348.2" y="233.2" text-anchor="start" font-size="15" font-weight="700" fill="#444">创新 (<tspan fill="#0348ed">8</tspan><tspan fill="#171717">/10)</tspan></text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于多个 Agent 组件需要按依赖推进并在版本周期内持续回归，难度中等，需要候选人能组织并闭环多条相互关联的产品任务。" tabindex="0" role="img" aria-label="执行，6/10" aria-describedby="soft-skills-description"><circle class="radar-hit" cx="175.4" cy="196.5" r="15"/><circle class="radar-dot" cx="175.4" cy="196.5" r="5" fill="#0348ed"/><text class="radar-label" x="111.8" y="233.3" text-anchor="end" font-size="15" font-weight="700" fill="#444">执行 (<tspan fill="#0348ed">6</tspan><tspan fill="#171717">/10)</tspan></text></g></svg><p class="radar-description ui-tooltip__surface" data-active="false" id="soft-skills-description" role="tooltip">悬停或聚焦任一维度，查看能力结论。</p></article></div><details class="capability-panel"><summary>查看 14 项能力详情</summary><div class="capability-panel-body"><h3>AI 方案设计</h3><div class="score-list"><details class="capability"><summary><span>Skill 设计能力</span><strong class="score">(<span class="score-current">8</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于 Skill 要编排高难度知识与权限 Tool 并处理委派、验证和降级，难度较高，需要候选人能设计可复用、可治理且可恢复的专业能力。</p><h4>来源事实</h4><ul><li>JD 要求判断哪些程序性知识应做成 Skill，并建立 Skill 撰写规范与版本治理。</li><li>JD 同时要求设计主子 Agent 委派、知识检索、Tool 权限和失败降级。</li></ul><h4>隐含任务</h4><ul><li>把教育领域方法设计成 Agent 可自主选择步骤的 Skill。</li><li>编排 Skill 对知识库和受控 Tool 的调用、上下文传递、失败恢复与结果验证。</li></ul><h4>难度驱动因素</h4><ul><li>Skill 自身需要处理主子 Agent 分工、上下文隔离、版本治理和开放式判断。</li><li>同一核心任务直接依赖高难度知识库治理和受权限约束的 Tool，抬高了 Skill 的编排下限。</li><li>委派简报失真、知识过时和过度自信要求在 Skill 层提供验证与降级。</li></ul><p class="risk"><strong>需要避免：</strong>避免把 Skill 写成静态提示词，缺少输入输出契约、依赖治理、失败处理和版本兼容。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html" title="作业帮 AI产品经理（agent）职位页面">[引用1]</a></p></div></details><details class="capability"><summary><span>知识库设计能力</span><strong class="score">(<span class="score-current">8</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于教育知识规模大、形态异构且需要在 Skill 与检索库之间治理版本和过期问题，要求很高，需要候选人能设计可更新、可追溯的知识供给体系。</p><h4>来源事实</h4><ul><li>JD 明确区分程序性知识与陈述性、海量、碎片化知识，并要求在 Skill 和检索库之间做选择。</li><li>JD 要求处理知识过时并建立撰写规范与版本治理。</li><li>作业帮的 AI 学习产品依赖多学科、多学段题库、教材和教研内容。</li></ul><h4>隐含任务</h4><ul><li>设计教育知识的 Skill 化、检索化和版本化边界。</li><li>建立来源、更新、冲突、过期和检索有效性的治理机制。</li></ul><h4>难度驱动因素</h4><ul><li>知识覆盖多学科、多学段和多种内容形态，并同时包含事实性资料与程序性教研方法。</li><li>知识规模大且碎片化，需要处理检索、版本、过期和跨内容综合。</li><li>知识错误会沿 Agent 学习辅导链路影响学生理解和后续练习。</li></ul><p class="risk"><strong>需要避免：</strong>避免把所有知识统一塞入 RAG，忽略程序性方法、版本冲突、权威来源和过期治理。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html" title="作业帮 AI产品经理（agent）职位页面">[引用1]</a>、<a class="source-citation" href="https://smart.zuoyebang.com/about" title="作业帮智能硬件品牌介绍">[引用3]</a>、<a class="source-citation" href="https://apps.apple.com/cn/app/id803781859" title="作业帮 App 产品页面">[引用4]</a>、<a class="source-citation" href="https://www.xinhuanet.com/tech/20230902/8c23fbea143c4790b8481099ab9f4c45/c.html" title="作业帮正式发布银河大模型">[引用5]</a></p></div></details><details class="capability"><summary><span>Agent Tool 设计</span><strong class="score">(<span class="score-current">7</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于 Tool 调用涉及多 Agent 权限传递、人工确认和自治分级，难度较高，需要候选人能设计安全契约、护栏和失败接管机制。</p><h4>来源事实</h4><ul><li>JD 要求决定 Agent 可调用哪些工具、哪些动作必须经过人类确认。</li><li>JD 要求把 Agent 自治程度设计为产品化分级，并为失败类型配置产品护栏。</li></ul><h4>隐含任务</h4><ul><li>定义 Tool 输入输出、权限主体、确认规则和失败反馈。</li><li>按动作风险划分自治等级并设计人工接管与审计策略。</li></ul><h4>难度驱动因素</h4><ul><li>Tool 能力与自治等级直接耦合，需要按动作风险决定自动执行或人工确认。</li><li>主子 Agent 委派增加了权限传递、调用归属和失败追踪复杂度。</li><li>面向学习用户的错误工具调用需要护栏和降级，公开资料未给出具体高影响写操作。</li></ul><p class="risk"><strong>需要避免：</strong>避免只定义函数参数而没有授权、确认、审计、异常和人工接管规则。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html" title="作业帮 AI产品经理（agent）职位页面">[引用1]</a></p></div></details><details class="capability"><summary><span>工作流设计</span><strong class="score">(<span class="score-current">6</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于失败治理包含多类触发、降级、人工确认和恢复分支，难度中等，需要候选人能设计可观测且可回归的状态流程。</p><h4>来源事实</h4><ul><li>JD 要求规定哪些任务留在主线、哪些派发给子 Agent，以及失败时如何降级。</li><li>岗位需要为上下文溢出、委派失真、知识过时和过度自信分别设计产品护栏。</li></ul><h4>隐含任务</h4><ul><li>定义失败检测、降级、人工确认、恢复和结果回传的状态流程。</li><li>为不同失败类型配置明确分支和回归检查。</li></ul><h4>难度驱动因素</h4><ul><li>失败治理流程包含多类触发条件、降级分支、人工节点和恢复结果。</li><li>工作流需要与主子 Agent 的执行轨迹衔接，但 JD 没有呈现长链审批或跨系统补偿。</li></ul><p class="risk"><strong>需要避免：</strong>避免把需要严格触发和恢复的失败流程混同为允许 Agent 自由判断的 Skill。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html" title="作业帮 AI产品经理（agent）职位页面">[引用1]</a></p></div></details><details class="capability"><summary><span>记忆能力</span><strong class="score">(<span class="score-current">4</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于当前任务主要处理短周期上下文隔离而长期状态约束有限，难度较低，需要候选人能定义基础的上下文保留、压缩和失效规则。</p><h4>来源事实</h4><ul><li>JD 强调上下文窗口是稀缺资源，并要求设计主线与子 Agent 的上下文隔离。</li><li>JD 将上下文溢出和委派简报失真列为 Agent 失败类型。</li></ul><h4>隐含任务</h4><ul><li>定义任务上下文的保留、压缩、隔离和失效规则。</li><li>区分当前任务上下文、委派摘要和可长期保留的用户状态。</li></ul><h4>难度驱动因素</h4><ul><li>已确认任务聚焦单次或多步执行中的上下文资源管理，作用周期较短。</li><li>主子 Agent 间需要控制上下文传递和摘要失真，但长期用户记忆对象与更正机制没有进入岗位职责。</li></ul><p class="risk"><strong>需要避免：</strong>避免把上下文窗口、业务数据库和长期用户记忆混为同一种状态机制。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html" title="作业帮 AI产品经理（agent）职位页面">[引用1]</a></p></div></details><details class="capability"><summary><span>Demo 原型设计</span><strong class="score">(<span class="score-current">6</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于原型要联动多 Agent、知识、Tool 和评测并完成轨迹驱动迭代，难度中等，需要候选人能构建可运行且可比较版本的 Agent Demo。</p><h4>来源事实</h4><ul><li>JD 要求候选人亲手写过 prompt 或系统提示词并完成至少一个完整版本周期。</li><li>JD 要求候选人能读取 Agent trace，并把被他人实际使用的 Skill、Tool 定义或 Agent 配置列为加分项。</li></ul><h4>隐含任务</h4><ul><li>用可运行原型验证主子 Agent 委派、Tool 确认和失败降级。</li><li>通过 trace 和评估集比较提示词、Skill 与护栏版本。</li></ul><h4>难度驱动因素</h4><ul><li>原型需要覆盖多 Agent、知识、Tool、权限和评测多个联动假设。</li><li>验证不止展示交互，还要保留执行轨迹并完成至少一个迭代周期。</li><li>生产部署与真实业务系统接入范围没有在 JD 中展开。</li></ul><p class="risk"><strong>需要避免：</strong>避免只做顺利路径演示而不验证权限、异常、降级和版本差异。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html" title="作业帮 AI产品经理（agent）职位页面">[引用1]</a></p></div></details></div><h3>硬实力</h3><div class="score-list"><details class="capability"><summary><span>需求与定义</span><strong class="score">(<span class="score-current">7</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于岗位要在多类教育场景和多种 Agent 机制之间定义行为与验收边界，难度较高，需要候选人能把不确定行为转化为可执行的产品规则。</p><h4>来源事实</h4><ul><li>JD 将岗位职责拆为能力边界、知识供给、工具权限、评估体系和失败模式五类设计对象。</li><li>作业帮 App 同时覆盖答疑、批改、练习、写作和志愿填报等多类学习场景。</li></ul><h4>隐含任务</h4><ul><li>定义各学习场景中主 Agent、子 Agent、知识与 Tool 的产品边界。</li><li>把行为是否得体转化为可验收的产品要求和缺陷标准。</li></ul><h4>难度驱动因素</h4><ul><li>需要在多类学习场景、学生与家长角色及 Agent 多组件之间划定边界。</li><li>需求对象包含询问、停止、委派、权限和降级等非确定性行为，验收标准难以沿用普通功能正确性。</li></ul><p class="risk"><strong>需要避免：</strong>避免只写技术模块清单而没有用户场景、行为边界、例外条件和验收标准。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html" title="作业帮 AI产品经理（agent）职位页面">[引用1]</a>、<a class="source-citation" href="https://apps.apple.com/cn/app/id803781859" title="作业帮 App 产品页面">[引用4]</a></p></div></details><details class="capability"><summary><span>AI 方案设计</span><strong class="score">(<span class="score-current">7</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于六类 AI 方案组件需要耦合并共同满足权限、上下文和行为质量约束，难度较高，需要候选人能设计可验证且可降级的整体 Agent 方案。</p><h4>来源事实</h4><ul><li>JD 同时要求设计多 Agent 委派、Skill 与检索知识、Tool 权限、评测和失败护栏。</li><li>作业帮已将教育大模型能力规划到 App、智能硬件、智能图书和教育数字化等多种业务场景。</li></ul><h4>隐含任务</h4><ul><li>把 Skill、知识库、Tool、工作流、上下文和评测机制组合为可控 Agent 方案。</li><li>在教育产品中验证方案的任务完成质量、行为得体性和失败恢复。</li></ul><h4>难度驱动因素</h4><ul><li>Skill、知识、Tool 和评测彼此耦合，单一组件失真会沿委派链影响最终学习结果。</li><li>方案需同时处理自主判断、权限控制、上下文稀缺、版本治理和失败降级。</li></ul><p class="risk"><strong>需要避免：</strong>避免把大模型、RAG 和 Tool 简单拼装，忽略组件间契约、风险边界和可验证性。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html" title="作业帮 AI产品经理（agent）职位页面">[引用1]</a>、<a class="source-citation" href="https://www.xinhuanet.com/tech/20230902/8c23fbea143c4790b8481099ab9f4c45/c.html" title="作业帮正式发布银河大模型">[引用5]</a></p></div></details><details class="capability"><summary><span>开发与落地</span><strong class="score">(<span class="score-current">6</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于多个 Agent 组件需要按版本联动并通过执行轨迹闭环验证，难度中等，需要候选人能协调产品设计、配置迭代和工程验收。</p><h4>来源事实</h4><ul><li>JD 要求候选人亲手迭代过至少一个完整提示词版本周期并能读取 Agent 执行轨迹。</li><li>岗位需要建立 Skill 撰写规范、版本治理和产品级护栏。</li></ul><h4>隐含任务</h4><ul><li>推动提示词、Skill、Tool 权限、评测集与护栏按版本联动交付。</li><li>用 trace 定位产品问题并把结论反馈给产品和工程实现。</li></ul><h4>难度驱动因素</h4><ul><li>交付对象跨提示词、配置、知识、Tool、评测和护栏多个组件，需要保持版本一致。</li><li>完整版本周期要求从设计、观测到回归验证形成闭环，但公开职责未呈现复杂部署环境。</li></ul><p class="risk"><strong>需要避免：</strong>避免只验收最终回答而忽略执行轨迹、配置版本、降级路径和回归结果。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html" title="作业帮 AI产品经理（agent）职位页面">[引用1]</a></p></div></details><details class="capability"><summary><span>评测与迭代</span><strong class="score">(<span class="score-current">8</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于评测需覆盖多步轨迹、开放式行为标准和面向未成年学习用户的质量风险，要求很高，需要候选人能建立可归因、可回归的 Agent 评测体系。</p><h4>来源事实</h4><ul><li>JD 明确要求建立行为是否得体的评估方法，而非只判断功能正确性。</li><li>JD 列出询问时机、停止条件、委派简报、上下文溢出、知识过时和过度自信等失败类型。</li><li>JD 要求候选人能读取 Agent trace 并从执行过程中定位产品问题。</li></ul><h4>隐含任务</h4><ul><li>建设覆盖多场景行为、失败类型和护栏效果的评估集。</li><li>把 trace、人工判断和产品指标组合为持续迭代闭环。</li></ul><h4>难度驱动因素</h4><ul><li>评测对象是开放式 Agent 行为，包含时机、分寸、委派质量和可信度等多维主观标准。</li><li>需要从最终输出下钻到多步执行轨迹，并把失败归因到上下文、知识、Tool 或委派环节。</li><li>教育用户包含未成年人，错误建议与过度自信对学习判断和产品信任的影响较大。</li></ul><p class="risk"><strong>需要避免：</strong>避免只用单轮答案正确率覆盖 Agent 的过程质量、安全边界和长期回归。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html" title="作业帮 AI产品经理（agent）职位页面">[引用1]</a>、<a class="source-citation" href="https://www.zuoyebang.com/?lang=zh_CN" title="作业帮官网">[引用2]</a>、<a class="source-citation" href="https://apps.apple.com/cn/app/id803781859" title="作业帮 App 产品页面">[引用4]</a></p></div></details><details class="capability"><summary><span>增长与商业化</span><strong class="score">(<span class="score-current">3</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于岗位公开职责仅涉及自治程度的产品分级而商业链路范围有限，难度较低，需要候选人能把技术分层翻译为基础的用户价值与权益边界。</p><h4>来源事实</h4><ul><li>作业帮 App 面向个人用户提供免费功能与 VIP 订阅服务。</li><li>JD 要求把 Agent 自治程度设计为产品化分级。</li></ul><h4>隐含任务</h4><ul><li>解释不同自治等级对学生和家长的价值与风险差异。</li><li>评估 Agent 能力分层是否支持清晰的产品权益表达。</li></ul><h4>难度驱动因素</h4><ul><li>当前职责只明确自治程度分级，未形成多市场、多渠道或复杂定价链路。</li><li>用户价值仍需与安全边界结合表达，但商业化任务范围有限。</li></ul><p class="risk"><strong>需要避免：</strong>避免把技术自治等级直接包装成付费权益而没有用户价值和安全依据。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html" title="作业帮 AI产品经理（agent）职位页面">[引用1]</a>、<a class="source-citation" href="https://apps.apple.com/cn/app/id803781859" title="作业帮 App 产品页面">[引用4]</a></p></div></details></div><h3>软实力</h3><div class="score-list"><details class="capability"><summary><span>沟通力</span><strong class="score">(<span class="score-current">6</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于岗位要跨产品与工程语境解释多组易混概念并形成团队规范，难度中等，需要候选人能用案例和边界条件推动共同理解。</p><h4>来源事实</h4><ul><li>JD 要求候选人在不依赖工程师的情况下讲清子 Agent 与传统垂类 Bot、Skill 与 RAG、上下文窗口的产品含义。</li><li>岗位需要制定可被他人使用的 Skill 撰写规范、Tool 定义和 Agent 配置。</li></ul><h4>隐含任务</h4><ul><li>在产品、工程和业务语言之间解释 Agent 架构取舍。</li><li>把边界、权限、失败和评测规则写成可执行规范。</li></ul><h4>难度驱动因素</h4><ul><li>沟通内容跨产品概念、Agent 技术机制和教育业务行为，需要避免术语歧义。</li><li>规范将被多角色执行，表达必须同时支持设计、开发和验收。</li></ul><p class="risk"><strong>需要避免：</strong>避免用概念口号代替真实案例、边界条件和可执行规则。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html" title="作业帮 AI产品经理（agent）职位页面">[引用1]</a></p></div></details><details class="capability"><summary><span>创新能力</span><strong class="score">(<span class="score-current">8</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于 Agent 产品范式、行为评测和失败治理都缺少完全成熟的方法，难度较高，需要候选人能用真实实验建立并修正新的产品框架。</p><h4>来源事实</h4><ul><li>JD 强调从传统意图槽位对话系统迁移到 Agent 新范式，并要求说明旧直觉如何被推翻。</li><li>岗位要为不确定性产品建立行为评测、失败分类和自治程度分级。</li></ul><h4>隐含任务</h4><ul><li>在缺少成熟范式时提出 Agent 产品边界、失败模型和验证方法。</li><li>通过真实版本迭代修正旧有对话产品方法。</li></ul><h4>难度驱动因素</h4><ul><li>问题同时包含新技术机制、开放式行为质量和尚未稳定的产品方法。</li><li>岗位需要原创失败分类与护栏，而不是套用传统功能测试或固定意图流程。</li></ul><p class="risk"><strong>需要避免：</strong>避免把传统对话 Bot 的确定性流程原样迁移到具备自主判断的 Agent。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html" title="作业帮 AI产品经理（agent）职位页面">[引用1]</a></p></div></details><details class="capability"><summary><span>执行能力</span><strong class="score">(<span class="score-current">6</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于多个 Agent 组件需要按依赖推进并在版本周期内持续回归，难度中等，需要候选人能组织并闭环多条相互关联的产品任务。</p><h4>来源事实</h4><ul><li>岗位需要同时推进能力边界、知识治理、Tool 权限、评测和失败护栏。</li><li>JD 要求候选人亲手完成至少一个提示词版本周期并能通过 trace 定位问题。</li></ul><h4>隐含任务</h4><ul><li>安排多个 Agent 机制的设计、试验、回归和版本依赖。</li><li>把轨迹问题快速转化为提示词、知识、Tool 或护栏改动。</li></ul><h4>难度驱动因素</h4><ul><li>多条任务线共享同一 Agent 运行链路，变更之间存在回归依赖。</li><li>版本迭代需要同步评测集、配置、知识和失败策略，但没有证据显示存在超长组织链路。</li></ul><p class="risk"><strong>需要避免：</strong>避免各组件独立迭代导致版本不一致、问题无法复现或护栏失效。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html" title="作业帮 AI产品经理（agent）职位页面">[引用1]</a></p></div></details></div></div></details>
+</section>
+<div class="insight-grid">
+<section id="tasks">
+  <h2>隐含任务</h2>
+  <p class="section-description">结合 JD、产品机制与业务场景，推演入职后最可能承担的核心工作。</p>
+  <ol class="task-list"><li><strong>定义主 Agent 与子 Agent 的任务边界、上下文隔离、委派简报和失败降级规则</strong><span class="basis">JD 明确要求决定哪些任务应隔离上下文派发、哪些留在主线，并设计失败时的降级方式。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html" title="作业帮 AI产品经理（agent）职位页面">[引用1]</a></span></li><li><strong>建立 Skill、检索知识库与提示词的知识分层、撰写规范和版本治理体系</strong><span class="basis">JD 要求区分程序性知识与海量碎片化陈述性知识，并建立 Skill 规范及版本治理。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html" title="作业帮 AI产品经理（agent）职位页面">[引用1]</a></span></li><li><strong>设计 Agent Tool 契约、权限模型、人类确认节点和自治程度产品分级</strong><span class="basis">JD 明确要求决定可调用工具、需人工确认的动作，并把自治程度设计为产品化分级。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html" title="作业帮 AI产品经理（agent）职位页面">[引用1]</a></span></li><li><strong>建立覆盖行为得体性、询问时机、停止条件和委派质量的 Agent 评测体系</strong><span class="basis">JD 要求评估不确定性产品的行为是否得体，并将该问不问、该停不停和简报失真视为缺陷。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html" title="作业帮 AI产品经理（agent）职位页面">[引用1]</a></span></li><li><strong>建设 Agent 失败分类、评估集、轨迹诊断方法和对应产品护栏</strong><span class="basis">JD 要求处理上下文溢出、委派失真、知识过时和过度自信，并要求候选人能读执行轨迹定位问题。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html" title="作业帮 AI产品经理（agent）职位页面">[引用1]</a></span></li><li><strong>把教育场景中的 Agent 能力接入作业帮学习产品并形成持续验证闭环</strong><span class="basis">作业帮已在 App、智能硬件和教育大模型中布局 AI 答疑与伴学能力，JD 要求亲手迭代完整版本周期。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html" title="作业帮 AI产品经理（agent）职位页面">[引用1]</a>、<a class="source-citation" href="https://apps.apple.com/cn/app/id803781859" title="作业帮 App 产品页面">[引用4]</a>、<a class="source-citation" href="https://smart.zuoyebang.com/about" title="作业帮智能硬件品牌介绍">[引用3]</a>、<a class="source-citation" href="https://www.xinhuanet.com/tech/20230902/8c23fbea143c4790b8481099ab9f4c45/c.html" title="作业帮正式发布银河大模型">[引用5]</a></span></li></ol>
+</section>
+<section id="metrics">
+  <h2>隐含指标</h2>
+  <p class="section-description">区分岗位资料明确提出与基于任务推定的衡量方式，不设定未经证实的目标值。</p>
+  <ul class="metric-list"><li><strong>端到端学习任务成功率</strong> <span class="chip">推定</span><span class="basis">衡量主 Agent、子 Agent、知识与 Tool 组合后是否完成学生真实学习任务。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html" title="作业帮 AI产品经理（agent）职位页面">[引用1]</a>、<a class="source-citation" href="https://apps.apple.com/cn/app/id803781859" title="作业帮 App 产品页面">[引用4]</a></span></li><li><strong>委派简报保真率</strong> <span class="chip">推定</span><span class="basis">衡量子 Agent 接收和返回的信息是否保留任务目标、关键约束与证据。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html" title="作业帮 AI产品经理（agent）职位页面">[引用1]</a></span></li><li><strong>行为得体性评测通过率</strong> <span class="chip">推定</span><span class="basis">覆盖该问时询问、该停时停止、不过度自信和不输出失真简报等行为质量。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html" title="作业帮 AI产品经理（agent）职位页面">[引用1]</a></span></li><li><strong>高风险动作人工确认覆盖率</strong> <span class="chip">推定</span><span class="basis">衡量需人工确认的 Tool 动作是否被正确识别并阻止未经授权的自动执行。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html" title="作业帮 AI产品经理（agent）职位页面">[引用1]</a></span></li><li><strong>知识版本新鲜度与命中有效性</strong> <span class="chip">推定</span><span class="basis">衡量 Skill 与检索知识是否使用正确版本，并能为当前任务提供有效依据。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html" title="作业帮 AI产品经理（agent）职位页面">[引用1]</a></span></li><li><strong>失败分类覆盖率与轨迹可诊断率</strong> <span class="chip">推定</span><span class="basis">衡量主要失败是否可归类、可从 trace 定位，并能映射到降级或护栏措施。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html" title="作业帮 AI产品经理（agent）职位页面">[引用1]</a></span></li></ul>
+</section>
+</div>
+<section id="market">
+  <h2>产品赛道判断</h2>
+  <p class="section-description">先从横向平台/垂直行业、客户倾向和行业属性定位公司，再判断岗位产品与 AI / Agent 的真实角色。</p>
+  <div class="chips"><span class="chip">数字教育</span><span class="chip">智能学习工具</span><span class="chip">教育智能硬件</span></div>
+  <article class="card market-context" data-market-context="true"><p><strong>核心问题：</strong>让学生在答疑、练习、批改和伴学过程中获得准确、可控且个性化的 AI 帮助，并控制 Agent 越权、委派失真、知识过时和不当行为</p><p><strong>目标用户：</strong>作业帮 App 与智能硬件中的中小学生，以及承担辅导、监督和学情管理的家长与老师</p><p><strong>客户倾向：</strong>To C</p><p><strong>AI / Agent 角色：</strong>平台能力</p><p><strong>核心场景：</strong>拍题答疑、追问与知识点讲解、作业批改、薄弱点诊断与个性化练习、主 Agent 与子 Agent 的学习任务委派和结果汇总、受控工具调用、权限确认与失败降级、Agent 行为评测、轨迹诊断与护栏迭代</p><p><strong>主营业务：</strong>垂直行业：面向中小学生及家长的数字教育产品，覆盖学习工具、智能硬件与教育大模型能力；教育行业属性强</p><p><strong>现有产品矩阵：</strong>作业帮 App、作业帮口算与家长辅导工具、作业帮智能硬件及聪明学系统、银河教育大模型、智能图书与教育数字化产品</p><p class="source-links">来源：<a class="source-citation" href="https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html" title="作业帮 AI产品经理（agent）职位页面">[引用1]</a>、<a class="source-citation" href="https://www.zuoyebang.com/?lang=zh_CN" title="作业帮官网">[引用2]</a>、<a class="source-citation" href="https://smart.zuoyebang.com/about" title="作业帮智能硬件品牌介绍">[引用3]</a>、<a class="source-citation" href="https://apps.apple.com/cn/app/id803781859" title="作业帮 App 产品页面">[引用4]</a>、<a class="source-citation" href="https://www.xinhuanet.com/tech/20230902/8c23fbea143c4790b8481099ab9f4c45/c.html" title="作业帮正式发布银河大模型">[引用5]</a></p></article>
+</section>
+<section id="products">
+  <h2>岗位对应产品</h2>
+  <p class="section-description">结合 CSV 产品线索、岗位职责和公司官方资料，确定岗位实际服务的业务产品。</p>
+  <div class="grid"><article class="card product-basis"><h3>作业帮 App AI 学习能力</h3><p>面向学生与家长，将搜题答疑、智能追问、作业批改、薄弱点诊断和个性化练习整合为 AI 学习体验。</p><p class="muted">根据公司官方核心产品和 JD 的通用 Agent 治理职责推定；JD 没有披露具体产品归属。 · 置信度 medium</p><p class="source-links">来源：<a class="source-citation" href="https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html" title="作业帮 AI产品经理（agent）职位页面">[引用1]</a>、<a class="source-citation" href="https://www.zuoyebang.com/?lang=zh_CN" title="作业帮官网">[引用2]</a>、<a class="source-citation" href="https://apps.apple.com/cn/app/id803781859" title="作业帮 App 产品页面">[引用4]</a>、<a class="source-citation" href="https://www.xinhuanet.com/tech/20230902/8c23fbea143c4790b8481099ab9f4c45/c.html" title="作业帮正式发布银河大模型">[引用5]</a></p></article><article class="card product-basis"><h3>聪明学系统 AI 伴学引擎</h3><p>把作业帮教研内容、学情数据与 AIGC 能力组合，为全学科、全学龄智能学习硬件提供伴学能力。</p><p class="muted">根据智能硬件官网公布的跨产品 AI 引擎与 JD 的平台型职责推定；具体组织归属未公开。 · 置信度 medium</p><p class="source-links">来源：<a class="source-citation" href="https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html" title="作业帮 AI产品经理（agent）职位页面">[引用1]</a>、<a class="source-citation" href="https://smart.zuoyebang.com/about" title="作业帮智能硬件品牌介绍">[引用3]</a>、<a class="source-citation" href="https://www.xinhuanet.com/tech/20230902/8c23fbea143c4790b8481099ab9f4c45/c.html" title="作业帮正式发布银河大模型">[引用5]</a></p></article></div>
+</section>
+<section id="competition">
+  <h2>学习参照物</h2>
+  <p class="section-description">只展示目标用户有重叠、核心问题相近、核心场景相近的产品，用来学习其产品设计与落地方法，不要求能够相互替代。</p>
+  <div class="grid three"><article class="card" data-matched-product-id="zuoyebang-app-ai-learning"><h3><a class="competitor-link" href="https://khanmigo.ai/">Khanmigo</a></h3><p>Khan Academy 面向学生、家长和教师提供的 AI 辅导与教学助手。</p><p class="muted"><strong>可学习：</strong>可参照其不给直接答案的引导式辅导、未成年人访问控制、内容库接入和课堂监督机制。</p><p class="source-links">来源：<a class="source-citation" href="https://khanmigo.ai/" title="Khanmigo AI tutor and teaching assistant">[引用7]</a>、<a class="source-citation" href="https://apps.apple.com/cn/app/id803781859" title="作业帮 App 产品页面">[引用4]</a></p></article><article class="card" data-matched-product-id="zuoyebang-app-ai-learning"><h3><a class="competitor-link" href="https://www.gauthmath.com/">Gauth</a></h3><p>面向学生、覆盖多学科问题求解与解释的 AI 学习伙伴。</p><p class="muted"><strong>可学习：</strong>可参照其跨学科题目解析、步骤化解释和把 AI 定位为学习辅助而非替代作业的产品边界。</p><p class="source-links">来源：<a class="source-citation" href="https://www.gauthmath.com/" title="Gauth AI Homework Helper">[引用8]</a>、<a class="source-citation" href="https://apps.apple.com/cn/app/id803781859" title="作业帮 App 产品页面">[引用4]</a></p></article></div>
+</section>
+<section id="company">
+  <h2>公司概况</h2>
+  <p class="section-description">补充公司的性质、规模、经营情况、核心客户或用户，以及当前发展阶段。</p>
+  <dl class="facts"><dt>性质</dt><dd>其他民企</dd><dt>规模</dt><dd>2020 年公开报道披露超过 5000 万日活跃用户和 1.7 亿月活跃用户；当前官方产品覆盖学习工具与智能硬件</dd><dt>经营情况</dt><dd>2026 年官方站点及应用商店仍展示作业帮 App、家长辅导工具和智能硬件矩阵，App 继续提供 AI 答疑、批改、同步练习和会员服务</dd><dt>核心客户 / 用户</dt><dd>中小学生是主要学习用户，家长和老师参与作业辅导、检查及学情管理</dd><dt>阶段</dt><dd>成熟经营阶段；2020 年完成超过 16 亿美元 E+ 轮融资</dd><dt>主要来源</dt><dd><a class="source-citation" href="https://www.zuoyebang.com/?lang=zh_CN" title="作业帮官网">[引用2]</a>、<a class="source-citation" href="https://smart.zuoyebang.com/about" title="作业帮智能硬件品牌介绍">[引用3]</a>、<a class="source-citation" href="https://apps.apple.com/cn/app/id803781859" title="作业帮 App 产品页面">[引用4]</a>、<a class="source-citation" href="https://www.marketscreener.com/quote/stock/BAIDU-INC-8563/news/Chinese-online-tutor-Zuoyebang-raises-more-than-1-6-billion-32090708/" title="Chinese online tutor Zuoyebang raises more than $1.6 billion">[引用6]</a></dd></dl>
+</section>
+<section id="sources"><h2>来源</h2><ol><li id="source-job-posting"><a class="source-citation" href="https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html" title="作业帮 AI产品经理（agent）职位页面">[引用1]</a> — BOSS直聘，访问于 2026-08-29</li><li id="source-company-site"><a class="source-citation" href="https://www.zuoyebang.com/?lang=zh_CN" title="作业帮官网">[引用2]</a> — 作业帮，访问于 2026-08-29</li><li id="source-smart-hardware-site"><a class="source-citation" href="https://smart.zuoyebang.com/about" title="作业帮智能硬件品牌介绍">[引用3]</a> — 作业帮智能，访问于 2026-08-29</li><li id="source-app-store"><a class="source-citation" href="https://apps.apple.com/cn/app/id803781859" title="作业帮 App 产品页面">[引用4]</a> — Apple App Store，访问于 2026-08-29</li><li id="source-galaxy-model-news"><a class="source-citation" href="https://www.xinhuanet.com/tech/20230902/8c23fbea143c4790b8481099ab9f4c45/c.html" title="作业帮正式发布银河大模型">[引用5]</a> — 新华网，访问于 2026-08-29</li><li id="source-reuters-funding"><a class="source-citation" href="https://www.marketscreener.com/quote/stock/BAIDU-INC-8563/news/Chinese-online-tutor-Zuoyebang-raises-more-than-1-6-billion-32090708/" title="Chinese online tutor Zuoyebang raises more than $1.6 billion">[引用6]</a> — Reuters via MarketScreener，访问于 2026-08-29</li><li id="source-khanmigo-site"><a class="source-citation" href="https://khanmigo.ai/" title="Khanmigo AI tutor and teaching assistant">[引用7]</a> — Khan Academy，访问于 2026-08-29</li><li id="source-gauth-site"><a class="source-citation" href="https://www.gauthmath.com/" title="Gauth AI Homework Helper">[引用8]</a> — Gauth，访问于 2026-08-29</li></ol><h3>调研限制</h3><ul><li>JD 未披露所属部门、产品入口和直接用户，公开资料无法确认岗位具体服务于作业帮 App、智能硬件、海外产品还是跨产品 Agent 平台。</li><li>公司未公开近期经审计经营数据或员工总数，规模与融资阶段引用较早的 2020 年公开报道。</li><li>长期用户记忆、生产部署环境、具体 Tool 数量和写操作风险未在 JD 中披露，因此相关能力采用审慎评分并降低置信度。</li></ul></section>
+<footer>岗位 ID：boss-138380ca6afc27580nzy3ni1gvpu-76d12a5921 · 生成时间：2026-08-29T11:44:08+08:00</footer></div></div>
+</main>
+  <script>
+    (() => {
+      const points = document.querySelectorAll('.radar-point');
+      const setContent = (point) => {
+        const description = point.closest('.chart')?.querySelector('.radar-description');
+        if (!description) return;
+        description.textContent = point.dataset.capabilityConclusion || '';
+        description.dataset.active = 'true';
+      };
+
+      const resetContent = (point) => {
+        const description = point.closest('.chart')?.querySelector('.radar-description');
+        if (!description) return;
+        description.textContent = '悬停或聚焦任一维度，查看能力结论。';
+        description.dataset.active = 'false';
+      };
+
+      points.forEach((point) => {
+        point.addEventListener('pointerenter', () => setContent(point));
+        point.addEventListener('pointerleave', () => resetContent(point));
+        point.addEventListener('focus', () => setContent(point));
+        point.addEventListener('blur', () => resetContent(point));
+      });
+
+      const navLinks = [...document.querySelectorAll('.report-sidebar a[href^="#"]')];
+      const sections = navLinks.map((link) => document.querySelector(link.getAttribute('href'))).filter(Boolean);
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+          const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+          if (!visible) return;
+          navLinks.forEach((link) => link.classList.toggle('active', link.getAttribute('href') === `#${visible.target.id}`));
+        }, { rootMargin: '-20% 0px -65%', threshold: [0, .2, .6] });
+        sections.forEach((section) => observer.observe(section));
+      }
+    })();
+  </script>
+</body>
+</html>

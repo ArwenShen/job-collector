@@ -1,0 +1,484 @@
+schema_version: "3.4"
+generated_at: "2026-08-29T12:16:00+08:00"
+research_date: "2026-08-29"
+job:
+  job_id: "boss-a36cdee94f5ee4b20nj939u7f1rq-87ef57b151"
+  title: "AI Agent 产品经理"
+  company_name: "SenseTime"
+  source_url: "https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html"
+research:
+  status: "complete"
+  search_queries:
+    - "site:sensetime.com 商汤 AI Agent 小浣熊 商量 产品 官方 2026"
+    - "site:sensetime.com SenseNova Agent 企业 私有化 Skill MCP Memory 官方"
+    - "site:sensetime.com 2026 interim results generative AI Raccoon official"
+    - "site:openai.com workspace agents tools permissions workflows official"
+    - "site:microsoft.com Microsoft Copilot workflows agent official 2026"
+  limitations:
+    - "JD 未直接写出产品品牌，岗位归属依据其 C 端能力向 B 端和私有化复用的职责，与商汤小浣熊最新官方产品路径交叉确认。"
+    - "岗位可能同时建设小浣熊与集团统一 Agent Harness 的公共能力，但公开资料未披露组织边界和内部模块归属。"
+    - "JD 未披露具体 Tool 数量、长期任务时长、知识规模和风险动作类型，因此能力评分停留在产品机制与业务约束层级。"
+industry_tags:
+  - "企业软件"
+  - "办公生产力"
+  - "信息技术服务"
+market_context:
+  primary_business: "混合型：以日日新模型、AI 大装置和 Agent Harness 提供横向 AI 能力，并通过办公、金融、教育和政务产品进入行业场景；行业属性中等"
+  existing_product_matrix:
+    - "商汤日日新 SenseNova 模型体系"
+    - "商汤小浣熊 Raccoon Work 及行业智能体版本"
+    - "Seko 多模态短片创作智能体"
+    - "如影数字人营销智能体"
+    - "商汤大装置 SenseCore 与 Token Factory"
+  target_users: "需要把文档、表格、代码、网页和办公系统任务交给 AI 完成的个人知识工作者，以及采购、管理和使用私有化智能体的企业员工、IT 管理员与业务团队"
+  core_problem: "让 Agent 在复杂工作任务中稳定规划、调用工具、保持上下文并交付可控结果，同时把 C 端能力复用于企业权限、知识、安全审计和私有化环境"
+  core_scenarios:
+    - "本地文档、表格和多格式文件处理"
+    - "浏览器操作、信息检索和结果整理"
+    - "Skill 封装、分享和团队复用"
+    - "飞书、钉钉、数据库等系统连接"
+    - "长期异步任务、异常恢复和人工确认"
+  technology_role: "mixed"
+  source_refs:
+    - "job-posting"
+    - "raccoon-work-launch"
+    - "sensetime-home"
+    - "sensetime-2026-results"
+company_overview:
+  ownership: "上市民企"
+  size: "2026 年上半年 Agent 产品服务超过 1000 家企业客户并覆盖 20 多个重点行业；商汤小浣熊累计服务用户超过 2000 万"
+  operating_condition: "2026 年上半年收入 29.1 亿元，同比增长 23.4%；生成式 AI 收入 23.3 亿元，占总收入近八成，并首次实现上市后 IFRS 盈利"
+  customer_type: "混合"
+  core_customers: "个人知识工作者，以及教育、政务、营销、物流、银行、保险和通信等行业的企业与机构客户"
+  stage: "香港上市后的生成式 AI 规模商业化阶段"
+  source_refs:
+    - "sensetime-2026-results"
+    - "raccoon-work-launch"
+    - "sensetime-home"
+products:
+  - product_id: "raccoon-work"
+    name: "商汤小浣熊 Raccoon Work"
+    summary: "面向个人与企业的 AI 工作智能体，处理本地文件、浏览器、办公系统和长期任务，并支持 Skill、连接器、记忆、企业私有化及行业版本。"
+    identification_basis: "responsibility_inferred"
+    basis_note: "JD 的 Skill、Tool、Connector、Memory、长期任务和 C 端向 B 端私有化复用职责，与商汤 2026 年 8 月公布的小浣熊产品机制和商业路径高度一致。"
+    confidence: "high"
+    source_refs:
+      - "job-posting"
+      - "raccoon-work-launch"
+      - "sensetime-2026-results"
+competitors:
+  - matched_product_id: "raccoon-work"
+    name: "ChatGPT Workspace Agents"
+    summary: "面向企业团队创建、共享和治理工作 Agent 的产品，可连接应用、MCP、Skill 和文件并运行跨工具任务。"
+    url: "https://openai.com/business/workspace-agents/"
+    learning_value: "可参照其 Agent 构建与发布、应用连接、权限约束、敏感动作审批和组织级治理机制。"
+    target_users_overlap: true
+    target_users_evidence: "双方均服务希望把重复工作交给 Agent 的企业知识工作者、业务团队和工作区管理员。"
+    core_problem_similarity: true
+    core_problem_evidence: "双方都要让 Agent 跨企业工具稳定执行完整任务，同时保留权限、审批和监控控制。"
+    core_scenarios_similarity: true
+    core_scenarios_evidence: "双方均覆盖可复用 Agent、文件与企业上下文、外部应用连接、定时或长期任务和人工批准。"
+    source_refs:
+      - "openai-workspace-agents"
+      - "openai-agent-docs"
+      - "raccoon-work-launch"
+  - matched_product_id: "raccoon-work"
+    name: "Microsoft Copilot Workflows"
+    summary: "通过自然语言生成和管理 Microsoft 365 自动化流程的工作 Agent，可连接 Outlook、SharePoint、Teams 和 Planner。"
+    url: "https://support.microsoft.com/en-us/Microsoft-365-Copilot/get-started-with-workflows-in-microsoft-365-copilot"
+    learning_value: "可参照其把自然语言任务转为可视化工作流、事件与定时触发、人工输入节点以及企业数据策略控制的方式。"
+    target_users_overlap: true
+    target_users_evidence: "双方均面向使用文档、通信和协作系统完成日常任务的个人与企业办公用户。"
+    core_problem_similarity: true
+    core_problem_evidence: "双方都减少用户在多个办公工具之间手工搬运信息和执行重复步骤的成本。"
+    core_scenarios_similarity: true
+    core_scenarios_evidence: "双方均覆盖办公应用连接、定时任务、数据读取、结果写回和人工参与的任务流程。"
+    source_refs:
+      - "microsoft-workflows"
+      - "raccoon-work-launch"
+possible_tasks:
+  - task: "定义复杂工作任务的理解、规划执行、上下文隔离和异常恢复机制"
+    basis: "JD 要求直接负责 Agent 复杂任务理解、规划、执行和恢复，小浣熊覆盖文件、浏览器与办公系统任务。"
+    source_refs:
+      - "job-posting"
+      - "raccoon-work-launch"
+  - task: "建设 Skill、Tool、MCP、Connector、Memory 和长期任务能力体系"
+    basis: "JD 明确列出六类 Agent 核心能力并要求提升任务连续性与可靠性。"
+    source_refs:
+      - "job-posting"
+  - task: "设计权限确认、人工介入、异步状态和失败恢复的端到端体验"
+    basis: "JD 要求负责从用户输入到最终产物的体验及关键控制机制。"
+    source_refs:
+      - "job-posting"
+  - task: "建立 Agent Eval、线上数据和 failure case 驱动的持续优化闭环"
+    basis: "JD 要求结合评测与线上数据优化效果、稳定性、成本和效率。"
+    source_refs:
+      - "job-posting"
+  - task: "验证模型选择、Prompt、Context 和工具方案并推动产品上线"
+    basis: "JD 要求与研发完成从技术验证到产品落地的完整闭环。"
+    source_refs:
+      - "job-posting"
+  - task: "把 C 端 Agent 能力抽象为支持组织权限、企业知识与安全审计的私有化能力"
+    basis: "JD 与小浣熊官方产品路径均明确 C 端能力向企业和私有化场景扩展。"
+    source_refs:
+      - "job-posting"
+      - "raccoon-work-launch"
+  - task: "形成面向教育、金融和政数场景的可复用 Agent 产品底座"
+    basis: "小浣熊官方发布了三个行业版本方向，岗位负责其所需的企业基础能力。"
+    source_refs:
+      - "job-posting"
+      - "raccoon-work-launch"
+key_metrics:
+  - metric: "端到端任务成功率"
+    basis: "inferred"
+    reason: "衡量 Agent 是否从用户目标出发完成规划、工具调用和最终产物交付。"
+    source_refs:
+      - "job-posting"
+      - "raccoon-work-launch"
+  - metric: "长任务恢复成功率"
+    basis: "inferred"
+    reason: "衡量异步或中断任务能否保留状态并从失败点继续完成。"
+    source_refs:
+      - "job-posting"
+  - metric: "高风险动作确认覆盖率"
+    basis: "inferred"
+    reason: "衡量外部系统操作是否在正确节点获得授权并保持可控。"
+    source_refs:
+      - "job-posting"
+      - "openai-agent-docs"
+  - metric: "工具调用有效完成率"
+    basis: "inferred"
+    reason: "同时反映 Tool 选择、参数生成、权限、执行结果和错误恢复质量。"
+    source_refs:
+      - "job-posting"
+  - metric: "Agent 评测集通过率"
+    basis: "inferred"
+    reason: "衡量模型、Prompt、Context 与工具组合在代表性任务上的效果和稳定性。"
+    source_refs:
+      - "job-posting"
+  - metric: "单任务平均成本与完成时长"
+    basis: "inferred"
+    reason: "JD 要求同时优化成本和效率，长任务会放大推理与工具执行开销。"
+    source_refs:
+      - "job-posting"
+  - metric: "C 端能力企业复用率"
+    basis: "inferred"
+    reason: "衡量核心 Agent 能力能否在组织权限、私有化和行业场景中复用。"
+    source_refs:
+      - "job-posting"
+      - "raccoon-work-launch"
+capabilities:
+  hard_skills:
+    - id: "demand_definition"
+      name: "需求与定义"
+      dimension_tag: "大数据洞察"
+      score: 8
+      confidence: "high"
+      facts:
+        - "产品同时服务个人知识工作者、企业业务团队和组织管理员。"
+        - "岗位要定义从用户输入到最终产物交付的端到端体验，并将 C 端能力扩展到 B 端私有化场景。"
+      critical_tasks:
+        - "识别文档、数据、代码和跨系统任务中的真实用户目标与控制边界。"
+        - "定义个人体验与企业权限、安全、配置需求之间的共性和差异。"
+      difficulty_factors:
+        - "个人用户、企业员工、业务管理员和 IT 管理员的目标与风险关注点不同。"
+        - "输入从自然语言目标延伸到本地文件、浏览器和企业系统，需求边界高度异构。"
+        - "C 端易用性与私有化权限、安全审计之间存在直接取舍。"
+      avoid: "避免把技术组件清单当作用户需求，遗漏任务结果、控制感和企业治理边界。"
+      conclusion: "由于需要统一多类用户、异构工作任务和企业治理约束，难度较高，需要候选人能把模糊目标定义为可执行、可控制且可复用的 Agent 产品需求。"
+      source_refs:
+        - "job-posting"
+        - "raccoon-work-launch"
+    - id: "ai_solution_design"
+      name: "AI 方案设计"
+      score: 8
+      confidence: "high"
+      facts:
+        - "岗位直接负责 Skill、Tool、MCP、Connector、Memory、长期任务和 Human-in-the-loop 等 Agent 机制。"
+        - "小浣熊需要处理本地文件、浏览器、办公系统、定时任务和个性化记忆。"
+      critical_tasks:
+        - "组合领域 Skill、企业知识、工具连接、长期记忆与任务状态。"
+        - "设计权限确认、异常恢复和结果验证机制。"
+      difficulty_factors:
+        - "六类 Agent 机制直接耦合并共同决定端到端任务可靠性。"
+        - "工具副作用、企业数据权限和长期状态带来安全与错误累积风险。"
+        - "个人端与私有化环境需要不同的连接、配置和治理方式。"
+      avoid: "避免分别设计单个组件却没有处理上下文传递、权限、失败恢复和结果验证的整体关系。"
+      conclusion: "由于多种 Agent 机制强耦合且同时受到可靠性、权限和私有化约束，难度较高，需要候选人能设计并验证完整的 AI 任务执行体系。"
+      source_refs:
+        - "job-posting"
+        - "raccoon-work-launch"
+    - id: "development_delivery"
+      name: "开发与落地"
+      score: 8
+      confidence: "high"
+      facts:
+        - "岗位需要与研发共同完成模型选择、上下文组织、Prompt 和工具方案从验证到上线的闭环。"
+        - "产品覆盖桌面、网页、iOS、企业私有化和软硬一体机。"
+      critical_tasks:
+        - "拆解模型、Agent 运行时、客户端、连接器和企业管理能力的依赖。"
+        - "推动不同终端与部署环境中的稳定上线和持续迭代。"
+      difficulty_factors:
+        - "模型、Agent 编排、客户端、企业系统和部署基础设施形成较长依赖链。"
+        - "桌面、网页、移动端和私有化环境的权限与运行条件不同。"
+        - "缺少成熟范式时仍需通过技术验证形成可上线方案。"
+      avoid: "避免停留在原型可用，忽略多端一致性、生产稳定性、成本和企业部署条件。"
+      conclusion: "由于落地横跨模型、运行时、多端产品和私有化环境且依赖链复杂，难度较高，需要候选人能推动 Agent 核心能力从技术验证进入稳定生产。"
+      source_refs:
+        - "job-posting"
+        - "raccoon-work-launch"
+    - id: "evaluation_iteration"
+      name: "评测与迭代"
+      dimension_tag: "大数据反馈分析"
+      score: 8
+      confidence: "high"
+      facts:
+        - "岗位需要结合 Agent Eval、线上数据和 failure case 优化效果、稳定性、成本与效率。"
+        - "小浣熊累计服务用户超过 2000 万，周活跃用户超过 300 万。"
+      critical_tasks:
+        - "建立覆盖规划、工具、上下文、恢复和结果质量的分层评测。"
+        - "从大规模线上轨迹和失败样本中定位机制问题并验证修复。"
+      difficulty_factors:
+        - "文件、网页、数据分析和办公系统任务的成功标准明显不同。"
+        - "失败可能来自模型、Prompt、Context、Tool、权限或外部系统多个环节。"
+        - "大规模用户反馈需要与可重复离线评测和成本时延指标联合分析。"
+      avoid: "避免只评回答质量，遗漏工具执行、任务恢复、用户接管、成本和最终产物可用性。"
+      conclusion: "由于任务类型异构、失败来源跨越多组件且线上反馈规模大，难度较高，需要候选人能建设端到端 Agent 评测并驱动持续迭代。"
+      source_refs:
+        - "job-posting"
+        - "raccoon-work-launch"
+    - id: "growth_commercialization"
+      name: "增长与商业化"
+      score: 6
+      confidence: "medium"
+      facts:
+        - "岗位参与 C 端能力向 B 端和私有化场景的抽象、复用与产品化。"
+        - "小浣熊从个人办公产品扩展到企业部署和教育、金融、政数行业版本。"
+      critical_tasks:
+        - "提高 C 端验证能力在企业场景中的复用效率。"
+        - "定义标准能力与行业配置、私有化交付之间的产品边界。"
+      difficulty_factors:
+        - "个人用户自助使用与企业采购部署的决策链和服务方式不同。"
+        - "多个行业版本需要在共性底座与专业场景之间做取舍。"
+        - "JD 未要求岗位直接负责定价、销售渠道和收入目标。"
+      avoid: "避免为单个企业需求持续定制，削弱核心能力的标准化和规模复用。"
+      conclusion: "由于需要跨 C 端、企业私有化和多个行业版本复用能力但不负责完整销售体系，难度中等，需要候选人能设计可规模化的产品边界。"
+      source_refs:
+        - "job-posting"
+        - "raccoon-work-launch"
+  soft_skills:
+    - id: "communication"
+      name: "沟通力"
+      score: 7
+      confidence: "medium"
+      facts:
+        - "岗位需要与模型、Agent 工程和企业产品团队共同完成核心能力建设。"
+        - "企业复用涉及业务用户、组织管理员和私有化交付角色。"
+      critical_tasks:
+        - "在用户任务、模型机制、工程约束和企业治理之间形成共同决策。"
+        - "协调跨团队完成方案验证和上线迭代。"
+      difficulty_factors:
+        - "消费产品、研发和企业交付团队的成功标准不同。"
+        - "Agent 失败常跨越多个技术层级，需要准确划分责任和优先级。"
+      avoid: "避免用抽象术语掩盖问题归属，导致模型、工具、交互与企业能力团队相互等待。"
+      conclusion: "由于跨消费产品、AI 研发和企业交付团队存在明显目标与语言差异，难度较高，需要候选人能推动复杂 Agent 问题形成一致决策。"
+      source_refs:
+        - "job-posting"
+        - "raccoon-work-launch"
+    - id: "innovation"
+      name: "创新能力"
+      score: 8
+      confidence: "high"
+      facts:
+        - "JD 要求在缺少成熟范式和明确答案时主动探索并形成可落地方案。"
+        - "岗位需要持续评估新的模型与 Agent 能力并推动产品化。"
+      critical_tasks:
+        - "提出并验证新的 Skill、记忆、长期任务和交互机制。"
+        - "在效果、可靠性、成本和用户控制之间形成新产品解法。"
+      difficulty_factors:
+        - "长任务 Agent 的技术能力、用户预期和行业范式同时快速变化。"
+        - "新机制必须在真实工具、企业权限和大规模用户环境中验证。"
+        - "错误创新会直接影响用户数据、外部系统操作和产品信任。"
+      avoid: "避免追逐新技术名称而没有明确用户问题、验证假设、失败边界和上线标准。"
+      conclusion: "由于技术、交互和商业形态同时处于快速探索期且验证需要进入真实任务环境，难度较高，需要候选人能把不确定假设转成可验证的产品机制。"
+      source_refs:
+        - "job-posting"
+        - "sensetime-2026-results"
+    - id: "execution"
+      name: "执行能力"
+      score: 8
+      confidence: "high"
+      facts:
+        - "岗位需要独立负责模块并推动从设计、技术验证到上线迭代的完整闭环。"
+        - "职责同时覆盖 Agent 核心机制、端到端体验和企业基础能力。"
+      critical_tasks:
+        - "管理多条能力建设与评测迭代任务的依赖和节奏。"
+        - "在缺少确定答案时持续缩小问题并交付可上线结果。"
+      difficulty_factors:
+        - "Skill、Tool、Memory、长期任务和企业治理等任务线并行。"
+        - "方案依赖模型能力和外部系统，结果存在较高不确定性。"
+        - "岗位对完整产品模块而非单份方案承担 Owner 责任。"
+      avoid: "避免同时铺开过多 Agent 能力却没有关键路径、验证顺序和明确完成标准。"
+      conclusion: "由于多条高不确定能力线并行且岗位需承担模块端到端 Owner 责任，难度较高，需要候选人能组织验证顺序并持续交付上线结果。"
+      source_refs:
+        - "job-posting"
+  ai_solution_design:
+    - id: "skill_design"
+      name: "Skill 设计能力"
+      score: 8
+      confidence: "high"
+      facts:
+        - "岗位直接负责 Skill、Tool、Connector、Memory 与长期任务能力体系。"
+        - "小浣熊允许用户把工作方法封装为专属技能并分享给团队。"
+      critical_tasks:
+        - "定义 Skill 的任务边界、触发条件、上下文和结果验证。"
+        - "编排知识、记忆与工具依赖并处理权限和失败恢复。"
+      difficulty_factors:
+        - "Skill 需要根据用户目标在文件、网页和办公系统之间自主选择处理方式。"
+        - "直接依赖的 Tool 达到高难度且涉及权限、外部副作用和异常恢复。"
+        - "直接依赖的企业知识与长期记忆均达到高难度，增加上下文选择和数据治理负担。"
+        - "个人 Skill 还需支持团队分享和企业环境复用。"
+      avoid: "避免把 Skill 做成无边界的提示词集合，缺少触发条件、依赖契约、权限和可验证结果。"
+      conclusion: "由于 Skill 需要综合高难度工具、企业知识和长期记忆并承担自主选择与失败恢复，难度较高，需要候选人能设计可复用且可验证的领域任务能力。"
+      source_refs:
+        - "job-posting"
+        - "raccoon-work-launch"
+    - id: "knowledge_base_design"
+      name: "知识库设计能力"
+      score: 7
+      confidence: "high"
+      facts:
+        - "岗位负责企业及私有化场景中的数据与知识、组织权限和安全审计能力。"
+        - "小浣熊可连接本地文件、企业办公软件和数据库。"
+      critical_tasks:
+        - "定义本地与企业知识的接入、权限、更新和检索边界。"
+        - "验证知识在 Agent 规划与最终产物中的引用效果。"
+      difficulty_factors:
+        - "知识来源包含多格式本地文件、办公平台和数据库，结构明显异构。"
+        - "企业组织权限与私有化部署要求检索继承访问边界。"
+        - "知识结果进入可执行任务和最终产物，错误可能被后续工具操作放大。"
+      avoid: "避免只关注检索命中，忽略来源权限、更新时效、引用可追溯性和任务执行风险。"
+      conclusion: "由于知识来源异构并受到组织权限、私有化和任务执行风险约束，难度较高，需要候选人能设计可治理的企业知识接入与检索机制。"
+      source_refs:
+        - "job-posting"
+        - "raccoon-work-launch"
+    - id: "agent_tool_design"
+      name: "Agent Tool 设计"
+      score: 8
+      confidence: "high"
+      facts:
+        - "岗位直接负责 Tool、MCP、Connector、权限确认和错误恢复。"
+        - "小浣熊可操作本地文件与浏览器，并连接飞书、钉钉和数据库。"
+      critical_tasks:
+        - "定义工具选择、参数、鉴权、确认、执行和结果反馈契约。"
+        - "设计超时、失败重试、降级与人工接管机制。"
+      difficulty_factors:
+        - "工具横跨本地文件、浏览器、协作平台和数据库等不同安全域。"
+        - "部分操作具有写入和外部副作用，需要权限确认与审计。"
+        - "多步骤任务中单次工具失败会影响后续状态和最终产物。"
+        - "C 端授权与企业组织权限需要不同的管理方式。"
+      avoid: "避免只设计成功调用路径，遗漏最小权限、幂等、审计、补偿和用户接管。"
+      conclusion: "由于工具跨越多个安全域并包含有副作用的操作和复杂失败传播，难度较高，需要候选人能设计可靠、可授权且可恢复的 Agent Tool 体系。"
+      source_refs:
+        - "job-posting"
+        - "raccoon-work-launch"
+        - "openai-agent-docs"
+    - id: "workflow_design"
+      name: "工作流设计"
+      score: 7
+      confidence: "high"
+      facts:
+        - "岗位负责长期任务、异步状态、Human-in-the-loop 和错误恢复。"
+        - "小浣熊支持定时读取数据、生成结果并写入团队协作系统。"
+      critical_tasks:
+        - "设计长期任务的状态、暂停、恢复、确认和完成条件。"
+        - "定义定时任务与外部系统写入流程的异常处理。"
+      difficulty_factors:
+        - "长期异步任务必须显式保存状态并支持中断后恢复。"
+        - "定时触发、人工确认与外部系统写入形成多节点流程。"
+        - "失败恢复需要区分重试、回退、取消和人工接管。"
+      avoid: "避免用一次性对话模拟长流程，导致状态丢失、重复执行或未经确认的写入。"
+      conclusion: "由于长期异步流程包含定时触发、人工节点、外部写入和恢复分支，难度较高，需要候选人能设计可暂停、可恢复且状态明确的 Agent 工作流。"
+      source_refs:
+        - "job-posting"
+        - "raccoon-work-launch"
+    - id: "memory_design"
+      name: "记忆能力"
+      score: 7
+      confidence: "high"
+      facts:
+        - "岗位直接负责 Memory、Context 和长期任务能力。"
+        - "小浣熊会记住用户职业背景、常用术语和输出偏好。"
+      critical_tasks:
+        - "定义偏好、职业背景和任务状态的写入、召回与更新规则。"
+        - "区分个人记忆、团队知识和企业受控数据。"
+      difficulty_factors:
+        - "跨会话偏好和长期任务状态直接影响连续性与结果风格。"
+        - "个人、团队和企业数据需要不同权限与生命周期。"
+        - "错误或过期记忆会在后续任务中持续影响规划和产物。"
+      avoid: "避免无限累积用户信息，缺少来源、更新、更正、遗忘和权限边界。"
+      conclusion: "由于长期记忆直接影响任务连续性且涉及多层数据权限和错误累积风险，难度较高，需要候选人能设计可更新、可遗忘且可控的记忆机制。"
+      source_refs:
+        - "job-posting"
+        - "raccoon-work-launch"
+    - id: "demo_prototyping"
+      name: "Demo 原型设计"
+      score: 8
+      confidence: "high"
+      facts:
+        - "岗位要求完成模型、上下文、Prompt 和工具方案验证并推动产品落地。"
+        - "加分项包含亲自制作 Agent Demo、Skill、MCP 和 Workflow。"
+      critical_tasks:
+        - "连接真实模型、文件和工具构建高保真 Agent 原型。"
+        - "模拟权限确认、异步状态、失败恢复、成本和延迟约束。"
+      difficulty_factors:
+        - "原型需要验证多个强耦合 Agent 机制而非单一对话效果。"
+        - "真实工具和企业数据接入带来权限与副作用约束。"
+        - "原型结果需要支撑产品架构、模型选型和上线决策。"
+      avoid: "避免只演示理想路径，掩盖真实工具失败、状态恢复、权限和成本问题。"
+      conclusion: "由于原型需要连接真实模型与工具并验证权限、长任务和失败恢复等生产约束，难度较高，需要候选人能构建可用于架构和上线决策的高保真 Demo。"
+      source_refs:
+        - "job-posting"
+sources:
+  - id: "job-posting"
+    title: "AI Agent 产品经理职位页面"
+    publisher: "BOSS 直聘"
+    url: "https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html"
+    accessed_at: "2026-08-29"
+    type: "job"
+  - id: "raccoon-work-launch"
+    title: "我是全新的商汤小浣熊，今天的工作先交给我"
+    publisher: "商汤科技"
+    url: "https://www.sensetime.com/cn/news/-2"
+    accessed_at: "2026-08-29"
+    type: "product"
+  - id: "sensetime-home"
+    title: "商汤科技官网产品体系"
+    publisher: "商汤科技"
+    url: "https://www.sensetime.com/cn/index.html"
+    accessed_at: "2026-08-29"
+    type: "company"
+  - id: "sensetime-2026-results"
+    title: "SenseTime Records First-Ever Profit in First Half of 2026"
+    publisher: "SenseTime"
+    url: "https://sensetime.com/en/news/2026H1-results"
+    accessed_at: "2026-08-29"
+    type: "company"
+  - id: "openai-workspace-agents"
+    title: "Workspace agents for business"
+    publisher: "OpenAI"
+    url: "https://openai.com/business/workspace-agents/"
+    accessed_at: "2026-08-29"
+    type: "competitor"
+  - id: "openai-agent-docs"
+    title: "ChatGPT Workspace Agents for Enterprise and Business"
+    publisher: "OpenAI"
+    url: "https://help.openai.com/en/articles/20001143"
+    accessed_at: "2026-08-29"
+    type: "competitor"
+  - id: "microsoft-workflows"
+    title: "Get started with Workflows in Microsoft Copilot"
+    publisher: "Microsoft"
+    url: "https://support.microsoft.com/en-us/Microsoft-365-Copilot/get-started-with-workflows-in-microsoft-365-copilot"
+    accessed_at: "2026-08-29"
+    type: "competitor"

@@ -1,0 +1,29 @@
+:root {
+  --ui-tooltip-shadow: none;
+  --ui-tooltip-border: #e5e5e5;
+  --ui-tooltip-radius: 8px;
+}
+
+.ui-tooltip {
+  position: relative;
+}
+
+.ui-tooltip__surface {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 72px;
+  margin-top: 16px;
+  padding: 14px 16px;
+  color: #333333;
+  background: #ffffff;
+  border: 1px solid var(--ui-tooltip-border);
+  border-radius: var(--ui-tooltip-radius);
+  box-shadow: var(--ui-tooltip-shadow);
+  line-height: 1.6;
+}
+
+.ui-tooltip--svg:focus {
+  outline: 2px solid #0348ed;
+  outline-offset: 3px;
+}
+

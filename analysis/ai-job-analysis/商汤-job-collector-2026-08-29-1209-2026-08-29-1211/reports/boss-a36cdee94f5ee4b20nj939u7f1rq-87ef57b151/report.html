@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SenseTime · AI Agent 产品经理</title>
+  <style>
+    :root {
+  --ui-tooltip-shadow: none;
+  --ui-tooltip-border: #e5e5e5;
+  --ui-tooltip-radius: 8px;
+}
+
+.ui-tooltip {
+  position: relative;
+}
+
+.ui-tooltip__surface {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 72px;
+  margin-top: 16px;
+  padding: 14px 16px;
+  color: #333333;
+  background: #ffffff;
+  border: 1px solid var(--ui-tooltip-border);
+  border-radius: var(--ui-tooltip-radius);
+  box-shadow: var(--ui-tooltip-shadow);
+  line-height: 1.6;
+}
+
+.ui-tooltip--svg:focus {
+  outline: 2px solid #0348ed;
+  outline-offset: 3px;
+}
+
+
+    :root {
+      color-scheme: light;
+      --ink: #171717;
+      --muted: #666;
+      --line: #dedede;
+      --soft: #f7f7f5;
+      --blue: #0348ed;
+      --red: #ff3700;
+      --orange: #fe7e0f;
+      --page: 1120px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: #fff; color: var(--ink); font: 15px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif; }
+    a { color: var(--blue); overflow-wrap: anywhere; }
+    a:focus-visible, summary:focus-visible { outline: 3px solid rgba(3, 72, 237, .25); outline-offset: 3px; }
+    main { width: min(var(--page), calc(100% - 40px)); margin: 0 auto; padding: 42px 0 80px; }
+    header { border-bottom: 1px solid var(--line); padding-bottom: 26px; }
+    h1 { font-size: clamp(30px, 5vw, 48px); line-height: 1.12; letter-spacing: -.03em; margin: 8px 0 12px; }
+    h2 { font-size: 25px; line-height: 1.3; margin: 48px 0 18px; }
+    h3 { font-size: 18px; margin: 24px 0 10px; }
+    p { margin: 8px 0; }
+    ul, ol { padding-left: 22px; }
+    .eyebrow { color: var(--blue); font-size: 12px; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+    .lede { font-size: 18px; max-width: 800px; }
+    .section-description { color: var(--muted); margin: -10px 0 18px; max-width: 800px; }
+    .muted { color: var(--muted); }
+    .meta, .chips { display: flex; flex-wrap: wrap; gap: 8px 14px; color: var(--muted); }
+    .meta > * { min-width: 0; overflow-wrap: anywhere; }
+    .chip { border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .card { border: 1px solid var(--line); padding: 18px; min-width: 0; overflow-wrap: anywhere; }
+    .card h3:first-child { margin-top: 0; }
+    .facts { display: grid; grid-template-columns: 140px 1fr; margin: 0; border-top: 1px solid var(--line); }
+    .facts dt, .facts dd { border-bottom: 1px solid var(--line); margin: 0; padding: 10px 0; }
+    .facts dt { color: var(--muted); font-weight: 700; padding-right: 14px; }
+    .product-basis { border-left: 3px solid var(--blue); padding-left: 12px; }
+    .charts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .chart { display: flex; min-width: 0; flex-direction: column; border: 1px solid var(--line); padding: 10px; text-align: center; overflow: hidden; }
+    .chart h3 { margin: 6px 0 0; }
+    .chart svg { display: block; width: 100%; height: auto; margin: 0 auto; }
+    .radar-point { cursor: pointer; outline: none; }
+    .radar-hit { fill: transparent; }
+    .radar-dot { transform-box: fill-box; transform-origin: center; transition: transform .18s ease, fill .18s ease; }
+    .radar-label { font-size: 15px; font-weight: 700; transition: fill .18s ease; }
+    .radar-point:hover .radar-dot, .radar-point:focus .radar-dot { fill: var(--blue); transform: scale(1.55); }
+    .radar-point:hover .radar-label, .radar-point:focus .radar-label { fill: var(--blue); }
+    .radar-point:focus-visible .radar-hit { stroke: var(--blue); stroke-width: 2; }
+    .radar-description { min-height: 5.4rem; margin: 0 8px 8px; border-radius: 0; border-width: 1px 0 0; color: var(--muted); }
+    .radar-description[data-active="true"] { color: var(--ink); }
+    .capability-panel { border: 1px solid var(--line); margin-top: 14px; }
+    .capability-panel > summary { cursor: pointer; font-weight: 700; padding: 13px 15px; }
+    .capability-panel[open] > summary { border-bottom: 1px solid var(--line); }
+    .capability-panel-body { padding: 0 14px 14px; }
+    .score-list { display: grid; gap: 10px; }
+    details.capability { border: 1px solid var(--line); }
+    details.capability > summary { cursor: pointer; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; list-style-position: inside; padding: 13px 15px; font-weight: 700; }
+    details.capability[open] > summary { border-bottom: 1px solid var(--line); }
+    .score { color: var(--ink); font-variant-numeric: tabular-nums; }
+    .score-current { color: var(--blue); }
+    .details-body { padding: 12px 16px 16px; }
+    .details-body h4 { color: var(--muted); font-size: 13px; margin: 13px 0 4px; }
+    .details-body ul { margin: 5px 0; }
+    .capability-conclusion { font-size: 16px; }
+    .risk { border-left: 3px solid var(--orange); padding-left: 11px; }
+    .source-links, .source-citation { color: var(--muted); font-size: 13px; font-weight: 400; }
+    .source-citation { text-decoration-color: #aaa; text-underline-offset: 2px; }
+    .insight-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px; }
+    .task-list li, .metric-list li { margin-bottom: 10px; }
+    .basis { color: var(--muted); display: block; font-size: 13px; }
+    .competitor-link { font-weight: 700; }
+    .experience-map { border-left: 3px solid var(--blue); }
+    footer { border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; margin-top: 48px; padding-top: 18px; }
+    @media (max-width: 920px) {
+      .charts { grid-template-columns: 1fr 1fr; }
+      .chart:last-child { grid-column: 1 / -1; max-width: 540px; width: 100%; justify-self: center; }
+      .grid.three { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 680px) {
+      main { width: min(var(--page), calc(100% - 28px)); padding-top: 24px; }
+      .grid, .grid.three, .charts, .insight-grid { grid-template-columns: 1fr; }
+      .chart:last-child { grid-column: auto; }
+      .facts { grid-template-columns: 1fr; }
+      .facts dt { border-bottom: 0; padding-bottom: 0; }
+      details.capability > summary { grid-template-columns: minmax(0, 1fr) auto; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .radar-dot, .radar-label { transition: none; }
+    }
+    @media print {
+      @page { size: A4; margin: 14mm; }
+      body { font-size: 10pt; }
+      main { width: 100%; padding: 0; }
+      .charts { grid-template-columns: 1fr 1fr 1fr; }
+      .capability-panel > .capability-panel-body { display: block !important; }
+      details.capability > .details-body, details.capability:not([open]) > .details-body { display: block !important; }
+      details.capability, .card, .chart { break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+    }
+    /* Course-design report contract: pure white, restrained hierarchy, semantic accents. */
+    :root { --line: #e5e5e5; --page: 1280px; --radius: 24px; }
+    body { font-family: Geist, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif; }
+    main { width: min(var(--page), calc(100% - 48px)); padding-top: 40px; }
+    .report-layout { display: grid; grid-template-columns: 208px minmax(0, 1fr); gap: 48px; }
+    .report-sidebar { min-width: 0; max-width: 100%; position: sticky; top: 24px; align-self: start; border-right: 1px solid var(--line); padding: 12px 24px 12px 0; }
+    .report-sidebar strong { display: block; margin-bottom: 16px; }
+    .report-sidebar a { display: block; color: var(--muted); padding: 7px 0; text-decoration: none; }
+    .report-sidebar a:hover, .report-sidebar a.active { color: var(--blue); }
+    .report-content { min-width: 0; }
+    header { padding: 28px 0 56px; }
+    h1 { font-size: clamp(34px, 5vw, 54px); line-height: 1.05; letter-spacing: -.04em; }
+    h2 { font-size: clamp(28px, 3vw, 40px); line-height: 1.12; letter-spacing: -.025em; margin-top: clamp(48px, 7vw, 80px); }
+    .lede { font-size: 19px; color: #333; }
+    .report-score-note { margin: 0 0 24px; border-left: 3px solid var(--orange); padding: 4px 0 4px 16px; color: #444; }
+    .grid { gap: 16px; }
+    .card, .chart, .capability-panel { border-radius: var(--radius); }
+    .card { padding: 20px; }
+    .charts { gap: 16px; }
+    .chart { padding: 20px; text-align: left; }
+    .chart svg { max-width: 420px; }
+    .radar-description { margin: 0; padding-top: 12px; }
+    .capability-panel { overflow: hidden; margin-top: 16px; }
+    .capability-panel > summary { padding: 20px; }
+    .capability-panel-body { padding: 0; }
+    .capability-panel-body > h3 { padding: 20px; margin: 0; border-bottom: 1px solid var(--line); }
+    .score-list { gap: 0; }
+    details.capability { border: 0; border-bottom: 1px solid var(--line); }
+    details.capability > summary { padding: 18px 20px; }
+    .details-body { padding: 16px 20px 20px; }
+    .risk { border-left-color: var(--red); }
+    .insight-grid { gap: 48px; }
+    .task-list { list-style: decimal-leading-zero; }
+    .task-list li, .metric-list li { padding: 10px 0; border-bottom: 1px solid var(--line); }
+    .market-context { margin-top: 16px; }
+    @media (max-width: 920px) {
+      .report-layout { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+      .report-sidebar { position: static; display: flex; gap: 18px; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--line); padding: 8px 0; }
+      .report-sidebar strong { display: none; }
+      .report-sidebar a { white-space: nowrap; }
+    }
+    @media (max-width: 680px) {
+      main { width: calc(100% - 24px); padding-top: 12px; }
+      .card, .chart, .capability-panel { border-radius: 16px; }
+    }
+    @media print { .report-sidebar { display: none; } .report-layout { display: block; } }
+  </style>
+</head>
+<body>
+  <main>
+<div class="report-layout"><aside class="report-sidebar" aria-label="报告目录"><strong>岗位分析</strong><a href="#top">岗位概览</a><a href="#capabilities">能力模型</a><a href="#tasks">隐含任务</a><a href="#metrics">隐含指标</a><a href="#market">产品赛道</a><a href="#products">对应产品</a><a href="#competition">学习参照物</a><a href="#company">公司概况</a><a href="#sources">来源</a></aside><div class="report-content">
+<header id="top">
+  <div class="eyebrow">AI Job Analysis / SenseTime</div>
+  <h1>AI Agent 产品经理</h1>
+  <p class="lede">面向个人与企业的 AI 工作智能体，处理本地文件、浏览器、办公系统和长期任务，并支持 Skill、连接器、记忆、企业私有化及行业版本。</p>
+  <div class="meta">原始职位：<a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a><span>岗位 ID：boss-a36cdee94f5ee4b20nj939u7f1rq-87ef57b151</span></div>
+</header>
+<section id="capabilities">
+  <h2>岗位能力模型</h2>
+  <p class="section-description">从产品规模、业务复杂性与交付约束出发，展示各项能力需要达到的难度深度。</p>
+  <p class="report-score-note"><strong>评分说明：</strong>分数表示岗位任务对该能力提出的复杂度，不表示使用频率、重要程度或候选人的个人水平。</p>
+  <div class="charts"><article class="chart" data-capability-group="ai_solution_design"><h3>AI 方案设计</h3><svg viewBox="0 0 460 330" role="img" aria-label="AI 方案设计能力难度雷达图" data-radar-chart="true"><rect width="460" height="330" fill="#fff"/><polygon points="230.0,144.0 248.2,154.5 248.2,175.5 230.0,186.0 211.8,175.5 211.8,154.5" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,123.0 266.4,144.0 266.4,186.0 230.0,207.0 193.6,186.0 193.6,144.0" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,102.0 284.6,133.5 284.6,196.5 230.0,228.0 175.4,196.5 175.4,133.5" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,81.0 302.7,123.0 302.7,207.0 230.0,249.0 157.3,207.0 157.3,123.0" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,60.0 320.9,112.5 320.9,217.5 230.0,270.0 139.1,217.5 139.1,112.5" fill="none" stroke="#dedede" stroke-width="1"/><line x1="230.0" y1="165.0" x2="230.0" y2="60.0" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="320.9" y2="112.5" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="320.9" y2="217.5" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="230.0" y2="270.0" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="139.1" y2="217.5" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="139.1" y2="112.5" stroke="#dedede"/><polygon points="230.0,81.0 293.7,128.2 302.7,207.0 230.0,238.5 166.3,201.8 157.3,123.0" fill="rgba(3,72,237,.14)" stroke="#0348ed" stroke-width="2"/><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于 Skill 需要综合高难度工具、企业知识和长期记忆并承担自主选择与失败恢复，难度较高，需要候选人能设计可复用且可验证的领域任务能力。" tabindex="0" role="img" aria-label="Skill，8/10" aria-describedby="ai-solution-description"><circle class="radar-hit" cx="230.0" cy="81.0" r="15"/><circle class="radar-dot" cx="230.0" cy="81.0" r="5" fill="#0348ed"/><text class="radar-label" x="230.0" y="28.5" text-anchor="middle" font-size="15" font-weight="700" fill="#444">Skill (<tspan fill="#0348ed">8</tspan><tspan fill="#171717">/10)</tspan></text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于知识来源异构并受到组织权限、私有化和任务执行风险约束，难度较高，需要候选人能设计可治理的企业知识接入与检索机制。" tabindex="0" role="img" aria-label="知识库，7/10" aria-describedby="ai-solution-description"><circle class="radar-hit" cx="293.7" cy="128.2" r="15"/><circle class="radar-dot" cx="293.7" cy="128.2" r="5" fill="#0348ed"/><text class="radar-label" x="348.2" y="96.8" text-anchor="start" font-size="15" font-weight="700" fill="#444">知识库 (<tspan fill="#0348ed">7</tspan><tspan fill="#171717">/10)</tspan></text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于工具跨越多个安全域并包含有副作用的操作和复杂失败传播，难度较高，需要候选人能设计可靠、可授权且可恢复的 Agent Tool 体系。" tabindex="0" role="img" aria-label="Agent Tool，8/10" aria-describedby="ai-solution-description"><circle class="radar-hit" cx="302.7" cy="207.0" r="15"/><circle class="radar-dot" cx="302.7" cy="207.0" r="5" fill="#0348ed"/><text class="radar-label" x="348.2" y="233.2" text-anchor="start" font-size="15" font-weight="700" fill="#444">Agent Tool (<tspan fill="#0348ed">8</tspan><tspan fill="#171717">/10)</tspan></text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于长期异步流程包含定时触发、人工节点、外部写入和恢复分支，难度较高，需要候选人能设计可暂停、可恢复且状态明确的 Agent 工作流。" tabindex="0" role="img" aria-label="工作流，7/10" aria-describedby="ai-solution-description"><circle class="radar-hit" cx="230.0" cy="238.5" r="15"/><circle class="radar-dot" cx="230.0" cy="238.5" r="5" fill="#0348ed"/><text class="radar-label" x="230.0" y="301.5" text-anchor="middle" font-size="15" font-weight="700" fill="#444">工作流 (<tspan fill="#0348ed">7</tspan><tspan fill="#171717">/10)</tspan></text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于长期记忆直接影响任务连续性且涉及多层数据权限和错误累积风险，难度较高，需要候选人能设计可更新、可遗忘且可控的记忆机制。" tabindex="0" role="img" aria-label="记忆，7/10" aria-describedby="ai-solution-description"><circle class="radar-hit" cx="166.3" cy="201.8" r="15"/><circle class="radar-dot" cx="166.3" cy="201.8" r="5" fill="#0348ed"/><text class="radar-label" x="111.8" y="233.3" text-anchor="end" font-size="15" font-weight="700" fill="#444">记忆 (<tspan fill="#0348ed">7</tspan><tspan fill="#171717">/10)</tspan></text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于原型需要连接真实模型与工具并验证权限、长任务和失败恢复等生产约束，难度较高，需要候选人能构建可用于架构和上线决策的高保真 Demo。" tabindex="0" role="img" aria-label="Demo原型，8/10" aria-describedby="ai-solution-description"><circle class="radar-hit" cx="157.3" cy="123.0" r="15"/><circle class="radar-dot" cx="157.3" cy="123.0" r="5" fill="#0348ed"/><text class="radar-label" x="111.8" y="96.7" text-anchor="end" font-size="15" font-weight="700" fill="#444">Demo原型 (<tspan fill="#0348ed">8</tspan><tspan fill="#171717">/10)</tspan></text></g></svg><p class="radar-description ui-tooltip__surface" data-active="false" id="ai-solution-description" role="tooltip">悬停或聚焦任一维度，查看能力结论。</p></article><article class="chart" data-capability-group="hard_skills"><h3>硬实力</h3><svg viewBox="0 0 460 330" role="img" aria-label="硬实力难度雷达图" data-radar-chart="true"><rect width="460" height="330" fill="#fff"/><polygon points="230.0,144.0 250.0,158.5 242.3,182.0 217.7,182.0 210.0,158.5" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,123.0 269.9,152.0 254.7,199.0 205.3,199.0 190.1,152.0" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,102.0 289.9,145.5 267.0,216.0 193.0,216.0 170.1,145.5" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,81.0 309.9,139.0 279.4,233.0 180.6,233.0 150.1,139.0" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,60.0 329.9,132.6 291.7,249.9 168.3,249.9 130.1,132.6" fill="none" stroke="#dedede" stroke-width="1"/><line x1="230.0" y1="165.0" x2="230.0" y2="60.0" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="329.9" y2="132.6" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="291.7" y2="249.9" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="168.3" y2="249.9" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="130.1" y2="132.6" stroke="#dedede"/><polygon points="230.0,81.0 309.9,139.0 279.4,233.0 180.6,233.0 170.1,145.5" fill="rgba(3,72,237,.14)" stroke="#0348ed" stroke-width="2"/><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于需要统一多类用户、异构工作任务和企业治理约束，难度较高，需要候选人能把模糊目标定义为可执行、可控制且可复用的 Agent 产品需求。" tabindex="0" role="img" aria-label="需求定义，8/10" aria-describedby="hard-skills-description"><circle class="radar-hit" cx="230.0" cy="81.0" r="15"/><circle class="radar-dot" cx="230.0" cy="81.0" r="5" fill="#0348ed"/><text class="radar-label" x="230.0" y="28.5" text-anchor="middle" font-size="15" font-weight="700" fill="#444">需求定义 (<tspan fill="#0348ed">8</tspan><tspan fill="#171717">/10)</tspan></text><rect x="199.0" y="32.5" width="62.0" height="17" rx="8.5" fill="#fff3e8" stroke="#fe7e0f"/><text x="230.0" y="45.0" text-anchor="middle" font-size="9.5" font-weight="700" fill="#fe7e0f" data-dimension-tag="大数据洞察">大数据洞察</text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于多种 Agent 机制强耦合且同时受到可靠性、权限和私有化约束，难度较高，需要候选人能设计并验证完整的 AI 任务执行体系。" tabindex="0" role="img" aria-label="AI方案设计，8/10" aria-describedby="hard-skills-description"><circle class="radar-hit" cx="309.9" cy="139.0" r="15"/><circle class="radar-dot" cx="309.9" cy="139.0" r="5" fill="#0348ed"/><text class="radar-label" x="359.8" y="122.8" text-anchor="start" font-size="15" font-weight="700" fill="#444">AI方案设计 (<tspan fill="#0348ed">8</tspan><tspan fill="#171717">/10)</tspan></text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于落地横跨模型、运行时、多端产品和私有化环境且依赖链复杂，难度较高，需要候选人能推动 Agent 核心能力从技术验证进入稳定生产。" tabindex="0" role="img" aria-label="开发落地，8/10" aria-describedby="hard-skills-description"><circle class="radar-hit" cx="279.4" cy="233.0" r="15"/><circle class="radar-dot" cx="279.4" cy="233.0" r="5" fill="#0348ed"/><text class="radar-label" x="310.2" y="275.4" text-anchor="start" font-size="15" font-weight="700" fill="#444">开发落地 (<tspan fill="#0348ed">8</tspan><tspan fill="#171717">/10)</tspan></text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于任务类型异构、失败来源跨越多组件且线上反馈规模大，难度较高，需要候选人能建设端到端 Agent 评测并驱动持续迭代。" tabindex="0" role="img" aria-label="评测迭代，8/10" aria-describedby="hard-skills-description"><circle class="radar-hit" cx="180.6" cy="233.0" r="15"/><circle class="radar-dot" cx="180.6" cy="233.0" r="5" fill="#0348ed"/><text class="radar-label" x="149.8" y="275.4" text-anchor="end" font-size="15" font-weight="700" fill="#444">评测迭代 (<tspan fill="#0348ed">8</tspan><tspan fill="#171717">/10)</tspan></text><rect x="67.8" y="279.4" width="82.0" height="17" rx="8.5" fill="#fff3e8" stroke="#fe7e0f"/><text x="149.8" y="291.9" text-anchor="end" font-size="9.5" font-weight="700" fill="#fe7e0f" data-dimension-tag="大数据反馈分析">大数据反馈分析</text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于需要跨 C 端、企业私有化和多个行业版本复用能力但不负责完整销售体系，难度中等，需要候选人能设计可规模化的产品边界。" tabindex="0" role="img" aria-label="增长商业，6/10" aria-describedby="hard-skills-description"><circle class="radar-hit" cx="170.1" cy="145.5" r="15"/><circle class="radar-dot" cx="170.1" cy="145.5" r="5" fill="#0348ed"/><text class="radar-label" x="100.2" y="122.8" text-anchor="end" font-size="15" font-weight="700" fill="#444">增长商业 (<tspan fill="#0348ed">6</tspan><tspan fill="#171717">/10)</tspan></text></g></svg><p class="radar-description ui-tooltip__surface" data-active="false" id="hard-skills-description" role="tooltip">悬停或聚焦任一维度，查看能力结论。</p></article><article class="chart" data-capability-group="soft_skills"><h3>软实力</h3><svg viewBox="0 0 460 330" role="img" aria-label="软实力难度雷达图" data-radar-chart="true"><rect width="460" height="330" fill="#fff"/><polygon points="230.0,144.0 248.2,175.5 211.8,175.5" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,123.0 266.4,186.0 193.6,186.0" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,102.0 284.6,196.5 175.4,196.5" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,81.0 302.7,207.0 157.3,207.0" fill="none" stroke="#dedede" stroke-width="1"/><polygon points="230.0,60.0 320.9,217.5 139.1,217.5" fill="none" stroke="#dedede" stroke-width="1"/><line x1="230.0" y1="165.0" x2="230.0" y2="60.0" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="320.9" y2="217.5" stroke="#dedede"/><line x1="230.0" y1="165.0" x2="139.1" y2="217.5" stroke="#dedede"/><polygon points="230.0,91.5 302.7,207.0 157.3,207.0" fill="rgba(3,72,237,.14)" stroke="#0348ed" stroke-width="2"/><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于跨消费产品、AI 研发和企业交付团队存在明显目标与语言差异，难度较高，需要候选人能推动复杂 Agent 问题形成一致决策。" tabindex="0" role="img" aria-label="沟通，7/10" aria-describedby="soft-skills-description"><circle class="radar-hit" cx="230.0" cy="91.5" r="15"/><circle class="radar-dot" cx="230.0" cy="91.5" r="5" fill="#0348ed"/><text class="radar-label" x="230.0" y="28.5" text-anchor="middle" font-size="15" font-weight="700" fill="#444">沟通 (<tspan fill="#0348ed">7</tspan><tspan fill="#171717">/10)</tspan></text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于技术、交互和商业形态同时处于快速探索期且验证需要进入真实任务环境，难度较高，需要候选人能把不确定假设转成可验证的产品机制。" tabindex="0" role="img" aria-label="创新，8/10" aria-describedby="soft-skills-description"><circle class="radar-hit" cx="302.7" cy="207.0" r="15"/><circle class="radar-dot" cx="302.7" cy="207.0" r="5" fill="#0348ed"/><text class="radar-label" x="348.2" y="233.2" text-anchor="start" font-size="15" font-weight="700" fill="#444">创新 (<tspan fill="#0348ed">8</tspan><tspan fill="#171717">/10)</tspan></text></g><g class="radar-point ui-tooltip ui-tooltip--svg" data-capability-conclusion="由于多条高不确定能力线并行且岗位需承担模块端到端 Owner 责任，难度较高，需要候选人能组织验证顺序并持续交付上线结果。" tabindex="0" role="img" aria-label="执行，8/10" aria-describedby="soft-skills-description"><circle class="radar-hit" cx="157.3" cy="207.0" r="15"/><circle class="radar-dot" cx="157.3" cy="207.0" r="5" fill="#0348ed"/><text class="radar-label" x="111.8" y="233.3" text-anchor="end" font-size="15" font-weight="700" fill="#444">执行 (<tspan fill="#0348ed">8</tspan><tspan fill="#171717">/10)</tspan></text></g></svg><p class="radar-description ui-tooltip__surface" data-active="false" id="soft-skills-description" role="tooltip">悬停或聚焦任一维度，查看能力结论。</p></article></div><details class="capability-panel"><summary>查看 14 项能力详情</summary><div class="capability-panel-body"><h3>AI 方案设计</h3><div class="score-list"><details class="capability"><summary><span>Skill 设计能力</span><strong class="score">(<span class="score-current">8</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于 Skill 需要综合高难度工具、企业知识和长期记忆并承担自主选择与失败恢复，难度较高，需要候选人能设计可复用且可验证的领域任务能力。</p><h4>来源事实</h4><ul><li>岗位直接负责 Skill、Tool、Connector、Memory 与长期任务能力体系。</li><li>小浣熊允许用户把工作方法封装为专属技能并分享给团队。</li></ul><h4>隐含任务</h4><ul><li>定义 Skill 的任务边界、触发条件、上下文和结果验证。</li><li>编排知识、记忆与工具依赖并处理权限和失败恢复。</li></ul><h4>难度驱动因素</h4><ul><li>Skill 需要根据用户目标在文件、网页和办公系统之间自主选择处理方式。</li><li>直接依赖的 Tool 达到高难度且涉及权限、外部副作用和异常恢复。</li><li>直接依赖的企业知识与长期记忆均达到高难度，增加上下文选择和数据治理负担。</li><li>个人 Skill 还需支持团队分享和企业环境复用。</li></ul><p class="risk"><strong>需要避免：</strong>避免把 Skill 做成无边界的提示词集合，缺少触发条件、依赖契约、权限和可验证结果。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a>、<a class="source-citation" href="https://www.sensetime.com/cn/news/-2" title="我是全新的商汤小浣熊，今天的工作先交给我">[引用2]</a></p></div></details><details class="capability"><summary><span>知识库设计能力</span><strong class="score">(<span class="score-current">7</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于知识来源异构并受到组织权限、私有化和任务执行风险约束，难度较高，需要候选人能设计可治理的企业知识接入与检索机制。</p><h4>来源事实</h4><ul><li>岗位负责企业及私有化场景中的数据与知识、组织权限和安全审计能力。</li><li>小浣熊可连接本地文件、企业办公软件和数据库。</li></ul><h4>隐含任务</h4><ul><li>定义本地与企业知识的接入、权限、更新和检索边界。</li><li>验证知识在 Agent 规划与最终产物中的引用效果。</li></ul><h4>难度驱动因素</h4><ul><li>知识来源包含多格式本地文件、办公平台和数据库，结构明显异构。</li><li>企业组织权限与私有化部署要求检索继承访问边界。</li><li>知识结果进入可执行任务和最终产物，错误可能被后续工具操作放大。</li></ul><p class="risk"><strong>需要避免：</strong>避免只关注检索命中，忽略来源权限、更新时效、引用可追溯性和任务执行风险。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a>、<a class="source-citation" href="https://www.sensetime.com/cn/news/-2" title="我是全新的商汤小浣熊，今天的工作先交给我">[引用2]</a></p></div></details><details class="capability"><summary><span>Agent Tool 设计</span><strong class="score">(<span class="score-current">8</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于工具跨越多个安全域并包含有副作用的操作和复杂失败传播，难度较高，需要候选人能设计可靠、可授权且可恢复的 Agent Tool 体系。</p><h4>来源事实</h4><ul><li>岗位直接负责 Tool、MCP、Connector、权限确认和错误恢复。</li><li>小浣熊可操作本地文件与浏览器，并连接飞书、钉钉和数据库。</li></ul><h4>隐含任务</h4><ul><li>定义工具选择、参数、鉴权、确认、执行和结果反馈契约。</li><li>设计超时、失败重试、降级与人工接管机制。</li></ul><h4>难度驱动因素</h4><ul><li>工具横跨本地文件、浏览器、协作平台和数据库等不同安全域。</li><li>部分操作具有写入和外部副作用，需要权限确认与审计。</li><li>多步骤任务中单次工具失败会影响后续状态和最终产物。</li><li>C 端授权与企业组织权限需要不同的管理方式。</li></ul><p class="risk"><strong>需要避免：</strong>避免只设计成功调用路径，遗漏最小权限、幂等、审计、补偿和用户接管。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a>、<a class="source-citation" href="https://www.sensetime.com/cn/news/-2" title="我是全新的商汤小浣熊，今天的工作先交给我">[引用2]</a>、<a class="source-citation" href="https://help.openai.com/en/articles/20001143" title="ChatGPT Workspace Agents for Enterprise and Business">[引用6]</a></p></div></details><details class="capability"><summary><span>工作流设计</span><strong class="score">(<span class="score-current">7</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于长期异步流程包含定时触发、人工节点、外部写入和恢复分支，难度较高，需要候选人能设计可暂停、可恢复且状态明确的 Agent 工作流。</p><h4>来源事实</h4><ul><li>岗位负责长期任务、异步状态、Human-in-the-loop 和错误恢复。</li><li>小浣熊支持定时读取数据、生成结果并写入团队协作系统。</li></ul><h4>隐含任务</h4><ul><li>设计长期任务的状态、暂停、恢复、确认和完成条件。</li><li>定义定时任务与外部系统写入流程的异常处理。</li></ul><h4>难度驱动因素</h4><ul><li>长期异步任务必须显式保存状态并支持中断后恢复。</li><li>定时触发、人工确认与外部系统写入形成多节点流程。</li><li>失败恢复需要区分重试、回退、取消和人工接管。</li></ul><p class="risk"><strong>需要避免：</strong>避免用一次性对话模拟长流程，导致状态丢失、重复执行或未经确认的写入。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a>、<a class="source-citation" href="https://www.sensetime.com/cn/news/-2" title="我是全新的商汤小浣熊，今天的工作先交给我">[引用2]</a></p></div></details><details class="capability"><summary><span>记忆能力</span><strong class="score">(<span class="score-current">7</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于长期记忆直接影响任务连续性且涉及多层数据权限和错误累积风险，难度较高，需要候选人能设计可更新、可遗忘且可控的记忆机制。</p><h4>来源事实</h4><ul><li>岗位直接负责 Memory、Context 和长期任务能力。</li><li>小浣熊会记住用户职业背景、常用术语和输出偏好。</li></ul><h4>隐含任务</h4><ul><li>定义偏好、职业背景和任务状态的写入、召回与更新规则。</li><li>区分个人记忆、团队知识和企业受控数据。</li></ul><h4>难度驱动因素</h4><ul><li>跨会话偏好和长期任务状态直接影响连续性与结果风格。</li><li>个人、团队和企业数据需要不同权限与生命周期。</li><li>错误或过期记忆会在后续任务中持续影响规划和产物。</li></ul><p class="risk"><strong>需要避免：</strong>避免无限累积用户信息，缺少来源、更新、更正、遗忘和权限边界。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a>、<a class="source-citation" href="https://www.sensetime.com/cn/news/-2" title="我是全新的商汤小浣熊，今天的工作先交给我">[引用2]</a></p></div></details><details class="capability"><summary><span>Demo 原型设计</span><strong class="score">(<span class="score-current">8</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于原型需要连接真实模型与工具并验证权限、长任务和失败恢复等生产约束，难度较高，需要候选人能构建可用于架构和上线决策的高保真 Demo。</p><h4>来源事实</h4><ul><li>岗位要求完成模型、上下文、Prompt 和工具方案验证并推动产品落地。</li><li>加分项包含亲自制作 Agent Demo、Skill、MCP 和 Workflow。</li></ul><h4>隐含任务</h4><ul><li>连接真实模型、文件和工具构建高保真 Agent 原型。</li><li>模拟权限确认、异步状态、失败恢复、成本和延迟约束。</li></ul><h4>难度驱动因素</h4><ul><li>原型需要验证多个强耦合 Agent 机制而非单一对话效果。</li><li>真实工具和企业数据接入带来权限与副作用约束。</li><li>原型结果需要支撑产品架构、模型选型和上线决策。</li></ul><p class="risk"><strong>需要避免：</strong>避免只演示理想路径，掩盖真实工具失败、状态恢复、权限和成本问题。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a></p></div></details></div><h3>硬实力</h3><div class="score-list"><details class="capability"><summary><span>需求与定义</span><strong class="score">(<span class="score-current">8</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于需要统一多类用户、异构工作任务和企业治理约束，难度较高，需要候选人能把模糊目标定义为可执行、可控制且可复用的 Agent 产品需求。</p><h4>来源事实</h4><ul><li>产品同时服务个人知识工作者、企业业务团队和组织管理员。</li><li>岗位要定义从用户输入到最终产物交付的端到端体验，并将 C 端能力扩展到 B 端私有化场景。</li></ul><h4>隐含任务</h4><ul><li>识别文档、数据、代码和跨系统任务中的真实用户目标与控制边界。</li><li>定义个人体验与企业权限、安全、配置需求之间的共性和差异。</li></ul><h4>难度驱动因素</h4><ul><li>个人用户、企业员工、业务管理员和 IT 管理员的目标与风险关注点不同。</li><li>输入从自然语言目标延伸到本地文件、浏览器和企业系统，需求边界高度异构。</li><li>C 端易用性与私有化权限、安全审计之间存在直接取舍。</li></ul><p class="risk"><strong>需要避免：</strong>避免把技术组件清单当作用户需求，遗漏任务结果、控制感和企业治理边界。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a>、<a class="source-citation" href="https://www.sensetime.com/cn/news/-2" title="我是全新的商汤小浣熊，今天的工作先交给我">[引用2]</a></p></div></details><details class="capability"><summary><span>AI 方案设计</span><strong class="score">(<span class="score-current">8</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于多种 Agent 机制强耦合且同时受到可靠性、权限和私有化约束，难度较高，需要候选人能设计并验证完整的 AI 任务执行体系。</p><h4>来源事实</h4><ul><li>岗位直接负责 Skill、Tool、MCP、Connector、Memory、长期任务和 Human-in-the-loop 等 Agent 机制。</li><li>小浣熊需要处理本地文件、浏览器、办公系统、定时任务和个性化记忆。</li></ul><h4>隐含任务</h4><ul><li>组合领域 Skill、企业知识、工具连接、长期记忆与任务状态。</li><li>设计权限确认、异常恢复和结果验证机制。</li></ul><h4>难度驱动因素</h4><ul><li>六类 Agent 机制直接耦合并共同决定端到端任务可靠性。</li><li>工具副作用、企业数据权限和长期状态带来安全与错误累积风险。</li><li>个人端与私有化环境需要不同的连接、配置和治理方式。</li></ul><p class="risk"><strong>需要避免：</strong>避免分别设计单个组件却没有处理上下文传递、权限、失败恢复和结果验证的整体关系。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a>、<a class="source-citation" href="https://www.sensetime.com/cn/news/-2" title="我是全新的商汤小浣熊，今天的工作先交给我">[引用2]</a></p></div></details><details class="capability"><summary><span>开发与落地</span><strong class="score">(<span class="score-current">8</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于落地横跨模型、运行时、多端产品和私有化环境且依赖链复杂，难度较高，需要候选人能推动 Agent 核心能力从技术验证进入稳定生产。</p><h4>来源事实</h4><ul><li>岗位需要与研发共同完成模型选择、上下文组织、Prompt 和工具方案从验证到上线的闭环。</li><li>产品覆盖桌面、网页、iOS、企业私有化和软硬一体机。</li></ul><h4>隐含任务</h4><ul><li>拆解模型、Agent 运行时、客户端、连接器和企业管理能力的依赖。</li><li>推动不同终端与部署环境中的稳定上线和持续迭代。</li></ul><h4>难度驱动因素</h4><ul><li>模型、Agent 编排、客户端、企业系统和部署基础设施形成较长依赖链。</li><li>桌面、网页、移动端和私有化环境的权限与运行条件不同。</li><li>缺少成熟范式时仍需通过技术验证形成可上线方案。</li></ul><p class="risk"><strong>需要避免：</strong>避免停留在原型可用，忽略多端一致性、生产稳定性、成本和企业部署条件。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a>、<a class="source-citation" href="https://www.sensetime.com/cn/news/-2" title="我是全新的商汤小浣熊，今天的工作先交给我">[引用2]</a></p></div></details><details class="capability"><summary><span>评测与迭代</span><strong class="score">(<span class="score-current">8</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于任务类型异构、失败来源跨越多组件且线上反馈规模大，难度较高，需要候选人能建设端到端 Agent 评测并驱动持续迭代。</p><h4>来源事实</h4><ul><li>岗位需要结合 Agent Eval、线上数据和 failure case 优化效果、稳定性、成本与效率。</li><li>小浣熊累计服务用户超过 2000 万，周活跃用户超过 300 万。</li></ul><h4>隐含任务</h4><ul><li>建立覆盖规划、工具、上下文、恢复和结果质量的分层评测。</li><li>从大规模线上轨迹和失败样本中定位机制问题并验证修复。</li></ul><h4>难度驱动因素</h4><ul><li>文件、网页、数据分析和办公系统任务的成功标准明显不同。</li><li>失败可能来自模型、Prompt、Context、Tool、权限或外部系统多个环节。</li><li>大规模用户反馈需要与可重复离线评测和成本时延指标联合分析。</li></ul><p class="risk"><strong>需要避免：</strong>避免只评回答质量，遗漏工具执行、任务恢复、用户接管、成本和最终产物可用性。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a>、<a class="source-citation" href="https://www.sensetime.com/cn/news/-2" title="我是全新的商汤小浣熊，今天的工作先交给我">[引用2]</a></p></div></details><details class="capability"><summary><span>增长与商业化</span><strong class="score">(<span class="score-current">6</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于需要跨 C 端、企业私有化和多个行业版本复用能力但不负责完整销售体系，难度中等，需要候选人能设计可规模化的产品边界。</p><h4>来源事实</h4><ul><li>岗位参与 C 端能力向 B 端和私有化场景的抽象、复用与产品化。</li><li>小浣熊从个人办公产品扩展到企业部署和教育、金融、政数行业版本。</li></ul><h4>隐含任务</h4><ul><li>提高 C 端验证能力在企业场景中的复用效率。</li><li>定义标准能力与行业配置、私有化交付之间的产品边界。</li></ul><h4>难度驱动因素</h4><ul><li>个人用户自助使用与企业采购部署的决策链和服务方式不同。</li><li>多个行业版本需要在共性底座与专业场景之间做取舍。</li><li>JD 未要求岗位直接负责定价、销售渠道和收入目标。</li></ul><p class="risk"><strong>需要避免：</strong>避免为单个企业需求持续定制，削弱核心能力的标准化和规模复用。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a>、<a class="source-citation" href="https://www.sensetime.com/cn/news/-2" title="我是全新的商汤小浣熊，今天的工作先交给我">[引用2]</a></p></div></details></div><h3>软实力</h3><div class="score-list"><details class="capability"><summary><span>沟通力</span><strong class="score">(<span class="score-current">7</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于跨消费产品、AI 研发和企业交付团队存在明显目标与语言差异，难度较高，需要候选人能推动复杂 Agent 问题形成一致决策。</p><h4>来源事实</h4><ul><li>岗位需要与模型、Agent 工程和企业产品团队共同完成核心能力建设。</li><li>企业复用涉及业务用户、组织管理员和私有化交付角色。</li></ul><h4>隐含任务</h4><ul><li>在用户任务、模型机制、工程约束和企业治理之间形成共同决策。</li><li>协调跨团队完成方案验证和上线迭代。</li></ul><h4>难度驱动因素</h4><ul><li>消费产品、研发和企业交付团队的成功标准不同。</li><li>Agent 失败常跨越多个技术层级，需要准确划分责任和优先级。</li></ul><p class="risk"><strong>需要避免：</strong>避免用抽象术语掩盖问题归属，导致模型、工具、交互与企业能力团队相互等待。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a>、<a class="source-citation" href="https://www.sensetime.com/cn/news/-2" title="我是全新的商汤小浣熊，今天的工作先交给我">[引用2]</a></p></div></details><details class="capability"><summary><span>创新能力</span><strong class="score">(<span class="score-current">8</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于技术、交互和商业形态同时处于快速探索期且验证需要进入真实任务环境，难度较高，需要候选人能把不确定假设转成可验证的产品机制。</p><h4>来源事实</h4><ul><li>JD 要求在缺少成熟范式和明确答案时主动探索并形成可落地方案。</li><li>岗位需要持续评估新的模型与 Agent 能力并推动产品化。</li></ul><h4>隐含任务</h4><ul><li>提出并验证新的 Skill、记忆、长期任务和交互机制。</li><li>在效果、可靠性、成本和用户控制之间形成新产品解法。</li></ul><h4>难度驱动因素</h4><ul><li>长任务 Agent 的技术能力、用户预期和行业范式同时快速变化。</li><li>新机制必须在真实工具、企业权限和大规模用户环境中验证。</li><li>错误创新会直接影响用户数据、外部系统操作和产品信任。</li></ul><p class="risk"><strong>需要避免：</strong>避免追逐新技术名称而没有明确用户问题、验证假设、失败边界和上线标准。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a>、<a class="source-citation" href="https://sensetime.com/en/news/2026H1-results" title="SenseTime Records First-Ever Profit in First Half of 2026">[引用4]</a></p></div></details><details class="capability"><summary><span>执行能力</span><strong class="score">(<span class="score-current">8</span>/10)</strong></summary><div class="details-body"><p class="capability-conclusion"><strong>能力结论：</strong>由于多条高不确定能力线并行且岗位需承担模块端到端 Owner 责任，难度较高，需要候选人能组织验证顺序并持续交付上线结果。</p><h4>来源事实</h4><ul><li>岗位需要独立负责模块并推动从设计、技术验证到上线迭代的完整闭环。</li><li>职责同时覆盖 Agent 核心机制、端到端体验和企业基础能力。</li></ul><h4>隐含任务</h4><ul><li>管理多条能力建设与评测迭代任务的依赖和节奏。</li><li>在缺少确定答案时持续缩小问题并交付可上线结果。</li></ul><h4>难度驱动因素</h4><ul><li>Skill、Tool、Memory、长期任务和企业治理等任务线并行。</li><li>方案依赖模型能力和外部系统，结果存在较高不确定性。</li><li>岗位对完整产品模块而非单份方案承担 Owner 责任。</li></ul><p class="risk"><strong>需要避免：</strong>避免同时铺开过多 Agent 能力却没有关键路径、验证顺序和明确完成标准。</p><p class="source-links"><strong>来源：</strong><a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a></p></div></details></div></div></details>
+</section>
+<div class="insight-grid">
+<section id="tasks">
+  <h2>隐含任务</h2>
+  <p class="section-description">结合 JD、产品机制与业务场景，推演入职后最可能承担的核心工作。</p>
+  <ol class="task-list"><li><strong>定义复杂工作任务的理解、规划执行、上下文隔离和异常恢复机制</strong><span class="basis">JD 要求直接负责 Agent 复杂任务理解、规划、执行和恢复，小浣熊覆盖文件、浏览器与办公系统任务。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a>、<a class="source-citation" href="https://www.sensetime.com/cn/news/-2" title="我是全新的商汤小浣熊，今天的工作先交给我">[引用2]</a></span></li><li><strong>建设 Skill、Tool、MCP、Connector、Memory 和长期任务能力体系</strong><span class="basis">JD 明确列出六类 Agent 核心能力并要求提升任务连续性与可靠性。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a></span></li><li><strong>设计权限确认、人工介入、异步状态和失败恢复的端到端体验</strong><span class="basis">JD 要求负责从用户输入到最终产物的体验及关键控制机制。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a></span></li><li><strong>建立 Agent Eval、线上数据和 failure case 驱动的持续优化闭环</strong><span class="basis">JD 要求结合评测与线上数据优化效果、稳定性、成本和效率。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a></span></li><li><strong>验证模型选择、Prompt、Context 和工具方案并推动产品上线</strong><span class="basis">JD 要求与研发完成从技术验证到产品落地的完整闭环。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a></span></li><li><strong>把 C 端 Agent 能力抽象为支持组织权限、企业知识与安全审计的私有化能力</strong><span class="basis">JD 与小浣熊官方产品路径均明确 C 端能力向企业和私有化场景扩展。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a>、<a class="source-citation" href="https://www.sensetime.com/cn/news/-2" title="我是全新的商汤小浣熊，今天的工作先交给我">[引用2]</a></span></li><li><strong>形成面向教育、金融和政数场景的可复用 Agent 产品底座</strong><span class="basis">小浣熊官方发布了三个行业版本方向，岗位负责其所需的企业基础能力。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a>、<a class="source-citation" href="https://www.sensetime.com/cn/news/-2" title="我是全新的商汤小浣熊，今天的工作先交给我">[引用2]</a></span></li></ol>
+</section>
+<section id="metrics">
+  <h2>隐含指标</h2>
+  <p class="section-description">区分岗位资料明确提出与基于任务推定的衡量方式，不设定未经证实的目标值。</p>
+  <ul class="metric-list"><li><strong>端到端任务成功率</strong> <span class="chip">推定</span><span class="basis">衡量 Agent 是否从用户目标出发完成规划、工具调用和最终产物交付。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a>、<a class="source-citation" href="https://www.sensetime.com/cn/news/-2" title="我是全新的商汤小浣熊，今天的工作先交给我">[引用2]</a></span></li><li><strong>长任务恢复成功率</strong> <span class="chip">推定</span><span class="basis">衡量异步或中断任务能否保留状态并从失败点继续完成。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a></span></li><li><strong>高风险动作确认覆盖率</strong> <span class="chip">推定</span><span class="basis">衡量外部系统操作是否在正确节点获得授权并保持可控。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a>、<a class="source-citation" href="https://help.openai.com/en/articles/20001143" title="ChatGPT Workspace Agents for Enterprise and Business">[引用6]</a></span></li><li><strong>工具调用有效完成率</strong> <span class="chip">推定</span><span class="basis">同时反映 Tool 选择、参数生成、权限、执行结果和错误恢复质量。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a></span></li><li><strong>Agent 评测集通过率</strong> <span class="chip">推定</span><span class="basis">衡量模型、Prompt、Context 与工具组合在代表性任务上的效果和稳定性。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a></span></li><li><strong>单任务平均成本与完成时长</strong> <span class="chip">推定</span><span class="basis">JD 要求同时优化成本和效率，长任务会放大推理与工具执行开销。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a></span></li><li><strong>C 端能力企业复用率</strong> <span class="chip">推定</span><span class="basis">衡量核心 Agent 能力能否在组织权限、私有化和行业场景中复用。 · <a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a>、<a class="source-citation" href="https://www.sensetime.com/cn/news/-2" title="我是全新的商汤小浣熊，今天的工作先交给我">[引用2]</a></span></li></ul>
+</section>
+</div>
+<section id="market">
+  <h2>产品赛道判断</h2>
+  <p class="section-description">先从横向平台/垂直行业、客户倾向和行业属性定位公司，再判断岗位产品与 AI / Agent 的真实角色。</p>
+  <div class="chips"><span class="chip">企业软件</span><span class="chip">办公生产力</span><span class="chip">信息技术服务</span></div>
+  <article class="card market-context" data-market-context="true"><p><strong>核心问题：</strong>让 Agent 在复杂工作任务中稳定规划、调用工具、保持上下文并交付可控结果，同时把 C 端能力复用于企业权限、知识、安全审计和私有化环境</p><p><strong>目标用户：</strong>需要把文档、表格、代码、网页和办公系统任务交给 AI 完成的个人知识工作者，以及采购、管理和使用私有化智能体的企业员工、IT 管理员与业务团队</p><p><strong>客户倾向：</strong>混合</p><p><strong>AI / Agent 角色：</strong>混合角色</p><p><strong>核心场景：</strong>本地文档、表格和多格式文件处理、浏览器操作、信息检索和结果整理、Skill 封装、分享和团队复用、飞书、钉钉、数据库等系统连接、长期异步任务、异常恢复和人工确认</p><p><strong>主营业务：</strong>混合型：以日日新模型、AI 大装置和 Agent Harness 提供横向 AI 能力，并通过办公、金融、教育和政务产品进入行业场景；行业属性中等</p><p><strong>现有产品矩阵：</strong>商汤日日新 SenseNova 模型体系、商汤小浣熊 Raccoon Work 及行业智能体版本、Seko 多模态短片创作智能体、如影数字人营销智能体、商汤大装置 SenseCore 与 Token Factory</p><p class="source-links">来源：<a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a>、<a class="source-citation" href="https://www.sensetime.com/cn/news/-2" title="我是全新的商汤小浣熊，今天的工作先交给我">[引用2]</a>、<a class="source-citation" href="https://www.sensetime.com/cn/index.html" title="商汤科技官网产品体系">[引用3]</a>、<a class="source-citation" href="https://sensetime.com/en/news/2026H1-results" title="SenseTime Records First-Ever Profit in First Half of 2026">[引用4]</a></p></article>
+</section>
+<section id="products">
+  <h2>岗位对应产品</h2>
+  <p class="section-description">结合 CSV 产品线索、岗位职责和公司官方资料，确定岗位实际服务的业务产品。</p>
+  <div class="grid"><article class="card product-basis"><h3>商汤小浣熊 Raccoon Work</h3><p>面向个人与企业的 AI 工作智能体，处理本地文件、浏览器、办公系统和长期任务，并支持 Skill、连接器、记忆、企业私有化及行业版本。</p><p class="muted">JD 的 Skill、Tool、Connector、Memory、长期任务和 C 端向 B 端私有化复用职责，与商汤 2026 年 8 月公布的小浣熊产品机制和商业路径高度一致。 · 置信度 high</p><p class="source-links">来源：<a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a>、<a class="source-citation" href="https://www.sensetime.com/cn/news/-2" title="我是全新的商汤小浣熊，今天的工作先交给我">[引用2]</a>、<a class="source-citation" href="https://sensetime.com/en/news/2026H1-results" title="SenseTime Records First-Ever Profit in First Half of 2026">[引用4]</a></p></article></div>
+</section>
+<section id="competition">
+  <h2>学习参照物</h2>
+  <p class="section-description">只展示目标用户有重叠、核心问题相近、核心场景相近的产品，用来学习其产品设计与落地方法，不要求能够相互替代。</p>
+  <div class="grid three"><article class="card" data-matched-product-id="raccoon-work"><h3><a class="competitor-link" href="https://openai.com/business/workspace-agents/">ChatGPT Workspace Agents</a></h3><p>面向企业团队创建、共享和治理工作 Agent 的产品，可连接应用、MCP、Skill 和文件并运行跨工具任务。</p><p class="muted"><strong>可学习：</strong>可参照其 Agent 构建与发布、应用连接、权限约束、敏感动作审批和组织级治理机制。</p><p class="source-links">来源：<a class="source-citation" href="https://openai.com/business/workspace-agents/" title="Workspace agents for business">[引用5]</a>、<a class="source-citation" href="https://help.openai.com/en/articles/20001143" title="ChatGPT Workspace Agents for Enterprise and Business">[引用6]</a>、<a class="source-citation" href="https://www.sensetime.com/cn/news/-2" title="我是全新的商汤小浣熊，今天的工作先交给我">[引用2]</a></p></article><article class="card" data-matched-product-id="raccoon-work"><h3><a class="competitor-link" href="https://support.microsoft.com/en-us/Microsoft-365-Copilot/get-started-with-workflows-in-microsoft-365-copilot">Microsoft Copilot Workflows</a></h3><p>通过自然语言生成和管理 Microsoft 365 自动化流程的工作 Agent，可连接 Outlook、SharePoint、Teams 和 Planner。</p><p class="muted"><strong>可学习：</strong>可参照其把自然语言任务转为可视化工作流、事件与定时触发、人工输入节点以及企业数据策略控制的方式。</p><p class="source-links">来源：<a class="source-citation" href="https://support.microsoft.com/en-us/Microsoft-365-Copilot/get-started-with-workflows-in-microsoft-365-copilot" title="Get started with Workflows in Microsoft Copilot">[引用7]</a>、<a class="source-citation" href="https://www.sensetime.com/cn/news/-2" title="我是全新的商汤小浣熊，今天的工作先交给我">[引用2]</a></p></article></div>
+</section>
+<section id="company">
+  <h2>公司概况</h2>
+  <p class="section-description">补充公司的性质、规模、经营情况、核心客户或用户，以及当前发展阶段。</p>
+  <dl class="facts"><dt>性质</dt><dd>上市民企</dd><dt>规模</dt><dd>2026 年上半年 Agent 产品服务超过 1000 家企业客户并覆盖 20 多个重点行业；商汤小浣熊累计服务用户超过 2000 万</dd><dt>经营情况</dt><dd>2026 年上半年收入 29.1 亿元，同比增长 23.4%；生成式 AI 收入 23.3 亿元，占总收入近八成，并首次实现上市后 IFRS 盈利</dd><dt>核心客户 / 用户</dt><dd>个人知识工作者，以及教育、政务、营销、物流、银行、保险和通信等行业的企业与机构客户</dd><dt>阶段</dt><dd>香港上市后的生成式 AI 规模商业化阶段</dd><dt>主要来源</dt><dd><a class="source-citation" href="https://sensetime.com/en/news/2026H1-results" title="SenseTime Records First-Ever Profit in First Half of 2026">[引用4]</a>、<a class="source-citation" href="https://www.sensetime.com/cn/news/-2" title="我是全新的商汤小浣熊，今天的工作先交给我">[引用2]</a>、<a class="source-citation" href="https://www.sensetime.com/cn/index.html" title="商汤科技官网产品体系">[引用3]</a></dd></dl>
+</section>
+<section id="sources"><h2>来源</h2><ol><li id="source-job-posting"><a class="source-citation" href="https://www.zhipin.com/job_detail/a36cdee94f5ee4b20nJ939u7F1RQ.html" title="AI Agent 产品经理职位页面">[引用1]</a> — BOSS 直聘，访问于 2026-08-29</li><li id="source-raccoon-work-launch"><a class="source-citation" href="https://www.sensetime.com/cn/news/-2" title="我是全新的商汤小浣熊，今天的工作先交给我">[引用2]</a> — 商汤科技，访问于 2026-08-29</li><li id="source-sensetime-home"><a class="source-citation" href="https://www.sensetime.com/cn/index.html" title="商汤科技官网产品体系">[引用3]</a> — 商汤科技，访问于 2026-08-29</li><li id="source-sensetime-2026-results"><a class="source-citation" href="https://sensetime.com/en/news/2026H1-results" title="SenseTime Records First-Ever Profit in First Half of 2026">[引用4]</a> — SenseTime，访问于 2026-08-29</li><li id="source-openai-workspace-agents"><a class="source-citation" href="https://openai.com/business/workspace-agents/" title="Workspace agents for business">[引用5]</a> — OpenAI，访问于 2026-08-29</li><li id="source-openai-agent-docs"><a class="source-citation" href="https://help.openai.com/en/articles/20001143" title="ChatGPT Workspace Agents for Enterprise and Business">[引用6]</a> — OpenAI，访问于 2026-08-29</li><li id="source-microsoft-workflows"><a class="source-citation" href="https://support.microsoft.com/en-us/Microsoft-365-Copilot/get-started-with-workflows-in-microsoft-365-copilot" title="Get started with Workflows in Microsoft Copilot">[引用7]</a> — Microsoft，访问于 2026-08-29</li></ol><h3>调研限制</h3><ul><li>JD 未直接写出产品品牌，岗位归属依据其 C 端能力向 B 端和私有化复用的职责，与商汤小浣熊最新官方产品路径交叉确认。</li><li>岗位可能同时建设小浣熊与集团统一 Agent Harness 的公共能力，但公开资料未披露组织边界和内部模块归属。</li><li>JD 未披露具体 Tool 数量、长期任务时长、知识规模和风险动作类型，因此能力评分停留在产品机制与业务约束层级。</li></ul></section>
+<footer>岗位 ID：boss-a36cdee94f5ee4b20nj939u7f1rq-87ef57b151 · 生成时间：2026-08-29T12:16:00+08:00</footer></div></div>
+</main>
+  <script>
+    (() => {
+      const points = document.querySelectorAll('.radar-point');
+      const setContent = (point) => {
+        const description = point.closest('.chart')?.querySelector('.radar-description');
+        if (!description) return;
+        description.textContent = point.dataset.capabilityConclusion || '';
+        description.dataset.active = 'true';
+      };
+
+      const resetContent = (point) => {
+        const description = point.closest('.chart')?.querySelector('.radar-description');
+        if (!description) return;
+        description.textContent = '悬停或聚焦任一维度，查看能力结论。';
+        description.dataset.active = 'false';
+      };
+
+      points.forEach((point) => {
+        point.addEventListener('pointerenter', () => setContent(point));
+        point.addEventListener('pointerleave', () => resetContent(point));
+        point.addEventListener('focus', () => setContent(point));
+        point.addEventListener('blur', () => resetContent(point));
+      });
+
+      const navLinks = [...document.querySelectorAll('.report-sidebar a[href^="#"]')];
+      const sections = navLinks.map((link) => document.querySelector(link.getAttribute('href'))).filter(Boolean);
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+          const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+          if (!visible) return;
+          navLinks.forEach((link) => link.classList.toggle('active', link.getAttribute('href') === `#${visible.target.id}`));
+        }, { rootMargin: '-20% 0px -65%', threshold: [0, .2, .6] });
+        sections.forEach((section) => observer.observe(section));
+      }
+    })();
+  </script>
+</body>
+</html>

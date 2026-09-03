@@ -1,0 +1,480 @@
+schema_version: "3.4"
+generated_at: "2026-08-29T11:44:08+08:00"
+research_date: "2026-08-29"
+job:
+  job_id: "boss-138380ca6afc27580nzy3ni1gvpu-76d12a5921"
+  title: "AI产品经理（agent）"
+  company_name: "作业帮"
+  source_url: "https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html"
+research:
+  status: "partial"
+  search_queries:
+    - "site:zuoyebang.com 作业帮 关于我们 产品 AI 教育"
+    - "site:zuoyebang.com 作业帮 AI Agent 产品"
+    - "作业帮 银河大模型 官方 发布"
+    - "作业帮 2025 2026 产品 AI 大模型 官方"
+    - "site:khanacademy.org Khanmigo AI tutor students official"
+    - "site:gauthmath.com AI study companion homework official Gauth"
+    - "Zuoyebang funding 2020 E+ Reuters"
+  limitations:
+    - "JD 未披露所属部门、产品入口和直接用户，公开资料无法确认岗位具体服务于作业帮 App、智能硬件、海外产品还是跨产品 Agent 平台。"
+    - "公司未公开近期经审计经营数据或员工总数，规模与融资阶段引用较早的 2020 年公开报道。"
+    - "长期用户记忆、生产部署环境、具体 Tool 数量和写操作风险未在 JD 中披露，因此相关能力采用审慎评分并降低置信度。"
+industry_tags:
+  - "数字教育"
+  - "智能学习工具"
+  - "教育智能硬件"
+market_context:
+  primary_business: "垂直行业：面向中小学生及家长的数字教育产品，覆盖学习工具、智能硬件与教育大模型能力；教育行业属性强"
+  existing_product_matrix:
+    - "作业帮 App"
+    - "作业帮口算与家长辅导工具"
+    - "作业帮智能硬件及聪明学系统"
+    - "银河教育大模型"
+    - "智能图书与教育数字化产品"
+  target_users: "作业帮 App 与智能硬件中的中小学生，以及承担辅导、监督和学情管理的家长与老师"
+  core_problem: "让学生在答疑、练习、批改和伴学过程中获得准确、可控且个性化的 AI 帮助，并控制 Agent 越权、委派失真、知识过时和不当行为"
+  core_scenarios:
+    - "拍题答疑、追问与知识点讲解"
+    - "作业批改、薄弱点诊断与个性化练习"
+    - "主 Agent 与子 Agent 的学习任务委派和结果汇总"
+    - "受控工具调用、权限确认与失败降级"
+    - "Agent 行为评测、轨迹诊断与护栏迭代"
+  technology_role: "platform_capability"
+  source_refs:
+    - "job-posting"
+    - "company-site"
+    - "smart-hardware-site"
+    - "app-store"
+    - "galaxy-model-news"
+company_overview:
+  ownership: "其他民企"
+  size: "2020 年公开报道披露超过 5000 万日活跃用户和 1.7 亿月活跃用户；当前官方产品覆盖学习工具与智能硬件"
+  operating_condition: "2026 年官方站点及应用商店仍展示作业帮 App、家长辅导工具和智能硬件矩阵，App 继续提供 AI 答疑、批改、同步练习和会员服务"
+  customer_type: "To C"
+  core_customers: "中小学生是主要学习用户，家长和老师参与作业辅导、检查及学情管理"
+  stage: "成熟经营阶段；2020 年完成超过 16 亿美元 E+ 轮融资"
+  source_refs:
+    - "company-site"
+    - "smart-hardware-site"
+    - "app-store"
+    - "reuters-funding"
+products:
+  - product_id: "zuoyebang-app-ai-learning"
+    name: "作业帮 App AI 学习能力"
+    summary: "面向学生与家长，将搜题答疑、智能追问、作业批改、薄弱点诊断和个性化练习整合为 AI 学习体验。"
+    identification_basis: "solution_core_products"
+    basis_note: "根据公司官方核心产品和 JD 的通用 Agent 治理职责推定；JD 没有披露具体产品归属。"
+    confidence: "medium"
+    source_refs:
+      - "job-posting"
+      - "company-site"
+      - "app-store"
+      - "galaxy-model-news"
+  - product_id: "smart-learning-ai-engine"
+    name: "聪明学系统 AI 伴学引擎"
+    summary: "把作业帮教研内容、学情数据与 AIGC 能力组合，为全学科、全学龄智能学习硬件提供伴学能力。"
+    identification_basis: "solution_core_products"
+    basis_note: "根据智能硬件官网公布的跨产品 AI 引擎与 JD 的平台型职责推定；具体组织归属未公开。"
+    confidence: "medium"
+    source_refs:
+      - "job-posting"
+      - "smart-hardware-site"
+      - "galaxy-model-news"
+competitors:
+  - matched_product_id: "zuoyebang-app-ai-learning"
+    name: "Khanmigo"
+    summary: "Khan Academy 面向学生、家长和教师提供的 AI 辅导与教学助手。"
+    url: "https://khanmigo.ai/"
+    learning_value: "可参照其不给直接答案的引导式辅导、未成年人访问控制、内容库接入和课堂监督机制。"
+    target_users_overlap: true
+    target_users_evidence: "Khanmigo 服务从小学到大学的学生，并由家长或学校为未成年人开通；与作业帮的学生、家长和老师用户重叠。"
+    core_problem_similarity: true
+    core_problem_evidence: "双方都希望在学习者遇到困难时提供按需辅导，同时维持教育效果与安全边界。"
+    core_scenarios_similarity: true
+    core_scenarios_evidence: "双方均覆盖数学、科学等多学科答疑、作业帮助、概念讲解和学习引导。"
+    source_refs:
+      - "khanmigo-site"
+      - "app-store"
+  - matched_product_id: "zuoyebang-app-ai-learning"
+    name: "Gauth"
+    summary: "面向学生、覆盖多学科问题求解与解释的 AI 学习伙伴。"
+    url: "https://www.gauthmath.com/"
+    learning_value: "可参照其跨学科题目解析、步骤化解释和把 AI 定位为学习辅助而非替代作业的产品边界。"
+    target_users_overlap: true
+    target_users_evidence: "Gauth 明确面向需要完成作业和复习的学生，与作业帮 App 的核心学习用户重叠。"
+    core_problem_similarity: true
+    core_problem_evidence: "双方都解决学生在作业和学习过程中无法独立理解题目与知识点的问题。"
+    core_scenarios_similarity: true
+    core_scenarios_evidence: "双方均覆盖 STEM 及其他学科的题目求解、步骤解释和复习支持。"
+    source_refs:
+      - "gauth-site"
+      - "app-store"
+possible_tasks:
+  - task: "定义主 Agent 与子 Agent 的任务边界、上下文隔离、委派简报和失败降级规则"
+    basis: "JD 明确要求决定哪些任务应隔离上下文派发、哪些留在主线，并设计失败时的降级方式。"
+    source_refs:
+      - "job-posting"
+  - task: "建立 Skill、检索知识库与提示词的知识分层、撰写规范和版本治理体系"
+    basis: "JD 要求区分程序性知识与海量碎片化陈述性知识，并建立 Skill 规范及版本治理。"
+    source_refs:
+      - "job-posting"
+  - task: "设计 Agent Tool 契约、权限模型、人类确认节点和自治程度产品分级"
+    basis: "JD 明确要求决定可调用工具、需人工确认的动作，并把自治程度设计为产品化分级。"
+    source_refs:
+      - "job-posting"
+  - task: "建立覆盖行为得体性、询问时机、停止条件和委派质量的 Agent 评测体系"
+    basis: "JD 要求评估不确定性产品的行为是否得体，并将该问不问、该停不停和简报失真视为缺陷。"
+    source_refs:
+      - "job-posting"
+  - task: "建设 Agent 失败分类、评估集、轨迹诊断方法和对应产品护栏"
+    basis: "JD 要求处理上下文溢出、委派失真、知识过时和过度自信，并要求候选人能读执行轨迹定位问题。"
+    source_refs:
+      - "job-posting"
+  - task: "把教育场景中的 Agent 能力接入作业帮学习产品并形成持续验证闭环"
+    basis: "作业帮已在 App、智能硬件和教育大模型中布局 AI 答疑与伴学能力，JD 要求亲手迭代完整版本周期。"
+    source_refs:
+      - "job-posting"
+      - "app-store"
+      - "smart-hardware-site"
+      - "galaxy-model-news"
+key_metrics:
+  - metric: "端到端学习任务成功率"
+    basis: "inferred"
+    reason: "衡量主 Agent、子 Agent、知识与 Tool 组合后是否完成学生真实学习任务。"
+    source_refs:
+      - "job-posting"
+      - "app-store"
+  - metric: "委派简报保真率"
+    basis: "inferred"
+    reason: "衡量子 Agent 接收和返回的信息是否保留任务目标、关键约束与证据。"
+    source_refs:
+      - "job-posting"
+  - metric: "行为得体性评测通过率"
+    basis: "inferred"
+    reason: "覆盖该问时询问、该停时停止、不过度自信和不输出失真简报等行为质量。"
+    source_refs:
+      - "job-posting"
+  - metric: "高风险动作人工确认覆盖率"
+    basis: "inferred"
+    reason: "衡量需人工确认的 Tool 动作是否被正确识别并阻止未经授权的自动执行。"
+    source_refs:
+      - "job-posting"
+  - metric: "知识版本新鲜度与命中有效性"
+    basis: "inferred"
+    reason: "衡量 Skill 与检索知识是否使用正确版本，并能为当前任务提供有效依据。"
+    source_refs:
+      - "job-posting"
+  - metric: "失败分类覆盖率与轨迹可诊断率"
+    basis: "inferred"
+    reason: "衡量主要失败是否可归类、可从 trace 定位，并能映射到降级或护栏措施。"
+    source_refs:
+      - "job-posting"
+capabilities:
+  hard_skills:
+    - id: "demand_definition"
+      name: "需求与定义"
+      score: 7
+      confidence: "high"
+      facts:
+        - "JD 将岗位职责拆为能力边界、知识供给、工具权限、评估体系和失败模式五类设计对象。"
+        - "作业帮 App 同时覆盖答疑、批改、练习、写作和志愿填报等多类学习场景。"
+      critical_tasks:
+        - "定义各学习场景中主 Agent、子 Agent、知识与 Tool 的产品边界。"
+        - "把行为是否得体转化为可验收的产品要求和缺陷标准。"
+      difficulty_factors:
+        - "需要在多类学习场景、学生与家长角色及 Agent 多组件之间划定边界。"
+        - "需求对象包含询问、停止、委派、权限和降级等非确定性行为，验收标准难以沿用普通功能正确性。"
+      avoid: "避免只写技术模块清单而没有用户场景、行为边界、例外条件和验收标准。"
+      conclusion: "由于岗位要在多类教育场景和多种 Agent 机制之间定义行为与验收边界，难度较高，需要候选人能把不确定行为转化为可执行的产品规则。"
+      source_refs:
+        - "job-posting"
+        - "app-store"
+      dimension_tag: "大数据洞察"
+    - id: "ai_solution_design"
+      name: "AI 方案设计"
+      score: 7
+      confidence: "high"
+      facts:
+        - "JD 同时要求设计多 Agent 委派、Skill 与检索知识、Tool 权限、评测和失败护栏。"
+        - "作业帮已将教育大模型能力规划到 App、智能硬件、智能图书和教育数字化等多种业务场景。"
+      critical_tasks:
+        - "把 Skill、知识库、Tool、工作流、上下文和评测机制组合为可控 Agent 方案。"
+        - "在教育产品中验证方案的任务完成质量、行为得体性和失败恢复。"
+      difficulty_factors:
+        - "Skill、知识、Tool 和评测彼此耦合，单一组件失真会沿委派链影响最终学习结果。"
+        - "方案需同时处理自主判断、权限控制、上下文稀缺、版本治理和失败降级。"
+      avoid: "避免把大模型、RAG 和 Tool 简单拼装，忽略组件间契约、风险边界和可验证性。"
+      conclusion: "由于六类 AI 方案组件需要耦合并共同满足权限、上下文和行为质量约束，难度较高，需要候选人能设计可验证且可降级的整体 Agent 方案。"
+      source_refs:
+        - "job-posting"
+        - "galaxy-model-news"
+    - id: "development_delivery"
+      name: "开发与落地"
+      score: 6
+      confidence: "medium"
+      facts:
+        - "JD 要求候选人亲手迭代过至少一个完整提示词版本周期并能读取 Agent 执行轨迹。"
+        - "岗位需要建立 Skill 撰写规范、版本治理和产品级护栏。"
+      critical_tasks:
+        - "推动提示词、Skill、Tool 权限、评测集与护栏按版本联动交付。"
+        - "用 trace 定位产品问题并把结论反馈给产品和工程实现。"
+      difficulty_factors:
+        - "交付对象跨提示词、配置、知识、Tool、评测和护栏多个组件，需要保持版本一致。"
+        - "完整版本周期要求从设计、观测到回归验证形成闭环，但公开职责未呈现复杂部署环境。"
+      avoid: "避免只验收最终回答而忽略执行轨迹、配置版本、降级路径和回归结果。"
+      conclusion: "由于多个 Agent 组件需要按版本联动并通过执行轨迹闭环验证，难度中等，需要候选人能协调产品设计、配置迭代和工程验收。"
+      source_refs:
+        - "job-posting"
+    - id: "evaluation_iteration"
+      name: "评测与迭代"
+      score: 8
+      confidence: "high"
+      facts:
+        - "JD 明确要求建立行为是否得体的评估方法，而非只判断功能正确性。"
+        - "JD 列出询问时机、停止条件、委派简报、上下文溢出、知识过时和过度自信等失败类型。"
+        - "JD 要求候选人能读取 Agent trace 并从执行过程中定位产品问题。"
+      critical_tasks:
+        - "建设覆盖多场景行为、失败类型和护栏效果的评估集。"
+        - "把 trace、人工判断和产品指标组合为持续迭代闭环。"
+      difficulty_factors:
+        - "评测对象是开放式 Agent 行为，包含时机、分寸、委派质量和可信度等多维主观标准。"
+        - "需要从最终输出下钻到多步执行轨迹，并把失败归因到上下文、知识、Tool 或委派环节。"
+        - "教育用户包含未成年人，错误建议与过度自信对学习判断和产品信任的影响较大。"
+      avoid: "避免只用单轮答案正确率覆盖 Agent 的过程质量、安全边界和长期回归。"
+      conclusion: "由于评测需覆盖多步轨迹、开放式行为标准和面向未成年学习用户的质量风险，要求很高，需要候选人能建立可归因、可回归的 Agent 评测体系。"
+      source_refs:
+        - "job-posting"
+        - "company-site"
+        - "app-store"
+      dimension_tag: "大数据反馈分析"
+    - id: "growth_commercialization"
+      name: "增长与商业化"
+      score: 3
+      confidence: "low"
+      facts:
+        - "作业帮 App 面向个人用户提供免费功能与 VIP 订阅服务。"
+        - "JD 要求把 Agent 自治程度设计为产品化分级。"
+      critical_tasks:
+        - "解释不同自治等级对学生和家长的价值与风险差异。"
+        - "评估 Agent 能力分层是否支持清晰的产品权益表达。"
+      difficulty_factors:
+        - "当前职责只明确自治程度分级，未形成多市场、多渠道或复杂定价链路。"
+        - "用户价值仍需与安全边界结合表达，但商业化任务范围有限。"
+      avoid: "避免把技术自治等级直接包装成付费权益而没有用户价值和安全依据。"
+      conclusion: "由于岗位公开职责仅涉及自治程度的产品分级而商业链路范围有限，难度较低，需要候选人能把技术分层翻译为基础的用户价值与权益边界。"
+      source_refs:
+        - "job-posting"
+        - "app-store"
+  soft_skills:
+    - id: "communication"
+      name: "沟通力"
+      score: 6
+      confidence: "high"
+      facts:
+        - "JD 要求候选人在不依赖工程师的情况下讲清子 Agent 与传统垂类 Bot、Skill 与 RAG、上下文窗口的产品含义。"
+        - "岗位需要制定可被他人使用的 Skill 撰写规范、Tool 定义和 Agent 配置。"
+      critical_tasks:
+        - "在产品、工程和业务语言之间解释 Agent 架构取舍。"
+        - "把边界、权限、失败和评测规则写成可执行规范。"
+      difficulty_factors:
+        - "沟通内容跨产品概念、Agent 技术机制和教育业务行为，需要避免术语歧义。"
+        - "规范将被多角色执行，表达必须同时支持设计、开发和验收。"
+      avoid: "避免用概念口号代替真实案例、边界条件和可执行规则。"
+      conclusion: "由于岗位要跨产品与工程语境解释多组易混概念并形成团队规范，难度中等，需要候选人能用案例和边界条件推动共同理解。"
+      source_refs:
+        - "job-posting"
+    - id: "innovation"
+      name: "创新能力"
+      score: 8
+      confidence: "high"
+      facts:
+        - "JD 强调从传统意图槽位对话系统迁移到 Agent 新范式，并要求说明旧直觉如何被推翻。"
+        - "岗位要为不确定性产品建立行为评测、失败分类和自治程度分级。"
+      critical_tasks:
+        - "在缺少成熟范式时提出 Agent 产品边界、失败模型和验证方法。"
+        - "通过真实版本迭代修正旧有对话产品方法。"
+      difficulty_factors:
+        - "问题同时包含新技术机制、开放式行为质量和尚未稳定的产品方法。"
+        - "岗位需要原创失败分类与护栏，而不是套用传统功能测试或固定意图流程。"
+      avoid: "避免把传统对话 Bot 的确定性流程原样迁移到具备自主判断的 Agent。"
+      conclusion: "由于 Agent 产品范式、行为评测和失败治理都缺少完全成熟的方法，难度较高，需要候选人能用真实实验建立并修正新的产品框架。"
+      source_refs:
+        - "job-posting"
+    - id: "execution"
+      name: "执行能力"
+      score: 6
+      confidence: "medium"
+      facts:
+        - "岗位需要同时推进能力边界、知识治理、Tool 权限、评测和失败护栏。"
+        - "JD 要求候选人亲手完成至少一个提示词版本周期并能通过 trace 定位问题。"
+      critical_tasks:
+        - "安排多个 Agent 机制的设计、试验、回归和版本依赖。"
+        - "把轨迹问题快速转化为提示词、知识、Tool 或护栏改动。"
+      difficulty_factors:
+        - "多条任务线共享同一 Agent 运行链路，变更之间存在回归依赖。"
+        - "版本迭代需要同步评测集、配置、知识和失败策略，但没有证据显示存在超长组织链路。"
+      avoid: "避免各组件独立迭代导致版本不一致、问题无法复现或护栏失效。"
+      conclusion: "由于多个 Agent 组件需要按依赖推进并在版本周期内持续回归，难度中等，需要候选人能组织并闭环多条相互关联的产品任务。"
+      source_refs:
+        - "job-posting"
+  ai_solution_design:
+    - id: "skill_design"
+      name: "Skill 设计能力"
+      score: 8
+      confidence: "high"
+      facts:
+        - "JD 要求判断哪些程序性知识应做成 Skill，并建立 Skill 撰写规范与版本治理。"
+        - "JD 同时要求设计主子 Agent 委派、知识检索、Tool 权限和失败降级。"
+      critical_tasks:
+        - "把教育领域方法设计成 Agent 可自主选择步骤的 Skill。"
+        - "编排 Skill 对知识库和受控 Tool 的调用、上下文传递、失败恢复与结果验证。"
+      difficulty_factors:
+        - "Skill 自身需要处理主子 Agent 分工、上下文隔离、版本治理和开放式判断。"
+        - "同一核心任务直接依赖高难度知识库治理和受权限约束的 Tool，抬高了 Skill 的编排下限。"
+        - "委派简报失真、知识过时和过度自信要求在 Skill 层提供验证与降级。"
+      avoid: "避免把 Skill 写成静态提示词，缺少输入输出契约、依赖治理、失败处理和版本兼容。"
+      conclusion: "由于 Skill 要编排高难度知识与权限 Tool 并处理委派、验证和降级，难度较高，需要候选人能设计可复用、可治理且可恢复的专业能力。"
+      source_refs:
+        - "job-posting"
+    - id: "knowledge_base_design"
+      name: "知识库设计能力"
+      score: 8
+      confidence: "high"
+      facts:
+        - "JD 明确区分程序性知识与陈述性、海量、碎片化知识，并要求在 Skill 和检索库之间做选择。"
+        - "JD 要求处理知识过时并建立撰写规范与版本治理。"
+        - "作业帮的 AI 学习产品依赖多学科、多学段题库、教材和教研内容。"
+      critical_tasks:
+        - "设计教育知识的 Skill 化、检索化和版本化边界。"
+        - "建立来源、更新、冲突、过期和检索有效性的治理机制。"
+      difficulty_factors:
+        - "知识覆盖多学科、多学段和多种内容形态，并同时包含事实性资料与程序性教研方法。"
+        - "知识规模大且碎片化，需要处理检索、版本、过期和跨内容综合。"
+        - "知识错误会沿 Agent 学习辅导链路影响学生理解和后续练习。"
+      avoid: "避免把所有知识统一塞入 RAG，忽略程序性方法、版本冲突、权威来源和过期治理。"
+      conclusion: "由于教育知识规模大、形态异构且需要在 Skill 与检索库之间治理版本和过期问题，要求很高，需要候选人能设计可更新、可追溯的知识供给体系。"
+      source_refs:
+        - "job-posting"
+        - "smart-hardware-site"
+        - "app-store"
+        - "galaxy-model-news"
+    - id: "agent_tool_design"
+      name: "Agent Tool 设计"
+      score: 7
+      confidence: "high"
+      facts:
+        - "JD 要求决定 Agent 可调用哪些工具、哪些动作必须经过人类确认。"
+        - "JD 要求把 Agent 自治程度设计为产品化分级，并为失败类型配置产品护栏。"
+      critical_tasks:
+        - "定义 Tool 输入输出、权限主体、确认规则和失败反馈。"
+        - "按动作风险划分自治等级并设计人工接管与审计策略。"
+      difficulty_factors:
+        - "Tool 能力与自治等级直接耦合，需要按动作风险决定自动执行或人工确认。"
+        - "主子 Agent 委派增加了权限传递、调用归属和失败追踪复杂度。"
+        - "面向学习用户的错误工具调用需要护栏和降级，公开资料未给出具体高影响写操作。"
+      avoid: "避免只定义函数参数而没有授权、确认、审计、异常和人工接管规则。"
+      conclusion: "由于 Tool 调用涉及多 Agent 权限传递、人工确认和自治分级，难度较高，需要候选人能设计安全契约、护栏和失败接管机制。"
+      source_refs:
+        - "job-posting"
+    - id: "workflow_design"
+      name: "工作流设计"
+      score: 6
+      confidence: "medium"
+      facts:
+        - "JD 要求规定哪些任务留在主线、哪些派发给子 Agent，以及失败时如何降级。"
+        - "岗位需要为上下文溢出、委派失真、知识过时和过度自信分别设计产品护栏。"
+      critical_tasks:
+        - "定义失败检测、降级、人工确认、恢复和结果回传的状态流程。"
+        - "为不同失败类型配置明确分支和回归检查。"
+      difficulty_factors:
+        - "失败治理流程包含多类触发条件、降级分支、人工节点和恢复结果。"
+        - "工作流需要与主子 Agent 的执行轨迹衔接，但 JD 没有呈现长链审批或跨系统补偿。"
+      avoid: "避免把需要严格触发和恢复的失败流程混同为允许 Agent 自由判断的 Skill。"
+      conclusion: "由于失败治理包含多类触发、降级、人工确认和恢复分支，难度中等，需要候选人能设计可观测且可回归的状态流程。"
+      source_refs:
+        - "job-posting"
+    - id: "memory_design"
+      name: "记忆能力"
+      score: 4
+      confidence: "low"
+      facts:
+        - "JD 强调上下文窗口是稀缺资源，并要求设计主线与子 Agent 的上下文隔离。"
+        - "JD 将上下文溢出和委派简报失真列为 Agent 失败类型。"
+      critical_tasks:
+        - "定义任务上下文的保留、压缩、隔离和失效规则。"
+        - "区分当前任务上下文、委派摘要和可长期保留的用户状态。"
+      difficulty_factors:
+        - "已确认任务聚焦单次或多步执行中的上下文资源管理，作用周期较短。"
+        - "主子 Agent 间需要控制上下文传递和摘要失真，但长期用户记忆对象与更正机制没有进入岗位职责。"
+      avoid: "避免把上下文窗口、业务数据库和长期用户记忆混为同一种状态机制。"
+      conclusion: "由于当前任务主要处理短周期上下文隔离而长期状态约束有限，难度较低，需要候选人能定义基础的上下文保留、压缩和失效规则。"
+      source_refs:
+        - "job-posting"
+    - id: "demo_prototyping"
+      name: "Demo 原型设计"
+      score: 6
+      confidence: "high"
+      facts:
+        - "JD 要求候选人亲手写过 prompt 或系统提示词并完成至少一个完整版本周期。"
+        - "JD 要求候选人能读取 Agent trace，并把被他人实际使用的 Skill、Tool 定义或 Agent 配置列为加分项。"
+      critical_tasks:
+        - "用可运行原型验证主子 Agent 委派、Tool 确认和失败降级。"
+        - "通过 trace 和评估集比较提示词、Skill 与护栏版本。"
+      difficulty_factors:
+        - "原型需要覆盖多 Agent、知识、Tool、权限和评测多个联动假设。"
+        - "验证不止展示交互，还要保留执行轨迹并完成至少一个迭代周期。"
+        - "生产部署与真实业务系统接入范围没有在 JD 中展开。"
+      avoid: "避免只做顺利路径演示而不验证权限、异常、降级和版本差异。"
+      conclusion: "由于原型要联动多 Agent、知识、Tool 和评测并完成轨迹驱动迭代，难度中等，需要候选人能构建可运行且可比较版本的 Agent Demo。"
+      source_refs:
+        - "job-posting"
+sources:
+  - id: "job-posting"
+    title: "作业帮 AI产品经理（agent）职位页面"
+    publisher: "BOSS直聘"
+    url: "https://www.zhipin.com/job_detail/138380ca6afc27580nZy3Ni1GVpU.html"
+    accessed_at: "2026-08-29"
+    type: "job"
+  - id: "company-site"
+    title: "作业帮官网"
+    publisher: "作业帮"
+    url: "https://www.zuoyebang.com/?lang=zh_CN"
+    accessed_at: "2026-08-29"
+    type: "company"
+  - id: "smart-hardware-site"
+    title: "作业帮智能硬件品牌介绍"
+    publisher: "作业帮智能"
+    url: "https://smart.zuoyebang.com/about"
+    accessed_at: "2026-08-29"
+    type: "product"
+  - id: "app-store"
+    title: "作业帮 App 产品页面"
+    publisher: "Apple App Store"
+    url: "https://apps.apple.com/cn/app/id803781859"
+    accessed_at: "2026-08-29"
+    type: "product"
+  - id: "galaxy-model-news"
+    title: "作业帮正式发布银河大模型"
+    publisher: "新华网"
+    url: "https://www.xinhuanet.com/tech/20230902/8c23fbea143c4790b8481099ab9f4c45/c.html"
+    accessed_at: "2026-08-29"
+    type: "media"
+  - id: "reuters-funding"
+    title: "Chinese online tutor Zuoyebang raises more than $1.6 billion"
+    publisher: "Reuters via MarketScreener"
+    url: "https://www.marketscreener.com/quote/stock/BAIDU-INC-8563/news/Chinese-online-tutor-Zuoyebang-raises-more-than-1-6-billion-32090708/"
+    accessed_at: "2026-08-29"
+    type: "funding"
+  - id: "khanmigo-site"
+    title: "Khanmigo AI tutor and teaching assistant"
+    publisher: "Khan Academy"
+    url: "https://khanmigo.ai/"
+    accessed_at: "2026-08-29"
+    type: "product"
+  - id: "gauth-site"
+    title: "Gauth AI Homework Helper"
+    publisher: "Gauth"
+    url: "https://www.gauthmath.com/"
+    accessed_at: "2026-08-29"
+    type: "product"
