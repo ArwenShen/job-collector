@@ -39,6 +39,8 @@ export function createSidePanelController(deps: {
   repository: SidePanelRepository;
   download: (records: JobRecord[]) => void;
   render: (state: SidePanelState) => void;
+  setTimeout?: typeof globalThis.setTimeout;
+  clearTimeout?: typeof globalThis.clearTimeout;
 }) {
   const state: SidePanelState = {
     records: [],
@@ -46,6 +48,12 @@ export function createSidePanelController(deps: {
     busy: false,
   };
   let listGeneration = 0;
+  let mutationBusy = false;
+  let noteIdentity: Pick<JobRecord, "source_site" | "source_job_id"> | undefined;
+  let pendingDelete: RemovedJob | undefined;
+  let undoTimer: ReturnType<typeof globalThis.setTimeout> | undefined;
+  const schedule = deps.setTimeout ?? globalThis.setTimeout.bind(globalThis);
+  const cancelSchedule = deps.clearTimeout ?? globalThis.clearTimeout.bind(globalThis);
 
   function cloneRecords(records: JobRecord[]): JobRecord[] {
     return records.map((record) => ({ ...record }));
@@ -75,6 +83,49 @@ export function createSidePanelController(deps: {
 
   function fail(text: string): void {
     state.notice = { kind: "error", text };
+    render();
+  }
+
+  function identity(record: Pick<JobRecord, "source_site" | "source_job_id">) {
+    return { source_site: record.source_site, source_job_id: record.source_job_id };
+  }
+
+  function recordKey(record: Pick<JobRecord, "source_site" | "source_job_id">): string {
+    return `${record.source_site}:${record.source_job_id}`;
+  }
+
+  function invalidatePendingDelete(): void {
+    if (undoTimer !== undefined) cancelSchedule(undoTimer);
+    undoTimer = undefined;
+    pendingDelete = undefined;
+  }
+
+  function startUndoWindow(removed: RemovedJob): void {
+    pendingDelete = { record: { ...removed.record }, index: removed.index };
+    const undoNotice: Notice = { kind: "undo", text: "已删除 1 个职位" };
+    state.notice = undoNotice;
+    undoTimer = schedule(() => {
+      undoTimer = undefined;
+      pendingDelete = undefined;
+      if (state.notice === undoNotice) {
+        state.notice = undefined;
+        render();
+      }
+    }, 5000);
+  }
+
+  function beginMutation(): boolean {
+    if (state.busy || mutationBusy) return false;
+    mutationBusy = true;
+    state.busy = true;
+    ++listGeneration;
+    render();
+    return true;
+  }
+
+  function endMutation(): void {
+    mutationBusy = false;
+    state.busy = false;
     render();
   }
 
@@ -155,6 +206,111 @@ export function createSidePanelController(deps: {
         state.notice = { kind: "error", text: "导出失败，请重试" };
         render();
       }
+    },
+
+    openNote(record: JobRecord): void {
+      state.clearConfirmOpen = false;
+      noteIdentity = identity(record);
+      state.noteEditor = { key: recordKey(record), value: record.note };
+      render();
+    },
+
+    cancelNote(): void {
+      if (!state.noteEditor) return;
+      noteIdentity = undefined;
+      state.noteEditor = undefined;
+      render();
+    },
+
+    async saveNote(value: string): Promise<void> {
+      const editor = state.noteEditor;
+      const target = noteIdentity;
+      if (!editor || !target || !beginMutation()) return;
+      editor.value = value;
+      const note = value.trim();
+
+      try {
+        if (note.length > 200) {
+          state.notice = { kind: "error", text: "备注不能超过 200 个字符" };
+          return;
+        }
+        await deps.repository.updateNote(target, note);
+        await readList();
+        noteIdentity = undefined;
+        state.noteEditor = undefined;
+        state.notice = { kind: "success", text: "备注已保存" };
+      } catch {
+        state.notice = { kind: "error", text: "备注保存失败，请重试" };
+      } finally {
+        endMutation();
+      }
+    },
+
+    async deleteRecord(record: JobRecord): Promise<void> {
+      if (!beginMutation()) return;
+      invalidatePendingDelete();
+      try {
+        const removed = await deps.repository.remove(identity(record));
+        if (!removed) {
+          await readList();
+          state.notice = { kind: "error", text: "职位不存在或已被删除" };
+          return;
+        }
+        await readList();
+        startUndoWindow(removed);
+      } catch {
+        state.notice = { kind: "error", text: "删除失败，请重试" };
+      } finally {
+        endMutation();
+      }
+    },
+
+    async undoDelete(): Promise<void> {
+      const removed = pendingDelete;
+      if (!removed || !beginMutation()) return;
+      try {
+        await deps.repository.restore(removed.record, removed.index);
+        invalidatePendingDelete();
+        await readList();
+        state.notice = { kind: "success", text: "已撤销删除" };
+      } catch {
+        state.notice = { kind: "error", text: "撤销失败，请重试" };
+      } finally {
+        endMutation();
+      }
+    },
+
+    requestClear(): void {
+      if (state.records.length === 0) return;
+      noteIdentity = undefined;
+      state.noteEditor = undefined;
+      state.clearConfirmOpen = true;
+      render();
+    },
+
+    cancelClear(): void {
+      if (!state.clearConfirmOpen) return;
+      state.clearConfirmOpen = false;
+      render();
+    },
+
+    async confirmClear(): Promise<void> {
+      if (!state.clearConfirmOpen || !beginMutation()) return;
+      invalidatePendingDelete();
+      try {
+        await deps.repository.clear();
+        await readList();
+        state.clearConfirmOpen = false;
+        state.notice = { kind: "success", text: "已清空全部职位" };
+      } catch {
+        state.notice = { kind: "error", text: "清空失败，请重试" };
+      } finally {
+        endMutation();
+      }
+    },
+
+    dispose(): void {
+      invalidatePendingDelete();
     },
   };
 }
