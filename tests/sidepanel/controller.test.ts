@@ -24,8 +24,8 @@ function createHarness(options: {
   render?: (state: SidePanelState) => void;
 } = {}) {
   const records = [...(options.records ?? [])];
-  const repository: SidePanelRepository = {
-    async save(value) {
+  const repository = {
+    async save(value: JobRecord) {
       const index = records.findIndex((record) =>
         record.source_site === value.source_site && record.source_job_id === value.source_job_id,
       );
@@ -33,15 +33,39 @@ function createHarness(options: {
       else records[index] = { ...value, note: records[index]!.note };
     },
     async list() { return records.map((record) => ({ ...record })); },
-    async has(value) {
+    async has(value: Pick<JobRecord, "source_site" | "source_job_id">) {
       return records.some((record) =>
         record.source_site === value.source_site && record.source_job_id === value.source_job_id,
       );
     },
+    async updateNote(value: Pick<JobRecord, "source_site" | "source_job_id">, note: string) {
+      const record = records.find((item) =>
+        item.source_site === value.source_site && item.source_job_id === value.source_job_id,
+      );
+      if (!record) throw new Error("Job record not found");
+      record.note = note;
+    },
+    async remove(value: Pick<JobRecord, "source_site" | "source_job_id">) {
+      const index = records.findIndex((item) =>
+        item.source_site === value.source_site && item.source_job_id === value.source_job_id,
+      );
+      if (index < 0) return null;
+      return { record: records.splice(index, 1)[0]!, index };
+    },
+    async restore(record: JobRecord, index: number) {
+      const existingIndex = records.findIndex((item) =>
+        item.source_site === record.source_site && item.source_job_id === record.source_job_id,
+      );
+      if (existingIndex >= 0) records.splice(existingIndex, 1);
+      const insertionIndex = Math.max(0, Math.min(index, records.length));
+      records.splice(insertionIndex, 0, { ...record });
+    },
+    async clear() { records.splice(0, records.length); },
   };
+  const repositoryContract: SidePanelRepository = repository;
   return {
     records,
-    repository,
+    repository: repositoryContract,
     extract: options.extract ?? vi.fn().mockResolvedValue({ kind: "unsupported-site" }),
     download: options.download ?? vi.fn(),
     render: options.render ?? vi.fn(),
@@ -211,6 +235,31 @@ describe("side panel controller", () => {
     }));
   });
 
+  it("does not let an older export snapshot overwrite records collected concurrently", async () => {
+    let resolveExport!: (records: JobRecord[]) => void;
+    const exportList = new Promise<JobRecord[]>((resolve) => { resolveExport = resolve; });
+    const harness = createHarness({ records: [sampleRecord], extract: vi.fn().mockResolvedValue(success({
+      ...sampleRecord, source_job_id: "2", job_title: "第二个岗位",
+    })) });
+    const originalList = harness.repository.list;
+    const controller = createSidePanelController(harness);
+    await controller.initialize();
+    harness.repository.list = vi.fn()
+      .mockImplementationOnce(() => exportList)
+      .mockImplementation(originalList);
+
+    const exporting = controller.exportCsv();
+    await controller.collect();
+    resolveExport([sampleRecord]);
+    await exporting;
+
+    harness.repository.list = vi.fn().mockRejectedValue(new Error("storage unavailable"));
+    await controller.initialize();
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+      records: [sampleRecord, expect.objectContaining({ source_job_id: "2" })],
+    }));
+  });
+
   it("renders busy during collection and ignores a concurrent collect", async () => {
     let resolveExtract!: (page: PageResult) => void;
     const extract = vi.fn(() => new Promise<PageResult>((resolve) => { resolveExtract = resolve; }));
@@ -223,6 +272,29 @@ describe("side panel controller", () => {
     expect(extract).toHaveBeenCalledTimes(1);
     resolveExtract(success(sampleRecord));
     await first;
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({ busy: false }));
+  });
+
+  it("does not let an overlapping initialize failure release the collect lock", async () => {
+    let rejectInitialize!: (error: Error) => void;
+    const initializeList = new Promise<JobRecord[]>((_resolve, reject) => { rejectInitialize = reject; });
+    const extractResolvers: Array<(page: PageResult) => void> = [];
+    const extract = vi.fn(() => new Promise<PageResult>((resolve) => { extractResolvers.push(resolve); }));
+    const harness = createHarness({ extract });
+    harness.repository.list = vi.fn().mockReturnValueOnce(initializeList).mockResolvedValue([]);
+    const controller = createSidePanelController(harness);
+
+    const initializing = controller.initialize();
+    const firstCollect = controller.collect();
+    await Promise.resolve();
+    rejectInitialize(new Error("storage unavailable"));
+    await initializing;
+    const secondCollect = controller.collect();
+    await Promise.resolve();
+    extractResolvers.forEach((resolve) => resolve({ kind: "unsupported-site" }));
+    await Promise.all([firstCollect, secondCollect]);
+
+    expect(extract).toHaveBeenCalledTimes(1);
     expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({ busy: false }));
   });
 

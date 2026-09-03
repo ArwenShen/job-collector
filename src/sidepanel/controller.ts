@@ -1,5 +1,6 @@
 import type { PageResult } from "../extractors";
 import type { JobRecord } from "../shared/job-record";
+import type { RemovedJob } from "../storage/job-repository";
 
 export type Notice =
   | { kind: "success" | "error"; text: string }
@@ -22,6 +23,15 @@ export interface SidePanelRepository {
   save(record: JobRecord): Promise<void>;
   list(): Promise<JobRecord[]>;
   has(record: Pick<JobRecord, "source_site" | "source_job_id">): Promise<boolean>;
+  updateNote(
+    record: Pick<JobRecord, "source_site" | "source_job_id">,
+    note: string,
+  ): Promise<void>;
+  remove(
+    record: Pick<JobRecord, "source_site" | "source_job_id">,
+  ): Promise<RemovedJob | null>;
+  restore(record: JobRecord, index: number): Promise<void>;
+  clear(): Promise<void>;
 }
 
 export function createSidePanelController(deps: {
@@ -55,7 +65,6 @@ export function createSidePanelController(deps: {
 
   function fail(text: string): void {
     state.notice = { kind: "error", text };
-    state.busy = false;
     render();
   }
 
@@ -81,51 +90,56 @@ export function createSidePanelController(deps: {
       state.busy = true;
       render();
 
-      let page: PageResult;
       try {
-        page = await deps.extract();
-      } catch (error) {
-        fail(extractionErrorMessage(error));
-        return;
-      }
+        let page: PageResult;
+        try {
+          page = await deps.extract();
+        } catch (error) {
+          state.notice = { kind: "error", text: extractionErrorMessage(error) };
+          return;
+        }
 
-      if (page.kind !== "success") {
-        fail("请打开支持平台的职位详情页");
-        return;
-      }
-      if (!page.extraction.record) {
-        fail(`无法完整识别该岗位：缺少 ${page.extraction.missingRequiredFields.join("、")}`);
-        return;
-      }
+        if (page.kind !== "success") {
+          state.notice = { kind: "error", text: "请打开支持平台的职位详情页" };
+          return;
+        }
+        if (!page.extraction.record) {
+          state.notice = {
+            kind: "error",
+            text: `无法完整识别该岗位：缺少 ${page.extraction.missingRequiredFields.join("、")}`,
+          };
+          return;
+        }
 
-      let existed: boolean;
-      try {
-        existed = await deps.repository.has(page.extraction.record);
-        await deps.repository.save(page.extraction.record);
-      } catch {
-        fail("保存失败，请重试");
-        return;
-      }
+        let existed: boolean;
+        try {
+          existed = await deps.repository.has(page.extraction.record);
+          await deps.repository.save(page.extraction.record);
+        } catch {
+          state.notice = { kind: "error", text: "保存失败，请重试" };
+          return;
+        }
 
-      try {
-        await readList();
-      } catch {
-        fail("列表读取失败，请重试");
-        return;
-      }
+        try {
+          await readList();
+        } catch {
+          state.notice = { kind: "error", text: "列表读取失败，请重试" };
+          return;
+        }
 
-      state.notice = {
-        kind: "success",
-        text: existed ? "已更新当前职位，没有新增重复记录" : "已收集当前职位",
-      };
-      state.busy = false;
-      render();
+        state.notice = {
+          kind: "success",
+          text: existed ? "已更新当前职位，没有新增重复记录" : "已收集当前职位",
+        };
+      } finally {
+        state.busy = false;
+        render();
+      }
     },
 
     async exportCsv(): Promise<void> {
       try {
         const records = cloneRecords(await deps.repository.list());
-        state.records = cloneRecords(records);
         if (records.length > 0) deps.download(records);
       } catch {
         state.notice = { kind: "error", text: "导出失败，请重试" };
