@@ -36,6 +36,18 @@ describe("job repository", () => {
     expect((await repository.list())[0]?.job_title).toBe("新标题");
   });
 
+  it("checks whether an identity exists", async () => {
+    const repository = createJobRepository(memoryArea());
+    await repository.save(record("1", "岗位"));
+
+    await expect(repository.has(
+      { source_site: "boss", source_job_id: "1" },
+    )).resolves.toBe(true);
+    await expect(repository.has(
+      { source_site: "boss", source_job_id: "missing" },
+    )).resolves.toBe(false);
+  });
+
   it("keeps first-collection order when a duplicate has a newer collected_at", async () => {
     const repository = createJobRepository(memoryArea());
     await repository.save(record("1", "第一个", { collected_at: "2026-09-02T09:00:00.000Z" }));
