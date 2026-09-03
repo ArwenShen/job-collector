@@ -323,6 +323,45 @@ describe("side panel controller", () => {
     }));
   });
 
+  it("retains a pending initialization when collection fails before saving", async () => {
+    let resolveInitialize!: (records: JobRecord[]) => void;
+    const initializeList = new Promise<JobRecord[]>((resolve) => { resolveInitialize = resolve; });
+    const harness = createHarness({ extract: vi.fn().mockResolvedValue({ kind: "unsupported-site" }) });
+    harness.repository.list = vi.fn().mockReturnValue(initializeList);
+    const controller = createSidePanelController(harness);
+
+    const initializing = controller.initialize();
+    await controller.collect();
+    resolveInitialize([sampleRecord]);
+    await initializing;
+
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+      records: [sampleRecord],
+      notice: { kind: "error", text: "请打开支持平台的职位详情页" },
+      busy: false,
+    }));
+  });
+
+  it("does not let an initialization read failure overwrite a newer collect error", async () => {
+    let rejectInitialize!: (error: Error) => void;
+    const initializeList = new Promise<JobRecord[]>((_resolve, reject) => { rejectInitialize = reject; });
+    const harness = createHarness({ extract: vi.fn().mockResolvedValue({ kind: "unsupported-site" }) });
+    harness.repository.list = vi.fn().mockReturnValue(initializeList);
+    const controller = createSidePanelController(harness);
+
+    const initializing = controller.initialize();
+    await controller.collect();
+    const renderCountAfterCollect = vi.mocked(harness.render).mock.calls.length;
+    rejectInitialize(new Error("storage unavailable"));
+    await initializing;
+
+    expect(harness.render).toHaveBeenCalledTimes(renderCountAfterCollect);
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+      notice: { kind: "error", text: "请打开支持平台的职位详情页" },
+      busy: false,
+    }));
+  });
+
   it("renders snapshots that cannot mutate controller records", async () => {
     const rendered: SidePanelState[] = [];
     const harness = createHarness({ records: [sampleRecord], render: (state) => rendered.push(state) });

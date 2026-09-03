@@ -87,17 +87,17 @@ export function createSidePanelController(deps: {
 
   return {
     async initialize(): Promise<void> {
+      const noticeAtStart = state.notice;
       try {
         if (await readList()) render();
       } catch {
-        fail("列表读取失败，请重试");
+        if (state.notice === noticeAtStart) fail("列表读取失败，请重试");
       }
     },
 
     async collect(): Promise<void> {
       if (state.busy) return;
       state.busy = true;
-      listGeneration += 1;
       render();
 
       try {
