@@ -101,10 +101,12 @@ export function createSidePanelController(deps: {
   }
 
   function startUndoWindow(removed: RemovedJob): void {
-    pendingDelete = { record: { ...removed.record }, index: removed.index };
+    const snapshot = { record: { ...removed.record }, index: removed.index };
+    pendingDelete = snapshot;
     const undoNotice: Notice = { kind: "undo", text: "已删除 1 个职位" };
     state.notice = undoNotice;
     undoTimer = schedule(() => {
+      if (pendingDelete !== snapshot) return;
       undoTimer = undefined;
       pendingDelete = undefined;
       if (state.notice === undoNotice) {
@@ -248,7 +250,6 @@ export function createSidePanelController(deps: {
 
     async deleteRecord(record: JobRecord): Promise<void> {
       if (!beginMutation()) return;
-      invalidatePendingDelete();
       try {
         const removed = await deps.repository.remove(identity(record));
         if (!removed) {
@@ -256,6 +257,7 @@ export function createSidePanelController(deps: {
           state.notice = { kind: "error", text: "职位不存在或已被删除" };
           return;
         }
+        invalidatePendingDelete();
         await readList();
         startUndoWindow(removed);
       } catch {
@@ -274,7 +276,9 @@ export function createSidePanelController(deps: {
         await readList();
         state.notice = { kind: "success", text: "已撤销删除" };
       } catch {
-        state.notice = { kind: "error", text: "撤销失败，请重试" };
+        state.notice = pendingDelete === removed
+          ? { kind: "undo", text: "撤销失败，请重试" }
+          : { kind: "error", text: "撤销失败，请重试" };
       } finally {
         endMutation();
       }

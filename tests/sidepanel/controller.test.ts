@@ -507,6 +507,28 @@ describe("side panel controller", () => {
     expect(harness.records).toEqual([]);
   });
 
+  it("ignores a cancelled timeout callback that arrives after a newer deletion", async () => {
+    const callbacks: Array<() => void> = [];
+    const setTimeout = vi.fn((callback: () => void) => {
+      callbacks.push(callback);
+      return callbacks.length as unknown as ReturnType<typeof globalThis.setTimeout>;
+    }) as unknown as typeof globalThis.setTimeout;
+    const clearTimeout = vi.fn() as unknown as typeof globalThis.clearTimeout;
+    const second = { ...sampleRecord, source_job_id: "2" };
+    const harness = createHarness({ records: [sampleRecord, second], setTimeout, clearTimeout });
+    const controller = createSidePanelController(harness);
+    await controller.initialize();
+    await controller.deleteRecord(sampleRecord);
+    await controller.deleteRecord(second);
+
+    callbacks[0]!();
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+      notice: { kind: "undo", text: "已删除 1 个职位" },
+    }));
+    await controller.undoDelete();
+    expect(harness.records).toEqual([second]);
+  });
+
   it("undoes deletion at the original position with the complete record", async () => {
     vi.useFakeTimers();
     const first = { ...sampleRecord, source_job_id: "0", job_title: "first" };
@@ -535,7 +557,7 @@ describe("side panel controller", () => {
     harness.repository.restore = vi.fn().mockRejectedValueOnce(new Error("unavailable")).mockImplementation(originalRestore);
     await controller.undoDelete();
     expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
-      notice: { kind: "error", text: "撤销失败，请重试" },
+      notice: { kind: "undo", text: "撤销失败，请重试" },
     }));
     await controller.undoDelete();
     expect(harness.records).toEqual([sampleRecord]);
@@ -557,6 +579,28 @@ describe("side panel controller", () => {
     await controller.undoDelete();
     expect(harness.records).toEqual([second]);
   });
+
+  it.each(["missing", "error"] as const)(
+    "keeps the first deletion undoable when a second delete ends with %s",
+    async (outcome) => {
+      vi.useFakeTimers();
+      const second = { ...sampleRecord, source_job_id: "2" };
+      const harness = createHarness({ records: [sampleRecord, second] });
+      const controller = createSidePanelController(harness);
+      await controller.initialize();
+      await controller.deleteRecord(sampleRecord);
+      harness.repository.remove = outcome === "missing"
+        ? vi.fn().mockResolvedValue(null)
+        : vi.fn().mockRejectedValue(new Error("unavailable"));
+
+      await controller.deleteRecord(second);
+      await controller.undoDelete();
+      expect(harness.records).toEqual([sampleRecord, second]);
+      expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+        notice: { kind: "success", text: "已撤销删除" },
+      }));
+    },
+  );
 
   it("preserves newly saved identity data when undo only restores its position", async () => {
     vi.useFakeTimers();
