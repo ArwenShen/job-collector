@@ -20,9 +20,40 @@ function record(id: string, title: string, overrides: Partial<JobRecord> = {}): 
 function memoryArea(initial: Record<string, unknown> = {}) {
   const memory: Record<string, unknown> = { ...initial };
   return {
-    get: async (key: string) => key in memory ? { [key]: memory[key] } : {},
+    get: async (keys: string | string[]) => Object.fromEntries(
+      (Array.isArray(keys) ? keys : [keys])
+        .filter((key) => key in memory)
+        .map((key) => [key, memory[key]]),
+    ),
     set: async (value: Record<string, unknown>) => { Object.assign(memory, value); },
     snapshot: () => memory,
+  };
+}
+
+function serializedLock() {
+  let tail = Promise.resolve();
+  return {
+    request<T>(_name: string, callback: () => Promise<T>): Promise<T> {
+      const result = tail.then(callback, callback);
+      tail = result.then(() => undefined, () => undefined);
+      return result;
+    },
+  };
+}
+
+function pausableMemoryArea(initial: Record<string, unknown> = {}) {
+  const area = memoryArea(initial);
+  let releaseReads!: () => void;
+  const readsReleased = new Promise<void>((resolve) => { releaseReads = resolve; });
+
+  return {
+    ...area,
+    get: async (keys: string | string[]) => {
+      const snapshot = await area.get(keys);
+      await readsReleased;
+      return snapshot;
+    },
+    releaseReads,
   };
 }
 
@@ -46,6 +77,86 @@ describe("job repository", () => {
     await expect(repository.has(
       { source_site: "boss", source_job_id: "missing" },
     )).resolves.toBe(false);
+  });
+
+  it("reads only records when counting and checking identities", async () => {
+    const area = {
+      get: async (keys: string | string[]) => {
+        const requested = Array.isArray(keys) ? keys : [keys];
+        if (requested.includes(ORDER_KEY)) throw new Error("order unavailable");
+        return { [STORAGE_KEY]: { "boss:1": record("1", "岗位") } };
+      },
+      set: async () => undefined,
+    };
+    const repository = createJobRepository(area);
+
+    await expect(repository.count()).resolves.toBe(1);
+    await expect(repository.has(
+      { source_site: "boss", source_job_id: "1" },
+    )).resolves.toBe(true);
+  });
+
+  it("serializes concurrent saves so neither record is lost", async () => {
+    const area = pausableMemoryArea();
+    const lock = serializedLock();
+    const firstContext = createJobRepository(area, lock);
+    const secondContext = createJobRepository(area, lock);
+
+    const saves = Promise.all([
+      firstContext.save(record("1", "岗位一")),
+      secondContext.save(record("2", "岗位二")),
+    ]);
+    area.releaseReads();
+    await saves;
+
+    expect((await firstContext.list()).map(({ source_job_id }) => source_job_id)).toEqual(["1", "2"]);
+  });
+
+  it("serializes save and note update without losing either result", async () => {
+    const area = pausableMemoryArea({
+      [STORAGE_KEY]: { "boss:1": record("1", "岗位一") },
+      [ORDER_KEY]: ["boss:1"],
+    });
+    const lock = serializedLock();
+    const firstContext = createJobRepository(area, lock);
+    const secondContext = createJobRepository(area, lock);
+
+    const mutations = Promise.all([
+      firstContext.save(record("2", "岗位二")),
+      secondContext.updateNote({ source_site: "boss", source_job_id: "1" }, "新备注"),
+    ]);
+    area.releaseReads();
+    await mutations;
+
+    expect(await firstContext.list()).toEqual([
+      record("1", "岗位一", { note: "新备注" }),
+      record("2", "岗位二"),
+    ]);
+  });
+
+  it("reads mutation state once and uses the fixed storage lock", async () => {
+    const area = memoryArea();
+    const getCalls: Array<string | string[]> = [];
+    const lockNames: string[] = [];
+    const trackingArea = {
+      ...area,
+      get: async (keys: string | string[]) => {
+        getCalls.push(keys);
+        return area.get(keys);
+      },
+    };
+    const lock = {
+      request: async <T>(name: string, callback: () => Promise<T>): Promise<T> => {
+        lockNames.push(name);
+        return callback();
+      },
+    };
+    const repository = createJobRepository(trackingArea, lock);
+
+    await repository.save(record("1", "岗位"));
+
+    expect(getCalls).toEqual([[STORAGE_KEY, ORDER_KEY]]);
+    expect(lockNames).toEqual(["jobCollector.storage.v1"]);
   });
 
   it("keeps first-collection order when a duplicate has a newer collected_at", async () => {
@@ -145,7 +256,7 @@ describe("job repository", () => {
     expect((await repository.list()).map(({ source_job_id }) => source_job_id)).toEqual(["2", "1", "3"]);
   });
 
-  it("moves an existing key to the requested position when restoring", async () => {
+  it("moves an existing key without replacing its current record", async () => {
     const repository = createJobRepository(memoryArea());
     await repository.save(record("1", "岗位一"));
     await repository.save(record("2", "岗位二"));
@@ -154,7 +265,33 @@ describe("job repository", () => {
     await repository.restore(record("2", "岗位二（恢复）"), 0);
 
     expect((await repository.list()).map(({ job_title }) => job_title)).toEqual([
-      "岗位二（恢复）", "岗位一", "岗位三",
+      "岗位二", "岗位一", "岗位三",
+    ]);
+  });
+
+  it("moves a newly re-saved record without replacing it with the removed snapshot", async () => {
+    const repository = createJobRepository(memoryArea());
+    await repository.save(record("1", "岗位一"));
+    await repository.save(record("2", "旧岗位二", {
+      collected_at: "2026-09-02T09:00:00.000Z",
+      note: "旧备注",
+    }));
+    await repository.save(record("3", "岗位三"));
+    const removed = await repository.remove({ source_site: "boss", source_job_id: "2" });
+
+    await repository.save(record("2", "新岗位二", {
+      collected_at: "2026-09-03T09:00:00.000Z",
+      note: "最新备注",
+    }));
+    await repository.restore(removed!.record, removed!.index);
+
+    expect(await repository.list()).toEqual([
+      record("1", "岗位一"),
+      record("2", "新岗位二", {
+        collected_at: "2026-09-03T09:00:00.000Z",
+        note: "最新备注",
+      }),
+      record("3", "岗位三"),
     ]);
   });
 
