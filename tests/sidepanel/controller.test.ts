@@ -584,6 +584,41 @@ describe("side panel controller", () => {
     expect(harness.records).toEqual([second]);
   });
 
+  it.each([false, true])(
+    "arms undo for a removed record before a failing list refresh (prior pending: %s)",
+    async (hasPriorPending) => {
+      vi.useFakeTimers();
+      const second = { ...sampleRecord, source_job_id: "2" };
+      const initialRecords = hasPriorPending ? [sampleRecord, second] : [sampleRecord];
+      const harness = createHarness({ records: initialRecords });
+      const controller = createSidePanelController(harness);
+      await controller.initialize();
+      if (hasPriorPending) await controller.deleteRecord(sampleRecord);
+
+      const removed = hasPriorPending ? second : sampleRecord;
+      const originalList = harness.repository.list;
+      harness.repository.list = vi.fn()
+        .mockRejectedValueOnce(new Error("unavailable"))
+        .mockImplementation(originalList);
+      const restore = vi.spyOn(harness.repository, "restore");
+
+      await controller.deleteRecord(removed);
+      expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+        notice: { kind: "error", text: "列表读取失败，请重试" },
+        undoAvailable: true,
+      }));
+
+      await controller.undoDelete();
+      expect(restore).toHaveBeenCalledWith(removed, 0);
+      expect(harness.records).toEqual([removed]);
+      expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+        records: [removed],
+        notice: { kind: "success", text: "已撤销删除" },
+        undoAvailable: false,
+      }));
+    },
+  );
+
   it.each(["missing", "error"] as const)(
     "keeps the first deletion undoable when a second delete ends with %s",
     async (outcome) => {

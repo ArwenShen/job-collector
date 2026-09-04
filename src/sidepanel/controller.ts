@@ -253,18 +253,25 @@ export function createSidePanelController(deps: {
 
     async deleteRecord(record: JobRecord): Promise<void> {
       if (!beginMutation()) return;
+      let removed: RemovedJob | null;
       try {
-        const removed = await deps.repository.remove(identity(record));
-        if (!removed) {
-          await readList();
-          state.notice = { kind: "error", text: "职位不存在或已被删除" };
+        try {
+          removed = await deps.repository.remove(identity(record));
+        } catch {
+          state.notice = { kind: "error", text: "删除失败，请重试" };
           return;
         }
-        invalidatePendingDelete();
-        await readList();
-        startUndoWindow(removed);
-      } catch {
-        state.notice = { kind: "error", text: "删除失败，请重试" };
+        if (removed) {
+          invalidatePendingDelete();
+          startUndoWindow(removed);
+        }
+        try {
+          await readList();
+        } catch {
+          state.notice = { kind: "error", text: "列表读取失败，请重试" };
+          return;
+        }
+        if (!removed) state.notice = { kind: "error", text: "职位不存在或已被删除" };
       } finally {
         endMutation();
       }
