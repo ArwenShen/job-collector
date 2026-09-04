@@ -36,6 +36,24 @@ export interface SidePanelRepository {
   clear(): Promise<void>;
 }
 
+export interface SidePanelController {
+  initialize(): Promise<void>;
+  collect(): Promise<void>;
+  exportCsv(): Promise<void>;
+  openNote(record: JobRecord): void;
+  openNoteByKey(key: string): void;
+  cancelNote(): void;
+  saveNote(value: string): Promise<void>;
+  deleteRecord(record: JobRecord): Promise<void>;
+  deleteByKey(key: string): Promise<void>;
+  undoDelete(): Promise<void>;
+  requestClear(): void;
+  cancelClear(): void;
+  cancelOverlay(): void;
+  confirmClear(): Promise<void>;
+  dispose(): void;
+}
+
 export function createSidePanelController(deps: {
   extract: () => Promise<PageResult>;
   repository: SidePanelRepository;
@@ -43,7 +61,7 @@ export function createSidePanelController(deps: {
   render: (state: SidePanelState) => void;
   setTimeout?: typeof globalThis.setTimeout;
   clearTimeout?: typeof globalThis.clearTimeout;
-}) {
+}): SidePanelController {
   const state: SidePanelState = {
     records: [],
     noticeRevision: 0,
@@ -267,6 +285,11 @@ export function createSidePanelController(deps: {
       render();
     },
 
+    openNoteByKey(key: string): void {
+      const record = state.records.find((item) => recordKey(item) === key);
+      if (record) this.openNote(record);
+    },
+
     cancelNote(): void {
       if (disposed || !state.noteEditor) return;
       noteIdentity = undefined;
@@ -341,6 +364,11 @@ export function createSidePanelController(deps: {
       }
     },
 
+    async deleteByKey(key: string): Promise<void> {
+      const record = state.records.find((item) => recordKey(item) === key);
+      if (record) await this.deleteRecord(record);
+    },
+
     async undoDelete(): Promise<void> {
       const removed = pendingDelete;
       if (!removed || !beginMutation()) return;
@@ -383,6 +411,11 @@ export function createSidePanelController(deps: {
       if (disposed || !state.clearConfirmOpen) return;
       state.clearConfirmOpen = false;
       render();
+    },
+
+    cancelOverlay(): void {
+      if (state.noteEditor) this.cancelNote();
+      else if (state.clearConfirmOpen) this.cancelClear();
     },
 
     async confirmClear(): Promise<void> {

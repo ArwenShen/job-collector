@@ -893,6 +893,41 @@ describe("side panel controller", () => {
       notice: { kind: "error", text: "清空失败，请重试" }, busy: false,
     }));
   });
+
+  it("opens and deletes records by their composite keys without touching missing records", async () => {
+    const second = { ...sampleRecord, source_site: "liepin" as const, source_job_id: "2" };
+    const harness = createHarness({ records: [sampleRecord, second] });
+    const controller = createSidePanelController(harness);
+    await controller.initialize();
+    const remove = vi.spyOn(harness.repository, "remove");
+
+    controller.openNoteByKey("liepin:2");
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+      noteEditor: { key: "liepin:2", value: "" },
+    }));
+    controller.cancelNote();
+    controller.openNoteByKey("boss:missing");
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({ noteEditor: undefined }));
+
+    await controller.deleteByKey("boss:missing");
+    expect(remove).not.toHaveBeenCalled();
+    await controller.deleteByKey("boss:1");
+    expect(remove).toHaveBeenCalledWith({ source_site: "boss", source_job_id: "1" });
+  });
+
+  it("cancels the note editor before the clear confirmation overlay", async () => {
+    const harness = createHarness({ records: [sampleRecord] });
+    const controller = createSidePanelController(harness);
+    await controller.initialize();
+
+    controller.requestClear();
+    controller.cancelOverlay();
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({ clearConfirmOpen: false }));
+
+    controller.openNoteByKey("boss:1");
+    controller.cancelOverlay();
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({ noteEditor: undefined }));
+  });
 });
 
 describe("extractActiveTab", () => {
