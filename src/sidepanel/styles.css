@@ -279,6 +279,7 @@ textarea:focus-visible,
 .panel-footer button {
   flex: 1;
   min-height: 36px;
+  font-size: 14px;
 }
 
 .panel-footer [data-action="export"] {
@@ -383,6 +384,10 @@ textarea:focus-visible,
   border-color: var(--danger);
   color: var(--canvas);
   background: var(--danger);
+}
+
+.dialog-card[data-dialog="note"] .dialog-actions button {
+  font-size: 14px;
 }
 
 .dialog-card[data-dialog="clear"] h2 {

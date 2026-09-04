@@ -120,6 +120,20 @@ describe("side panel style contract", () => {
     );
   });
 
+  it("uses 14px text for footer and note dialog actions only", () => {
+    const footerButtons = rule(".panel-footer button");
+    expect(footerButtons).toMatch(/font-size:\s*14px/);
+    expect(footerButtons).toMatch(/min-height:\s*36px/);
+
+    expect(rule('.dialog-card[data-dialog="note"] .dialog-actions button')).toMatch(
+      /font-size:\s*14px/,
+    );
+    expect(rule(".dialog-actions button")).not.toMatch(/font-size:/);
+    expect(rule('.dialog-card[data-dialog="clear"] .dialog-actions button')).toMatch(
+      /font-size:\s*14px/,
+    );
+  });
+
   it("keeps the narrow delete column wide enough for its button", () => {
     const media = compactCss.match(/@media\s*\(max-width:\s*359px\)\s*\{([\s\S]*)\}\s*$/)?.[1] ?? "";
     expect(media).toMatch(/--job-columns:[^;]*\s32px\s*;/);
