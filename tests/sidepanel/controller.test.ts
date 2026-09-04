@@ -675,6 +675,7 @@ describe("side panel controller", () => {
 
       await controller.deleteRecord(removed);
       expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+        records: [],
         notice: { kind: "error", text: "列表读取失败，请重试" },
         undoAvailable: true,
       }));

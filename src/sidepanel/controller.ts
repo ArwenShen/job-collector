@@ -163,6 +163,11 @@ export function createSidePanelController(deps: {
     state.records = records;
   }
 
+  function removeLocally(record: Pick<JobRecord, "source_site" | "source_job_id">): void {
+    const key = recordKey(record);
+    state.records = state.records.filter((item) => recordKey(item) !== key);
+  }
+
   return {
     async initialize(): Promise<void> {
       if (disposed) return;
@@ -312,7 +317,9 @@ export function createSidePanelController(deps: {
         if (disposed) return;
         if (removed) {
           invalidatePendingDelete();
+          removeLocally(removed.record);
           startUndoWindow(removed);
+          render();
         }
         try {
           const refreshed = await readList();
