@@ -110,6 +110,8 @@ describe("side panel style contract", () => {
     expect(rule(":root")).toMatch(/font-size:\s*12px/);
     expect(rule("button, textarea")).toMatch(/font:\s*inherit/);
     expect(rule(".dialog-card h2")).toMatch(/font-size:\s*16px/);
+    expect(rule(".dialog-card label")).not.toMatch(/font-size\s*:/);
+    expect(rule(".dialog-card p")).not.toMatch(/font-size\s*:/);
     expect(rule(".dialog-actions button")).not.toMatch(/font-size:\s*14px/);
     expect(rule('.dialog-card[data-dialog="clear"] h2')).toMatch(/font-size:\s*18px/);
     expect(rule('.dialog-card[data-dialog="clear"] p')).toMatch(/font-size:\s*14px/);
