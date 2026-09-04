@@ -32,7 +32,7 @@ interface FocusIdentity {
 }
 
 interface RenderMetadata {
-  announcedNotice: string;
+  announcedRevision?: number;
   announcementVersion: number;
   announcer: HTMLElement;
   focusVersion: number;
@@ -46,7 +46,6 @@ function getRenderMetadata(root: Element): RenderMetadata {
   const existing = renderMetadata.get(root);
   if (existing) return existing;
   const metadata: RenderMetadata = {
-    announcedNotice: "",
     announcementVersion: 0,
     announcer: createElement("div", { class: "notice", "aria-live": "polite" }),
     focusVersion: 0,
@@ -140,9 +139,9 @@ function updateNotice(metadata: RenderMetadata, state: SidePanelState): HTMLElem
   notice.setAttribute("class", "notice");
   if (state.notice?.kind === "error") notice.setAttribute("class", "notice notice--error");
   const text = state.notice?.text ?? "";
-  const noticeIdentity = state.notice ? `${state.notice.kind}\u0000${text}` : "";
-  if (noticeIdentity !== metadata.announcedNotice) {
-    metadata.announcedNotice = noticeIdentity;
+  const noticeRevision = state.notice ? state.noticeRevision : undefined;
+  if (noticeRevision !== metadata.announcedRevision) {
+    metadata.announcedRevision = noticeRevision;
     const version = ++metadata.announcementVersion;
     notice.textContent = "";
     if (!text) return notice;
@@ -256,7 +255,7 @@ export function renderSidePanel(root: Element, state: SidePanelState): void {
   if (focusIdentity && !wasOverlayOpen) {
     metadata.pendingFocus = focusIdentity;
   }
-  const shell = createElement("div", { class: "panel-shell" });
+  const shell = createElement("div", { class: "panel-shell", tabindex: "-1" });
   const header = createElement("header", { class: "panel-header" });
   header.append(createElement("strong", {}, "岗位收集器"));
 
@@ -309,14 +308,24 @@ export function renderSidePanel(root: Element, state: SidePanelState): void {
     queueMicrotask(() => {
       if (focusVersion !== metadata.focusVersion || metadata.overlayOpen) return;
       const target = findFocusTarget(root, pendingFocus);
-      if (!target) {
-        if (metadata.pendingFocus === pendingFocus) metadata.pendingFocus = undefined;
+      if (target && !target.hasAttribute("disabled")) {
+        target.focus();
+        if (document.activeElement === target && metadata.pendingFocus === pendingFocus) {
+          metadata.pendingFocus = undefined;
+        }
         return;
       }
-      if (target.hasAttribute("disabled")) return;
-      target.focus();
-      if (document.activeElement === target && metadata.pendingFocus === pendingFocus) {
-        metadata.pendingFocus = undefined;
+      if (target && pendingFocus.action === "collect" && state.busy) return;
+
+      if (metadata.pendingFocus === pendingFocus) metadata.pendingFocus = undefined;
+      const collect = root.querySelector<HTMLElement>("[data-action=collect]");
+      if (collect && !collect.hasAttribute("disabled")) {
+        collect.focus();
+        return;
+      }
+      root.querySelector<HTMLElement>(".panel-shell")?.focus();
+      if (state.busy) {
+        metadata.pendingFocus = { action: "collect", field: null, key: null };
       }
     });
   }

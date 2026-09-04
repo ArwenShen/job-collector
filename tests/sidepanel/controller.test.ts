@@ -82,6 +82,23 @@ afterEach(() => {
 });
 
 describe("side panel controller", () => {
+  it("increments notice revision for repeated operations with the same message", async () => {
+    const rendered: SidePanelState[] = [];
+    const harness = createHarness({
+      extract: vi.fn().mockResolvedValue({ kind: "unsupported-site" }),
+      render: (current) => rendered.push(current),
+    });
+    const controller = createSidePanelController(harness);
+
+    await controller.collect();
+    await controller.collect();
+
+    const matching = rendered.filter((current) =>
+      current.notice?.text === "请打开支持平台的职位详情页",
+    );
+    expect(matching.map((current) => current.noticeRevision)).toEqual([1, 1, 2]);
+  });
+
   it("loads stored rows without extracting on initialize", async () => {
     const extract = vi.fn();
     const harness = createHarness({ records: [sampleRecord], extract });

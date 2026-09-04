@@ -14,6 +14,7 @@ export interface NoteEditorState {
 export interface SidePanelState {
   records: JobRecord[];
   notice?: Notice;
+  noticeRevision: number;
   noteEditor?: NoteEditorState;
   clearConfirmOpen: boolean;
   busy: boolean;
@@ -45,6 +46,7 @@ export function createSidePanelController(deps: {
 }) {
   const state: SidePanelState = {
     records: [],
+    noticeRevision: 0,
     clearConfirmOpen: false,
     busy: false,
     undoAvailable: false,
@@ -87,8 +89,13 @@ export function createSidePanelController(deps: {
   }
 
   function fail(text: string): void {
-    state.notice = { kind: "error", text };
+    setNotice({ kind: "error", text });
     render();
+  }
+
+  function setNotice(notice: Notice): void {
+    state.notice = notice;
+    state.noticeRevision += 1;
   }
 
   function identity(record: Pick<JobRecord, "source_site" | "source_job_id">) {
@@ -111,8 +118,7 @@ export function createSidePanelController(deps: {
     const snapshot = { record: { ...removed.record }, index: removed.index };
     pendingDelete = snapshot;
     state.undoAvailable = true;
-    const undoNotice: Notice = { kind: "undo", text: "已删除 1 个职位" };
-    state.notice = undoNotice;
+    setNotice({ kind: "undo", text: "已删除 1 个职位" });
     undoTimer = schedule(() => {
       if (disposed || pendingDelete !== snapshot) return;
       undoTimer = undefined;
@@ -192,20 +198,20 @@ export function createSidePanelController(deps: {
           page = await deps.extract();
         } catch (error) {
           if (disposed) return;
-          state.notice = { kind: "error", text: extractionErrorMessage(error) };
+          setNotice({ kind: "error", text: extractionErrorMessage(error) });
           return;
         }
         if (disposed) return;
 
         if (page.kind !== "success") {
-          state.notice = { kind: "error", text: "请打开支持平台的职位详情页" };
+          setNotice({ kind: "error", text: "请打开支持平台的职位详情页" });
           return;
         }
         if (!page.extraction.record) {
-          state.notice = {
+          setNotice({
             kind: "error",
             text: `无法完整识别该岗位：缺少 ${page.extraction.missingRequiredFields.join("、")}`,
-          };
+          });
           return;
         }
 
@@ -216,7 +222,7 @@ export function createSidePanelController(deps: {
           await deps.repository.save(page.extraction.record);
         } catch {
           if (disposed) return;
-          state.notice = { kind: "error", text: "保存失败，请重试" };
+          setNotice({ kind: "error", text: "保存失败，请重试" });
           return;
         }
         if (disposed) return;
@@ -226,14 +232,14 @@ export function createSidePanelController(deps: {
           if (disposed || !refreshed) return;
         } catch {
           if (disposed) return;
-          state.notice = { kind: "error", text: "列表读取失败，请重试" };
+          setNotice({ kind: "error", text: "列表读取失败，请重试" });
           return;
         }
 
-        state.notice = {
+        setNotice({
           kind: "success",
           text: existed ? "已更新当前职位，没有新增重复记录" : "已收集当前职位",
-        };
+        });
       } finally {
         state.busy = false;
         render();
@@ -248,7 +254,7 @@ export function createSidePanelController(deps: {
         if (records.length > 0) deps.download(records);
       } catch {
         if (disposed) return;
-        state.notice = { kind: "error", text: "导出失败，请重试" };
+        setNotice({ kind: "error", text: "导出失败，请重试" });
         render();
       }
     },
@@ -277,26 +283,26 @@ export function createSidePanelController(deps: {
 
       try {
         if (note.length > 200) {
-          state.notice = { kind: "error", text: "备注不能超过 200 个字符" };
+          setNotice({ kind: "error", text: "备注不能超过 200 个字符" });
           return;
         }
         try {
           await deps.repository.updateNote(target, note);
         } catch {
-          if (!disposed) state.notice = { kind: "error", text: "备注保存失败，请重试" };
+          if (!disposed) setNotice({ kind: "error", text: "备注保存失败，请重试" });
           return;
         }
         if (disposed) return;
         updateNoteLocally(target, note);
         noteIdentity = undefined;
         state.noteEditor = undefined;
-        state.notice = { kind: "success", text: "备注已保存" };
+        setNotice({ kind: "success", text: "备注已保存" });
         render();
         try {
           await readList();
           if (disposed) return;
         } catch {
-          if (!disposed) state.notice = { kind: "error", text: "列表读取失败，请重试" };
+          if (!disposed) setNotice({ kind: "error", text: "列表读取失败，请重试" });
         }
       } finally {
         endMutation();
@@ -311,7 +317,7 @@ export function createSidePanelController(deps: {
           removed = await deps.repository.remove(identity(record));
         } catch {
           if (disposed) return;
-          state.notice = { kind: "error", text: "删除失败，请重试" };
+          setNotice({ kind: "error", text: "删除失败，请重试" });
           return;
         }
         if (disposed) return;
@@ -326,10 +332,10 @@ export function createSidePanelController(deps: {
           if (disposed || !refreshed) return;
         } catch {
           if (disposed) return;
-          state.notice = { kind: "error", text: "列表读取失败，请重试" };
+          setNotice({ kind: "error", text: "列表读取失败，请重试" });
           return;
         }
-        if (!removed) state.notice = { kind: "error", text: "职位不存在或已被删除" };
+        if (!removed) setNotice({ kind: "error", text: "职位不存在或已被删除" });
       } finally {
         endMutation();
       }
@@ -343,22 +349,22 @@ export function createSidePanelController(deps: {
           await deps.repository.restore(removed.record, removed.index);
         } catch {
           if (!disposed) {
-            state.notice = pendingDelete === removed
+            setNotice(pendingDelete === removed
               ? { kind: "undo", text: "撤销失败，请重试" }
-              : { kind: "error", text: "撤销失败，请重试" };
+              : { kind: "error", text: "撤销失败，请重试" });
           }
           return;
         }
         if (disposed) return;
         invalidatePendingDelete();
         restoreLocally(removed);
-        state.notice = { kind: "success", text: "已撤销删除" };
+        setNotice({ kind: "success", text: "已撤销删除" });
         render();
         try {
           await readList();
           if (disposed) return;
         } catch {
-          if (!disposed) state.notice = { kind: "error", text: "列表读取失败，请重试" };
+          if (!disposed) setNotice({ kind: "error", text: "列表读取失败，请重试" });
         }
       } finally {
         endMutation();
@@ -385,20 +391,20 @@ export function createSidePanelController(deps: {
         try {
           await deps.repository.clear();
         } catch {
-          if (!disposed) state.notice = { kind: "error", text: "清空失败，请重试" };
+          if (!disposed) setNotice({ kind: "error", text: "清空失败，请重试" });
           return;
         }
         if (disposed) return;
         state.records = [];
         state.clearConfirmOpen = false;
         invalidatePendingDelete();
-        state.notice = { kind: "success", text: "已清空全部职位" };
+        setNotice({ kind: "success", text: "已清空全部职位" });
         render();
         try {
           await readList();
           if (disposed) return;
         } catch {
-          if (!disposed) state.notice = { kind: "error", text: "列表读取失败，请重试" };
+          if (!disposed) setNotice({ kind: "error", text: "列表读取失败，请重试" });
         }
       } finally {
         endMutation();

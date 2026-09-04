@@ -17,7 +17,9 @@ function makeRecord(source_site: SourceSite, source_job_id: string): JobRecord {
 }
 
 function state(records: JobRecord[] = []): SidePanelState {
-  return { records, clearConfirmOpen: false, busy: false, undoAvailable: false };
+  return {
+    records, clearConfirmOpen: false, busy: false, undoAvailable: false, noticeRevision: 0,
+  };
 }
 
 let root: HTMLElement;
@@ -185,24 +187,32 @@ describe("side panel view", () => {
     });
     observer.observe(liveRegion, { childList: true, characterData: true, subtree: true });
 
-    renderSidePanel(root, { ...state(), notice: { kind: "success", text: "第一条消息" } });
+    renderSidePanel(root, {
+      ...state(), noticeRevision: 1, notice: { kind: "success", text: "第一条消息" },
+    });
     await Promise.resolve();
     await Promise.resolve();
     expect(root.querySelector(".notice")).toBe(liveRegion);
     expect(effectiveUpdates).toEqual(["第一条消息"]);
 
-    renderSidePanel(root, { ...state(), notice: { kind: "success", text: "第一条消息" } });
+    renderSidePanel(root, {
+      ...state(), noticeRevision: 1, notice: { kind: "success", text: "第一条消息" },
+    });
     await Promise.resolve();
     await Promise.resolve();
     expect(root.querySelector(".notice")).toBe(liveRegion);
     expect(effectiveUpdates).toEqual(["第一条消息"]);
 
-    renderSidePanel(root, { ...state(), notice: { kind: "error", text: "第一条消息" } });
+    renderSidePanel(root, {
+      ...state(), noticeRevision: 2, notice: { kind: "success", text: "第一条消息" },
+    });
     await Promise.resolve();
     await Promise.resolve();
     expect(effectiveUpdates).toEqual(["第一条消息", "第一条消息"]);
 
-    renderSidePanel(root, { ...state(), notice: { kind: "error", text: "第二条消息" } });
+    renderSidePanel(root, {
+      ...state(), noticeRevision: 3, notice: { kind: "error", text: "第二条消息" },
+    });
     await Promise.resolve();
     await Promise.resolve();
     expect(effectiveUpdates).toEqual(["第一条消息", "第一条消息", "第二条消息"]);
@@ -356,5 +366,25 @@ describe("side panel view", () => {
     renderSidePanel(root, state([sampleRecord]));
     await Promise.resolve();
     expect(document.activeElement).toBe(root.querySelector("[data-action=collect]"));
+  });
+
+  it("abandons a disabled clear trigger and does not restore it on a later render", async () => {
+    renderSidePanel(root, state([sampleRecord]));
+    root.querySelector<HTMLElement>("[data-action=request-clear]")!.focus();
+    renderSidePanel(root, { ...state([sampleRecord]), clearConfirmOpen: true });
+    await Promise.resolve();
+
+    renderSidePanel(root, { ...state(), busy: true });
+    await Promise.resolve();
+    expect(document.activeElement).toBe(root.querySelector(".panel-shell"));
+
+    renderSidePanel(root, state());
+    await Promise.resolve();
+    expect(document.activeElement).toBe(root.querySelector("[data-action=collect]"));
+
+    renderSidePanel(root, state([sampleRecord]));
+    await Promise.resolve();
+    expect(document.activeElement).toBe(root.querySelector("[data-action=collect]"));
+    expect(document.activeElement).not.toBe(root.querySelector("[data-action=request-clear]"));
   });
 });
