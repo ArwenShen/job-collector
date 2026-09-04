@@ -453,6 +453,24 @@ describe("side panel controller", () => {
     }));
   });
 
+  it("commits a saved note locally when the following list refresh fails", async () => {
+    const harness = createHarness({ records: [sampleRecord] });
+    const controller = createSidePanelController(harness);
+    await controller.initialize();
+    controller.openNote(sampleRecord);
+    harness.repository.list = vi.fn().mockRejectedValue(new Error("unavailable"));
+
+    await controller.saveNote(" committed note ");
+
+    expect(harness.records[0]!.note).toBe("committed note");
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+      records: [expect.objectContaining({ note: "committed note" })],
+      noteEditor: undefined,
+      notice: { kind: "error", text: "列表读取失败，请重试" },
+      busy: false,
+    }));
+  });
+
   it("deletes immediately, expires only its undo notice, and disposes timers", async () => {
     vi.useFakeTimers();
     const harness = createHarness({ records: [sampleRecord] });
@@ -476,6 +494,40 @@ describe("side panel controller", () => {
     expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
       notice: { kind: "undo", text: "已删除 1 个职位" },
     }));
+  });
+
+  it("does not schedule or render when a pending delete resolves after disposal", async () => {
+    let resolveRemove!: (removed: { record: JobRecord; index: number }) => void;
+    const remove = new Promise<{ record: JobRecord; index: number }>((resolve) => { resolveRemove = resolve; });
+    const setTimeout = vi.fn() as unknown as typeof globalThis.setTimeout;
+    const harness = createHarness({ records: [sampleRecord], setTimeout });
+    const controller = createSidePanelController(harness);
+    await controller.initialize();
+    harness.repository.remove = vi.fn().mockReturnValue(remove);
+
+    const deleting = controller.deleteRecord(sampleRecord);
+    controller.dispose();
+    const renderCountAtDispose = vi.mocked(harness.render).mock.calls.length;
+    resolveRemove({ record: sampleRecord, index: 0 });
+    await deleting;
+
+    expect(setTimeout).not.toHaveBeenCalled();
+    expect(harness.render).toHaveBeenCalledTimes(renderCountAtDispose);
+  });
+
+  it("does not render a delayed initialization after disposal", async () => {
+    let resolveList!: (records: JobRecord[]) => void;
+    const list = new Promise<JobRecord[]>((resolve) => { resolveList = resolve; });
+    const harness = createHarness();
+    harness.repository.list = vi.fn().mockReturnValue(list);
+    const controller = createSidePanelController(harness);
+
+    const initializing = controller.initialize();
+    controller.dispose();
+    resolveList([sampleRecord]);
+    await initializing;
+
+    expect(harness.render).not.toHaveBeenCalled();
   });
 
   it("does not let an undo timer clear a newer notice", async () => {
@@ -570,6 +622,25 @@ describe("side panel controller", () => {
     await controller.undoDelete();
     expect(harness.records).toEqual([]);
     expect(restore).toHaveBeenCalledTimes(1);
+  });
+
+  it("commits an undo locally when the following list refresh fails", async () => {
+    vi.useFakeTimers();
+    const harness = createHarness({ records: [sampleRecord] });
+    const controller = createSidePanelController(harness);
+    await controller.initialize();
+    await controller.deleteRecord(sampleRecord);
+    harness.repository.list = vi.fn().mockRejectedValue(new Error("unavailable"));
+
+    await controller.undoDelete();
+
+    expect(harness.records).toEqual([sampleRecord]);
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+      records: [sampleRecord],
+      notice: { kind: "error", text: "列表读取失败，请重试" },
+      undoAvailable: false,
+      busy: false,
+    }));
   });
 
   it("invalidates the first undo when a second record is deleted", async () => {
@@ -758,6 +829,28 @@ describe("side panel controller", () => {
     expect(harness.records).toEqual([]);
     expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
       clearConfirmOpen: false, notice: { kind: "success", text: "已清空全部职位" },
+    }));
+  });
+
+  it("commits a clear locally when the following list refresh fails", async () => {
+    vi.useFakeTimers();
+    const second = { ...sampleRecord, source_job_id: "2" };
+    const harness = createHarness({ records: [sampleRecord, second] });
+    const controller = createSidePanelController(harness);
+    await controller.initialize();
+    await controller.deleteRecord(sampleRecord);
+    controller.requestClear();
+    harness.repository.list = vi.fn().mockRejectedValue(new Error("unavailable"));
+
+    await controller.confirmClear();
+
+    expect(harness.records).toEqual([]);
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+      records: [],
+      clearConfirmOpen: false,
+      notice: { kind: "error", text: "列表读取失败，请重试" },
+      undoAvailable: false,
+      busy: false,
     }));
   });
 
