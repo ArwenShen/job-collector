@@ -1,0 +1,230 @@
+import { beforeEach, describe, expect, it } from "vitest";
+import type { JobRecord, SourceSite } from "../../src/shared/job-record";
+import type { SidePanelState } from "../../src/sidepanel/controller";
+import { renderSidePanel } from "../../src/sidepanel/view";
+
+const sampleRecord: JobRecord = {
+  schema_version: "1", source_site: "boss", source_job_id: "1",
+  source_url: "https://www.zhipin.com/job_detail/1.html", job_title: "AI产品经理",
+  company_name: "模思", salary: "40-70K·15薪", note: "", location: "上海",
+  experience: "3-5年", education: "本科", job_description: "完整JD",
+  company_description: "公司介绍", missing_fields: "",
+  collected_at: "2026-09-02T09:02:29.943Z", collector_version: "0.1.0",
+};
+
+function makeRecord(source_site: SourceSite, source_job_id: string): JobRecord {
+  return { ...sampleRecord, source_site, source_job_id };
+}
+
+function state(records: JobRecord[] = []): SidePanelState {
+  return { records, clearConfirmOpen: false, busy: false, undoAvailable: false };
+}
+
+let root: HTMLElement;
+
+beforeEach(() => {
+  document.body.replaceChildren();
+  root = document.createElement("main");
+  document.body.append(root);
+});
+
+describe("side panel view", () => {
+  it("renders the permanent shell, controls, and requested table columns", () => {
+    renderSidePanel(root, state([sampleRecord]));
+
+    expect(root.querySelector(".panel-shell")).not.toBeNull();
+    expect(root.querySelector("header")?.textContent).toContain("岗位收集器");
+    expect(root.querySelector(".panel-collect")?.getAttribute("data-action")).toBe("collect");
+    expect(root.querySelector(".panel-collect")?.textContent).toBe("收集当前职位");
+    expect(root.querySelector(".count-card")?.textContent).toBe("已收集 1 个职位");
+    expect(root.querySelector(".job-list-scroll [role=table]")).not.toBeNull();
+    expect([...root.querySelectorAll("[role=columnheader]")].map((node) => node.textContent)).toEqual([
+      "#", "平台", "公司", "职位", "薪资", "备注", "删除",
+    ]);
+    expect(root.querySelector(".panel-footer [data-action=export]")?.textContent).toBe("导出 CSV");
+    expect(root.querySelector(".panel-footer [data-action=request-clear]")?.textContent).toBe("清空");
+    const tooltip = root.querySelector<HTMLElement>("[data-tooltip-popover]");
+    expect(tooltip?.getAttribute("role")).toBe("tooltip");
+    expect(tooltip?.hidden).toBe(true);
+  });
+
+  it.each([
+    ["boss", "BOSS", "BOSS直聘"],
+    ["liepin", "猎聘", "猎聘"],
+    ["zhaopin", "智联", "智联招聘"],
+    ["51job", "前程", "前程无忧"],
+  ] as const)("maps %s to its short and full platform labels", (site, short, full) => {
+    renderSidePanel(root, state([makeRecord(site, site)]));
+    const platform = root.querySelector("[data-field=platform]");
+    expect(platform?.textContent).toBe(short);
+    expect(platform?.getAttribute("data-tooltip")).toBe(full);
+    expect(platform?.getAttribute("tabindex")).toBe("0");
+  });
+
+  it("renders two-digit row numbers without truncating numbers over 99", () => {
+    const records = Array.from({ length: 100 }, (_, index) =>
+      makeRecord("boss", String(index + 1)),
+    );
+    renderSidePanel(root, state(records));
+    const numbers = [...root.querySelectorAll(".job-row [data-field=index]")];
+    expect(numbers[0]?.textContent).toBe("01");
+    expect(numbers[8]?.textContent).toBe("09");
+    expect(numbers[99]?.textContent).toBe("100");
+  });
+
+  it("stores full values and keyboard focus metadata on every descriptive cell", () => {
+    const record = {
+      ...sampleRecord,
+      company_name: "很长的人工智能科技有限公司",
+      job_title: "很长的人工智能平台产品经理职位",
+      salary: "40-70K·15薪",
+      note: "重点关注，等待招聘方回复",
+    };
+    renderSidePanel(root, state([record]));
+
+    const expected = {
+      platform: "BOSS直聘",
+      company: record.company_name,
+      title: record.job_title,
+      salary: record.salary,
+      note: record.note,
+    };
+    for (const [field, tooltip] of Object.entries(expected)) {
+      const cell = root.querySelector(`[data-field=${field}]`);
+      expect(cell?.getAttribute("data-tooltip")).toBe(tooltip);
+      expect(cell?.getAttribute("tabindex")).toBe("0");
+    }
+  });
+
+  it("renders missing descriptive values and an empty note with explicit fallbacks", () => {
+    renderSidePanel(root, state([{
+      ...sampleRecord, company_name: "", job_title: "", salary: "", note: "",
+    }]));
+
+    for (const field of ["company", "title", "salary"]) {
+      const cell = root.querySelector(`[data-field=${field}]`);
+      expect(cell?.textContent).toBe("—");
+      expect(cell?.getAttribute("data-tooltip")).toBe("暂无信息");
+    }
+    const note = root.querySelector("[data-field=note]");
+    expect(note?.textContent).toBe("添加");
+    expect(note?.getAttribute("data-tooltip")).toBe("暂无备注");
+  });
+
+  it("puts the compound record key and values on note and delete buttons", () => {
+    const record = { ...sampleRecord, source_job_id: "job:42", note: "跟进" };
+    renderSidePanel(root, state([record]));
+
+    const note = root.querySelector("[data-action=open-note]");
+    expect(note?.getAttribute("data-key")).toBe("boss:job:42");
+    expect(note?.textContent).toBe("跟进");
+    const remove = root.querySelector("[data-action=delete]");
+    expect(remove?.getAttribute("data-key")).toBe("boss:job:42");
+    expect(remove?.getAttribute("aria-label")).toBe("删除：AI产品经理");
+
+    renderSidePanel(root, state([{ ...record, job_title: "" }]));
+    expect(root.querySelector("[data-action=delete]")?.getAttribute("aria-label"))
+      .toBe("删除：未命名职位");
+    expect(root.querySelector("[data-field=title]")?.tagName).not.toBe("A");
+  });
+
+  it("disables empty-list actions and disables only collect while busy", () => {
+    renderSidePanel(root, { ...state(), busy: true });
+    expect(root.querySelector<HTMLButtonElement>("[data-action=collect]")?.disabled).toBe(true);
+    expect(root.querySelector<HTMLButtonElement>("[data-action=export]")?.disabled).toBe(true);
+    expect(root.querySelector<HTMLButtonElement>("[data-action=request-clear]")?.disabled).toBe(true);
+
+    renderSidePanel(root, { ...state([sampleRecord]), busy: true });
+    expect(root.querySelector<HTMLButtonElement>("[data-action=collect]")?.disabled).toBe(true);
+    expect(root.querySelector<HTMLButtonElement>("[data-action=export]")?.disabled).toBe(false);
+    expect(root.querySelector<HTMLButtonElement>("[data-action=request-clear]")?.disabled).toBe(false);
+  });
+
+  it.each(["success", "error", "undo"] as const)(
+    "renders undo independently of a %s notice",
+    (kind) => {
+      renderSidePanel(root, {
+        ...state([sampleRecord]), undoAvailable: true, notice: { kind, text: "状态消息" },
+      });
+      const notice = root.querySelector(".notice");
+      expect(notice?.getAttribute("aria-live")).toBe("polite");
+      expect(notice?.textContent).toContain("状态消息");
+      expect(root.querySelector("[data-action=undo-delete]")?.textContent).toBe("撤销");
+      expect(notice?.classList.contains("notice--error")).toBe(kind === "error");
+    },
+  );
+
+  it("renders undo even when no notice exists", () => {
+    renderSidePanel(root, { ...state(), undoAvailable: true });
+    expect(root.querySelector("[data-action=undo-delete]")?.textContent).toBe("撤销");
+  });
+
+  it("renders and focuses the note dialog with its editing constraints", async () => {
+    renderSidePanel(root, {
+      ...state([sampleRecord]),
+      noteEditor: { key: "boss:1", value: "重点" },
+      clearConfirmOpen: true,
+    });
+
+    const dialog = root.querySelector("[data-dialog=note]");
+    const textarea = root.querySelector<HTMLTextAreaElement>("[data-note-input]");
+    expect(dialog?.classList.contains("dialog-card")).toBe(true);
+    expect(dialog?.getAttribute("role")).toBe("dialog");
+    expect(dialog?.getAttribute("aria-modal")).toBe("true");
+    expect(dialog?.textContent).toContain("职位备注");
+    expect(root.querySelector("[data-form=note]")).not.toBeNull();
+    expect(textarea?.value).toBe("重点");
+    expect(textarea?.maxLength).toBe(200);
+    expect(root.querySelector("[data-action=cancel-note]")?.getAttribute("type")).toBe("button");
+    expect(root.querySelector("[data-form=note] button[type=submit]")?.textContent).toBe("保存");
+    expect(root.querySelector("[data-dialog=clear]")).toBeNull();
+    await Promise.resolve();
+    expect(document.activeElement).toBe(textarea);
+  });
+
+  it("renders and least-destructively focuses the clear alert dialog", async () => {
+    renderSidePanel(root, { ...state([sampleRecord]), clearConfirmOpen: true });
+
+    const dialog = root.querySelector("[data-dialog=clear]");
+    const cancel = root.querySelector<HTMLButtonElement>("[data-action=cancel-clear]");
+    expect(dialog?.getAttribute("role")).toBe("alertdialog");
+    expect(dialog?.getAttribute("aria-modal")).toBe("true");
+    expect(dialog?.textContent).toContain("确定清空已收集的 1 个职位吗？此操作无法撤销。");
+    expect(cancel).not.toBeNull();
+    expect(root.querySelector("[data-action=confirm-clear]")).not.toBeNull();
+    expect(root.querySelector("[data-dialog=note]")).toBeNull();
+    await Promise.resolve();
+    expect(document.activeElement).toBe(cancel);
+  });
+
+  it("renders extracted markup-like strings only as inert text", () => {
+    const attack = `<img src=x onerror="globalThis.pwned=true"><script>bad()</script>`;
+    renderSidePanel(root, state([{
+      ...sampleRecord,
+      company_name: attack,
+      job_title: attack,
+      salary: attack,
+      note: attack,
+    }]));
+
+    expect(root.textContent).toContain(attack);
+    expect(root.querySelector("img")).toBeNull();
+    expect(root.querySelector("script")).toBeNull();
+    expect(root.querySelector("[data-field=company]")?.getAttribute("data-tooltip")).toBe(attack);
+  });
+
+  it("fully replaces old DOM on repeated rendering", () => {
+    renderSidePanel(root, state([sampleRecord]));
+    const oldShell = root.querySelector(".panel-shell")!;
+    const marker = document.createElement("span");
+    marker.setAttribute("data-stale", "true");
+    oldShell.append(marker);
+
+    renderSidePanel(root, state());
+
+    expect(oldShell.isConnected).toBe(false);
+    expect(root.querySelector("[data-stale]")).toBeNull();
+    expect(root.querySelectorAll(".panel-shell")).toHaveLength(1);
+    expect(root.querySelector(".count-card")?.textContent).toBe("已收集 0 个职位");
+  });
+});
