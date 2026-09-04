@@ -88,7 +88,9 @@ describe("side panel controller", () => {
     const controller = createSidePanelController(harness);
     await controller.initialize();
     expect(extract).not.toHaveBeenCalled();
-    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({ records: [sampleRecord] }));
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+      records: [sampleRecord], undoAvailable: false,
+    }));
   });
 
   it("extracts and saves the active tab on every collect click", async () => {
@@ -547,25 +549,27 @@ describe("side panel controller", () => {
     }));
   });
 
-  it("keeps undo retryable after restore failure until expiry", async () => {
+  it("keeps a failed undo retryable only until the original window expires", async () => {
     vi.useFakeTimers();
     const harness = createHarness({ records: [sampleRecord] });
     const controller = createSidePanelController(harness);
     await controller.initialize();
     await controller.deleteRecord(sampleRecord);
-    const originalRestore = harness.repository.restore;
-    harness.repository.restore = vi.fn().mockRejectedValueOnce(new Error("unavailable")).mockImplementation(originalRestore);
+    const restore = vi.fn().mockRejectedValue(new Error("unavailable"));
+    harness.repository.restore = restore;
     await controller.undoDelete();
     expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
       notice: { kind: "undo", text: "撤销失败，请重试" },
+      undoAvailable: true,
+    }));
+    await vi.advanceTimersByTimeAsync(5000);
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+      notice: undefined,
+      undoAvailable: false,
     }));
     await controller.undoDelete();
-    expect(harness.records).toEqual([sampleRecord]);
-
-    await controller.deleteRecord(sampleRecord);
-    await vi.advanceTimersByTimeAsync(5000);
-    await controller.undoDelete();
     expect(harness.records).toEqual([]);
+    expect(restore).toHaveBeenCalledTimes(1);
   });
 
   it("invalidates the first undo when a second record is deleted", async () => {
@@ -594,10 +598,48 @@ describe("side panel controller", () => {
         : vi.fn().mockRejectedValue(new Error("unavailable"));
 
       await controller.deleteRecord(second);
+      expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+        notice: expect.objectContaining({ kind: "error" }),
+        undoAvailable: true,
+      }));
       await controller.undoDelete();
       expect(harness.records).toEqual([sampleRecord, second]);
       expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
         notice: { kind: "success", text: "已撤销删除" },
+        undoAvailable: false,
+      }));
+    },
+  );
+
+  it.each(["success", "error"] as const)(
+    "keeps undo available through a newer %s notice and preserves that notice on expiry",
+    async (outcome) => {
+      vi.useFakeTimers();
+      const second = { ...sampleRecord, source_job_id: "2" };
+      const harness = createHarness({ records: [sampleRecord, second] });
+      const controller = createSidePanelController(harness);
+      await controller.initialize();
+      await controller.deleteRecord(sampleRecord);
+
+      if (outcome === "success") {
+        controller.openNote(second);
+        await controller.saveNote("keep this notice");
+      } else {
+        harness.repository.list = vi.fn().mockRejectedValue(new Error("unavailable"));
+        await controller.initialize();
+      }
+      const notice = outcome === "success"
+        ? { kind: "success", text: "备注已保存" }
+        : { kind: "error", text: "列表读取失败，请重试" };
+      expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+        notice,
+        undoAvailable: true,
+      }));
+
+      await vi.advanceTimersByTimeAsync(5000);
+      expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+        notice,
+        undoAvailable: false,
       }));
     },
   );

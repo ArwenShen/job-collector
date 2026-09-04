@@ -17,6 +17,7 @@ export interface SidePanelState {
   noteEditor?: NoteEditorState;
   clearConfirmOpen: boolean;
   busy: boolean;
+  undoAvailable: boolean;
 }
 
 export interface SidePanelRepository {
@@ -46,6 +47,7 @@ export function createSidePanelController(deps: {
     records: [],
     clearConfirmOpen: false,
     busy: false,
+    undoAvailable: false,
   };
   let listGeneration = 0;
   let mutationBusy = false;
@@ -98,21 +100,22 @@ export function createSidePanelController(deps: {
     if (undoTimer !== undefined) cancelSchedule(undoTimer);
     undoTimer = undefined;
     pendingDelete = undefined;
+    state.undoAvailable = false;
   }
 
   function startUndoWindow(removed: RemovedJob): void {
     const snapshot = { record: { ...removed.record }, index: removed.index };
     pendingDelete = snapshot;
+    state.undoAvailable = true;
     const undoNotice: Notice = { kind: "undo", text: "已删除 1 个职位" };
     state.notice = undoNotice;
     undoTimer = schedule(() => {
       if (pendingDelete !== snapshot) return;
       undoTimer = undefined;
       pendingDelete = undefined;
-      if (state.notice === undoNotice) {
-        state.notice = undefined;
-        render();
-      }
+      state.undoAvailable = false;
+      if (state.notice?.kind === "undo") state.notice = undefined;
+      render();
     }, 5000);
   }
 
