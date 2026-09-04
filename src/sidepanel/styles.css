@@ -385,6 +385,18 @@ textarea:focus-visible,
   background: var(--danger);
 }
 
+.dialog-card[data-dialog="clear"] h2 {
+  font-size: 18px;
+}
+
+.dialog-card[data-dialog="clear"] p {
+  font-size: 14px;
+}
+
+.dialog-card[data-dialog="clear"] .dialog-actions button {
+  font-size: 14px;
+}
+
 @media (max-width: 359px) {
   :root {
     --job-columns: 24px minmax(38px, 0.6fr) minmax(44px, 0.75fr) minmax(0, 2.4fr) minmax(44px, 0.8fr) minmax(40px, 0.7fr) 32px;
