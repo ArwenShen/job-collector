@@ -175,6 +175,40 @@ describe("side panel view", () => {
     expect(notice?.textContent).toBe("已收集当前职位");
   });
 
+  it("keeps one live region and announces only changed notice text", async () => {
+    renderSidePanel(root, state());
+    const liveRegion = root.querySelector(".notice")!;
+    const effectiveUpdates: string[] = [];
+    const observer = new MutationObserver(() => {
+      const text = liveRegion.textContent ?? "";
+      if (text) effectiveUpdates.push(text);
+    });
+    observer.observe(liveRegion, { childList: true, characterData: true, subtree: true });
+
+    renderSidePanel(root, { ...state(), notice: { kind: "success", text: "第一条消息" } });
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(root.querySelector(".notice")).toBe(liveRegion);
+    expect(effectiveUpdates).toEqual(["第一条消息"]);
+
+    renderSidePanel(root, { ...state(), notice: { kind: "success", text: "第一条消息" } });
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(root.querySelector(".notice")).toBe(liveRegion);
+    expect(effectiveUpdates).toEqual(["第一条消息"]);
+
+    renderSidePanel(root, { ...state(), notice: { kind: "error", text: "第一条消息" } });
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(effectiveUpdates).toEqual(["第一条消息", "第一条消息"]);
+
+    renderSidePanel(root, { ...state(), notice: { kind: "error", text: "第二条消息" } });
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(effectiveUpdates).toEqual(["第一条消息", "第一条消息", "第二条消息"]);
+    observer.disconnect();
+  });
+
   it("renders and focuses the note dialog with its editing constraints", async () => {
     renderSidePanel(root, {
       ...state([sampleRecord]),
@@ -282,5 +316,45 @@ describe("side panel view", () => {
     await Promise.resolve();
 
     expect(document.activeElement).toBe(root.querySelector("[data-note-input]"));
+  });
+
+  it("returns focus to the note trigger after the note dialog closes", async () => {
+    renderSidePanel(root, state([sampleRecord]));
+    root.querySelector<HTMLElement>("[data-action=open-note]")!.focus();
+    renderSidePanel(root, {
+      ...state([sampleRecord]), noteEditor: { key: "boss:1", value: "重点" },
+    });
+    await Promise.resolve();
+    expect(document.activeElement).toBe(root.querySelector("[data-note-input]"));
+
+    renderSidePanel(root, state([sampleRecord]));
+    await Promise.resolve();
+    expect(document.activeElement).toBe(root.querySelector("[data-action=open-note]"));
+  });
+
+  it("returns focus to the clear trigger after the clear dialog closes", async () => {
+    renderSidePanel(root, state([sampleRecord]));
+    root.querySelector<HTMLElement>("[data-action=request-clear]")!.focus();
+    renderSidePanel(root, { ...state([sampleRecord]), clearConfirmOpen: true });
+    await Promise.resolve();
+    expect(document.activeElement).toBe(root.querySelector("[data-action=cancel-clear]"));
+
+    renderSidePanel(root, state([sampleRecord]));
+    await Promise.resolve();
+    expect(document.activeElement).toBe(root.querySelector("[data-action=request-clear]"));
+  });
+
+  it("defers restoring collect focus until the button is enabled again", async () => {
+    renderSidePanel(root, state([sampleRecord]));
+    root.querySelector<HTMLElement>("[data-action=collect]")!.focus();
+
+    renderSidePanel(root, { ...state([sampleRecord]), busy: true });
+    await Promise.resolve();
+    expect(root.querySelector<HTMLButtonElement>("[data-action=collect]")?.disabled).toBe(true);
+    expect(document.activeElement).not.toBe(root.querySelector("[data-action=collect]"));
+
+    renderSidePanel(root, state([sampleRecord]));
+    await Promise.resolve();
+    expect(document.activeElement).toBe(root.querySelector("[data-action=collect]"));
   });
 });

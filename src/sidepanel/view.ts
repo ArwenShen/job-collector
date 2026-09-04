@@ -31,6 +31,31 @@ interface FocusIdentity {
   key: string | null;
 }
 
+interface RenderMetadata {
+  announcedNotice: string;
+  announcementVersion: number;
+  announcer: HTMLElement;
+  focusVersion: number;
+  overlayOpen: boolean;
+  pendingFocus?: FocusIdentity;
+}
+
+const renderMetadata = new WeakMap<Element, RenderMetadata>();
+
+function getRenderMetadata(root: Element): RenderMetadata {
+  const existing = renderMetadata.get(root);
+  if (existing) return existing;
+  const metadata: RenderMetadata = {
+    announcedNotice: "",
+    announcementVersion: 0,
+    announcer: createElement("div", { class: "notice", "aria-live": "polite" }),
+    focusVersion: 0,
+    overlayOpen: false,
+  };
+  renderMetadata.set(root, metadata);
+  return metadata;
+}
+
 function captureFocusIdentity(root: Element): FocusIdentity | undefined {
   const active = document.activeElement;
   if (!(active instanceof HTMLElement) || !root.contains(active)) return undefined;
@@ -42,14 +67,13 @@ function captureFocusIdentity(root: Element): FocusIdentity | undefined {
   return identity.action || (identity.field && identity.key) ? identity : undefined;
 }
 
-function restoreFocus(root: Element, identity: FocusIdentity): void {
+function findFocusTarget(root: Element, identity: FocusIdentity): HTMLElement | undefined {
   const candidates = root.querySelectorAll<HTMLElement>("[data-action], [data-key]");
-  const target = [...candidates].find((candidate) =>
+  return [...candidates].find((candidate) =>
     candidate.getAttribute("data-action") === identity.action
     && candidate.getAttribute("data-field") === identity.field
     && candidate.getAttribute("data-key") === identity.key,
   );
-  if (target?.isConnected) target.focus();
 }
 
 function createTextCell(field: string, value: string, key: string): HTMLElement {
@@ -111,25 +135,36 @@ function createJobRow(record: JobRecord, index: number): HTMLElement {
   return row;
 }
 
-function createNotice(state: SidePanelState): HTMLElement {
-  const notice = createElement("div", { class: "notice", "aria-live": "polite" });
+function updateNotice(metadata: RenderMetadata, state: SidePanelState): HTMLElement {
+  const notice = metadata.announcer;
+  notice.setAttribute("class", "notice");
   if (state.notice?.kind === "error") notice.setAttribute("class", "notice notice--error");
-  if (state.notice) {
-    const message = createElement("span");
-    const text = state.notice.text;
-    notice.append(message);
+  const text = state.notice?.text ?? "";
+  const noticeIdentity = state.notice ? `${state.notice.kind}\u0000${text}` : "";
+  if (noticeIdentity !== metadata.announcedNotice) {
+    metadata.announcedNotice = noticeIdentity;
+    const version = ++metadata.announcementVersion;
+    notice.textContent = "";
+    if (!text) return notice;
     queueMicrotask(() => {
-      if (message.isConnected) message.textContent = text;
+      if (version === metadata.announcementVersion && notice.isConnected) {
+        notice.textContent = text;
+      }
     });
   }
+  return notice;
+}
+
+function createNoticeActions(state: SidePanelState): HTMLElement {
+  const actions = createElement("div", { class: "notice-actions" });
   if (state.undoAvailable) {
     const undo = createElement("button", {
       type: "button",
       "data-action": "undo-delete",
     }, "撤销");
-    notice.append(undo);
+    actions.append(undo);
   }
-  return notice;
+  return actions;
 }
 
 function createTable(records: JobRecord[]): HTMLElement {
@@ -213,7 +248,14 @@ function createClearDialog(count: number): HTMLElement {
 }
 
 export function renderSidePanel(root: Element, state: SidePanelState): void {
+  const metadata = getRenderMetadata(root);
   const focusIdentity = captureFocusIdentity(root);
+  const overlayOpen = Boolean(state.noteEditor || state.clearConfirmOpen);
+  const wasOverlayOpen = metadata.overlayOpen;
+  const focusVersion = ++metadata.focusVersion;
+  if (focusIdentity && !wasOverlayOpen) {
+    metadata.pendingFocus = focusIdentity;
+  }
   const shell = createElement("div", { class: "panel-shell" });
   const header = createElement("header", { class: "panel-header" });
   header.append(createElement("strong", {}, "岗位收集器"));
@@ -247,12 +289,35 @@ export function renderSidePanel(root: Element, state: SidePanelState): void {
     "data-tooltip-popover": "",
     hidden: "",
   });
-  shell.append(header, collect, count, createNotice(state), createTable(state.records), footer, tooltip);
+  shell.append(
+    header,
+    collect,
+    count,
+    updateNotice(metadata, state),
+    createNoticeActions(state),
+    createTable(state.records),
+    footer,
+    tooltip,
+  );
   if (state.noteEditor) shell.append(createNoteDialog(state.noteEditor));
   else if (state.clearConfirmOpen) shell.append(createClearDialog(state.records.length));
 
   root.replaceChildren(shell);
-  if (!state.noteEditor && !state.clearConfirmOpen && focusIdentity) {
-    queueMicrotask(() => restoreFocus(root, focusIdentity));
+  metadata.overlayOpen = overlayOpen;
+  if (!overlayOpen && metadata.pendingFocus) {
+    const pendingFocus = metadata.pendingFocus;
+    queueMicrotask(() => {
+      if (focusVersion !== metadata.focusVersion || metadata.overlayOpen) return;
+      const target = findFocusTarget(root, pendingFocus);
+      if (!target) {
+        if (metadata.pendingFocus === pendingFocus) metadata.pendingFocus = undefined;
+        return;
+      }
+      if (target.hasAttribute("disabled")) return;
+      target.focus();
+      if (document.activeElement === target && metadata.pendingFocus === pendingFocus) {
+        metadata.pendingFocus = undefined;
+      }
+    });
   }
 }
