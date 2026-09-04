@@ -45,6 +45,7 @@ describe("side panel view", () => {
     expect(root.querySelector(".panel-footer [data-action=request-clear]")?.textContent).toBe("清空");
     const tooltip = root.querySelector<HTMLElement>("[data-tooltip-popover]");
     expect(tooltip?.getAttribute("role")).toBe("tooltip");
+    expect(tooltip?.id).toBe("side-panel-tooltip");
     expect(tooltip?.hidden).toBe(true);
   });
 
@@ -58,6 +59,7 @@ describe("side panel view", () => {
     const platform = root.querySelector("[data-field=platform]");
     expect(platform?.textContent).toBe(short);
     expect(platform?.getAttribute("data-tooltip")).toBe(full);
+    expect(platform?.getAttribute("aria-label")).toBe(full);
     expect(platform?.getAttribute("tabindex")).toBe("0");
   });
 
@@ -118,9 +120,13 @@ describe("side panel view", () => {
     const note = root.querySelector("[data-action=open-note]");
     expect(note?.getAttribute("data-key")).toBe("boss:job:42");
     expect(note?.textContent).toBe("跟进");
+    expect(note?.getAttribute("role")).toBeNull();
+    expect(note?.closest("[role=cell]")).not.toBeNull();
     const remove = root.querySelector("[data-action=delete]");
     expect(remove?.getAttribute("data-key")).toBe("boss:job:42");
     expect(remove?.getAttribute("aria-label")).toBe("删除：AI产品经理");
+    expect(remove?.getAttribute("role")).toBeNull();
+    expect(remove?.closest("[role=cell]")).not.toBeNull();
 
     renderSidePanel(root, state([{ ...record, job_title: "" }]));
     expect(root.querySelector("[data-action=delete]")?.getAttribute("aria-label"))
@@ -142,12 +148,13 @@ describe("side panel view", () => {
 
   it.each(["success", "error", "undo"] as const)(
     "renders undo independently of a %s notice",
-    (kind) => {
+    async (kind) => {
       renderSidePanel(root, {
         ...state([sampleRecord]), undoAvailable: true, notice: { kind, text: "状态消息" },
       });
       const notice = root.querySelector(".notice");
       expect(notice?.getAttribute("aria-live")).toBe("polite");
+      await Promise.resolve();
       expect(notice?.textContent).toContain("状态消息");
       expect(root.querySelector("[data-action=undo-delete]")?.textContent).toBe("撤销");
       expect(notice?.classList.contains("notice--error")).toBe(kind === "error");
@@ -157,6 +164,15 @@ describe("side panel view", () => {
   it("renders undo even when no notice exists", () => {
     renderSidePanel(root, { ...state(), undoAvailable: true });
     expect(root.querySelector("[data-action=undo-delete]")?.textContent).toBe("撤销");
+  });
+
+  it("announces a newly rendered notice after the live region enters the DOM", async () => {
+    renderSidePanel(root, state());
+    renderSidePanel(root, { ...state(), notice: { kind: "success", text: "已收集当前职位" } });
+    const notice = root.querySelector(".notice");
+    expect(notice?.textContent).toBe("");
+    await Promise.resolve();
+    expect(notice?.textContent).toBe("已收集当前职位");
   });
 
   it("renders and focuses the note dialog with its editing constraints", async () => {
@@ -171,6 +187,9 @@ describe("side panel view", () => {
     expect(dialog?.classList.contains("dialog-card")).toBe(true);
     expect(dialog?.getAttribute("role")).toBe("dialog");
     expect(dialog?.getAttribute("aria-modal")).toBe("true");
+    const titleId = dialog?.getAttribute("aria-labelledby");
+    expect(titleId).toBe("note-dialog-title");
+    expect(root.querySelector(`#${titleId}`)?.textContent).toBe("编辑职位备注");
     expect(dialog?.textContent).toContain("职位备注");
     expect(root.querySelector("[data-form=note]")).not.toBeNull();
     expect(textarea?.value).toBe("重点");
@@ -189,6 +208,13 @@ describe("side panel view", () => {
     const cancel = root.querySelector<HTMLButtonElement>("[data-action=cancel-clear]");
     expect(dialog?.getAttribute("role")).toBe("alertdialog");
     expect(dialog?.getAttribute("aria-modal")).toBe("true");
+    const titleId = dialog?.getAttribute("aria-labelledby");
+    const descriptionId = dialog?.getAttribute("aria-describedby");
+    expect(titleId).toBe("clear-dialog-title");
+    expect(root.querySelector(`#${titleId}`)?.textContent).toBe("清空已收集职位");
+    expect(descriptionId).toBe("clear-dialog-description");
+    expect(root.querySelector(`#${descriptionId}`)?.textContent)
+      .toBe("确定清空已收集的 1 个职位吗？此操作无法撤销。");
     expect(dialog?.textContent).toContain("确定清空已收集的 1 个职位吗？此操作无法撤销。");
     expect(cancel).not.toBeNull();
     expect(root.querySelector("[data-action=confirm-clear]")).not.toBeNull();
@@ -226,5 +252,35 @@ describe("side panel view", () => {
     expect(root.querySelector("[data-stale]")).toBeNull();
     expect(root.querySelectorAll(".panel-shell")).toHaveLength(1);
     expect(root.querySelector(".count-card")?.textContent).toBe("已收集 0 个职位");
+  });
+
+  it.each(["company", "note"] as const)(
+    "restores focus to the same keyed %s control after rendering",
+    async (field) => {
+      const records = [sampleRecord, { ...sampleRecord, source_job_id: "2", company_name: "第二家公司" }];
+      renderSidePanel(root, state(records));
+      const selector = `[data-key="boss:2"][data-field=${field}]`;
+      const oldTarget = root.querySelector<HTMLElement>(selector)!;
+      oldTarget.focus();
+      expect(document.activeElement).toBe(oldTarget);
+
+      renderSidePanel(root, state(records));
+      const newTarget = root.querySelector<HTMLElement>(selector)!;
+      expect(newTarget).not.toBe(oldTarget);
+      await Promise.resolve();
+      expect(document.activeElement).toBe(newTarget);
+    },
+  );
+
+  it("lets an opening dialog take focus instead of restoring the old row focus", async () => {
+    renderSidePanel(root, state([sampleRecord]));
+    root.querySelector<HTMLElement>("[data-field=company]")!.focus();
+
+    renderSidePanel(root, {
+      ...state([sampleRecord]), noteEditor: { key: "boss:1", value: "重点" },
+    });
+    await Promise.resolve();
+
+    expect(document.activeElement).toBe(root.querySelector("[data-note-input]"));
   });
 });
