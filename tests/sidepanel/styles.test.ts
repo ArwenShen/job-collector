@@ -107,12 +107,15 @@ describe("side panel style contract", () => {
   });
 
   it("enlarges only the clear confirmation dialog typography", () => {
+    expect(rule(":root")).toMatch(/font-size:\s*12px/);
+    expect(rule("button, textarea")).toMatch(/font:\s*inherit/);
+    expect(rule(".dialog-card h2")).toMatch(/font-size:\s*16px/);
+    expect(rule(".dialog-actions button")).not.toMatch(/font-size:\s*14px/);
     expect(rule('.dialog-card[data-dialog="clear"] h2')).toMatch(/font-size:\s*18px/);
     expect(rule('.dialog-card[data-dialog="clear"] p')).toMatch(/font-size:\s*14px/);
     expect(rule('.dialog-card[data-dialog="clear"] .dialog-actions button')).toMatch(
       /font-size:\s*14px/,
     );
-    expect(rule('.dialog-card[data-dialog="note"] h2')).not.toMatch(/font-size:\s*18px/);
   });
 
   it("keeps the narrow delete column wide enough for its button", () => {
