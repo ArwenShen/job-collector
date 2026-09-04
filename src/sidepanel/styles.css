@@ -390,6 +390,11 @@ textarea:focus-visible,
   font-size: 14px;
 }
 
+.dialog-card[data-dialog="note"] label,
+.dialog-card[data-dialog="note"] textarea {
+  font-size: 14px;
+}
+
 .dialog-card[data-dialog="clear"] h2 {
   font-size: 18px;
 }

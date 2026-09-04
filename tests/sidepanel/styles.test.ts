@@ -134,6 +134,19 @@ describe("side panel style contract", () => {
     );
   });
 
+  it("uses 14px note field text without changing shared dialog typography", () => {
+    const noteFields = rule(
+      '.dialog-card[data-dialog="note"] label, .dialog-card[data-dialog="note"] textarea',
+    );
+    expect(noteFields).toMatch(/font-size:\s*14px/);
+
+    expect(rule(".dialog-card label")).not.toMatch(/font-size\s*:/);
+    expect(rule(".dialog-card textarea")).not.toMatch(/font-size\s*:/);
+    expect(rule(".dialog-card h2")).toMatch(/font-size:\s*16px/);
+    expect(rule('.dialog-card[data-dialog="clear"] h2')).toMatch(/font-size:\s*18px/);
+    expect(rule('.dialog-card[data-dialog="clear"] p')).toMatch(/font-size:\s*14px/);
+  });
+
   it("keeps the narrow delete column wide enough for its button", () => {
     const media = compactCss.match(/@media\s*\(max-width:\s*359px\)\s*\{([\s\S]*)\}\s*$/)?.[1] ?? "";
     expect(media).toMatch(/--job-columns:[^;]*\s32px\s*;/);
