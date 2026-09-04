@@ -51,6 +51,57 @@ describe("side panel view", () => {
     expect(tooltip?.hidden).toBe(true);
   });
 
+  it("collapses the feedback region when there is no notice or undo action", () => {
+    renderSidePanel(root, state());
+
+    const shell = root.querySelector(".panel-shell")!;
+    const feedback = root.querySelector<HTMLElement>(".feedback-region")!;
+    expect(shell.classList.contains("panel-shell--with-feedback")).toBe(false);
+    expect(feedback.hidden).toBe(true);
+    expect(feedback.parentElement).toBe(shell);
+    expect([...shell.children].slice(0, 6).map((element) => element.className)).toEqual([
+      "panel-header",
+      "panel-collect",
+      "count-card",
+      "feedback-region",
+      "job-list-scroll",
+      "panel-footer",
+    ]);
+  });
+
+  it("expands the feedback region for a notice", async () => {
+    renderSidePanel(root, {
+      ...state(), notice: { kind: "success", text: "已收集" }, noticeRevision: 1,
+    });
+
+    const shell = root.querySelector(".panel-shell")!;
+    const feedback = root.querySelector<HTMLElement>(".feedback-region")!;
+    expect(shell.classList.contains("panel-shell--with-feedback")).toBe(true);
+    expect(feedback.hidden).toBe(false);
+    expect(feedback.querySelector(".notice")?.getAttribute("aria-live")).toBe("polite");
+    await Promise.resolve();
+    expect(feedback.querySelector(".notice")?.textContent).toBe("已收集");
+  });
+
+  it.each([
+    ["without a notice", {}],
+    ["with an error notice", { notice: { kind: "error", text: "失败" }, noticeRevision: 1 }],
+  ] satisfies Array<[string, Partial<SidePanelState>]>) (
+    "expands feedback for undo %s",
+    (_label, overrides) => {
+      renderSidePanel(root, { ...state(), undoAvailable: true, ...overrides });
+
+      const shell = root.querySelector(".panel-shell")!;
+      const feedback = root.querySelector<HTMLElement>(".feedback-region")!;
+      expect(shell.classList.contains("panel-shell--with-feedback")).toBe(true);
+      expect(feedback.hidden).toBe(false);
+      expect(feedback.querySelector("[data-action=undo-delete]")?.textContent).toBe("撤销");
+      if (_label === "with an error notice") {
+        expect(feedback.querySelector(".notice")?.classList.contains("notice--error")).toBe(true);
+      }
+    },
+  );
+
   it.each([
     ["boss", "BOSS", "BOSS直聘"],
     ["liepin", "猎聘", "猎聘"],

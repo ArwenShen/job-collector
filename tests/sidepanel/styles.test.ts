@@ -1,8 +1,6 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import type { SidePanelState } from "../../src/sidepanel/controller";
-import { renderSidePanel } from "../../src/sidepanel/view";
 
 const css = readFileSync(
   resolve(process.cwd(), "src/sidepanel/styles.css"),
@@ -34,23 +32,35 @@ describe("side panel style contract", () => {
     expect(rule("body")).toMatch(/min-width:\s*320px/);
     expect(rule(".panel-shell")).toMatch(/min-height:\s*100vh/);
     expect(rule(".panel-shell")).toMatch(/display:\s*grid/);
-    expect(rule(".panel-shell")).toMatch(/grid-template-rows:[^;]*minmax\(0,\s*1fr\)/);
+    expect(rule(".panel-shell")).toMatch(
+      /grid-template-rows:\s*auto\s+auto\s+auto\s+minmax\(0,\s*1fr\)\s+auto\s*;/,
+    );
     expect(rule(".panel-shell")).toMatch(/gap:\s*12px/);
   });
 
-  it("pins every shell region to its intended grid row", () => {
-    const regions = [
+  it("uses explicit five-row and feedback-expanded six-row layouts", () => {
+    expect(rule(".panel-shell--with-feedback")).toMatch(
+      /grid-template-rows:\s*auto\s+auto\s+auto\s+auto\s+minmax\(0,\s*1fr\)\s+auto\s*;/,
+    );
+
+    const baseRegions = [
       [".panel-header", 1],
       [".panel-collect", 2],
       [".count-card", 3],
-      [".notice", 4],
-      [".notice-actions", 5],
-      [".job-list-scroll", 6],
-      [".panel-footer", 7],
+      [".feedback-region", 4],
+      [".job-list-scroll", 4],
+      [".panel-footer", 5],
     ] as const;
-    for (const [selector, row] of regions) {
+    for (const [selector, row] of baseRegions) {
       expect(rule(selector), selector).toMatch(new RegExp(`grid-row:\\s*${row}(?:\\s*\\/\\s*${row + 1})?`));
     }
+
+    expect(rule(".panel-shell--with-feedback .job-list-scroll")).toMatch(/grid-row:\s*5/);
+    expect(rule(".panel-shell--with-feedback .panel-footer")).toMatch(/grid-row:\s*6/);
+    expect(rule(".feedback-region")).toMatch(/display:\s*flex/);
+    expect(rule(".feedback-region")).toMatch(/flex-direction:\s*column/);
+    expect(rule(".feedback-region")).toMatch(/gap:\s*4px/);
+    expect(rule("[hidden]")).toMatch(/display:\s*none/);
   });
 
   it("makes only the job-list region vertically scrollable", () => {
@@ -103,41 +113,4 @@ describe("side panel style contract", () => {
       /url\s*\(|linear-gradient\s*\(|radial-gradient\s*\(|transition\s*:|animation(?:-[\w-]+)?\s*:|box-shadow\s*:/,
     );
   });
-});
-
-describe("side panel layout structure", () => {
-  const states: Array<[string, Partial<SidePanelState>]> = [
-    ["empty notice", {}],
-    ["visible notice", { notice: { kind: "success", text: "已收集" }, noticeRevision: 1 }],
-    ["undo action", { undoAvailable: true }],
-  ];
-
-  it.each(states)(
-    "keeps fixed shell region order with %s",
-    (_name, overrides) => {
-      const root = document.createElement("main");
-      renderSidePanel(root, {
-        records: [],
-        clearConfirmOpen: false,
-        busy: false,
-        undoAvailable: false,
-        noticeRevision: 0,
-        ...overrides,
-      });
-
-      const shell = root.querySelector(".panel-shell")!;
-      expect([...shell.children].slice(0, 7).map((element) => element.className)).toEqual([
-        "panel-header",
-        "panel-collect",
-        "count-card",
-        "notice",
-        "notice-actions",
-        "job-list-scroll",
-        "panel-footer",
-      ]);
-      expect(shell.children[7]?.hasAttribute("data-tooltip-popover")).toBe(true);
-      expect(shell.querySelector(".notice")?.className).toBe("notice");
-      expect(Boolean(shell.querySelector("[data-action=undo-delete]"))).toBe(Boolean(overrides.undoAvailable));
-    },
-  );
 });

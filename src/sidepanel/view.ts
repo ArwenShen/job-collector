@@ -255,7 +255,11 @@ export function renderSidePanel(root: Element, state: SidePanelState): void {
   if (focusIdentity && !wasOverlayOpen) {
     metadata.pendingFocus = focusIdentity;
   }
-  const shell = createElement("div", { class: "panel-shell", tabindex: "-1" });
+  const hasFeedback = Boolean(state.notice || state.undoAvailable);
+  const shell = createElement("div", {
+    class: hasFeedback ? "panel-shell panel-shell--with-feedback" : "panel-shell",
+    tabindex: "-1",
+  });
   const header = createElement("header", { class: "panel-header" });
   header.append(createElement("strong", {}, "岗位收集器"));
 
@@ -282,6 +286,10 @@ export function renderSidePanel(root: Element, state: SidePanelState): void {
   }
   footer.append(exportButton, clearButton);
 
+  const feedback = createElement("div", { class: "feedback-region" });
+  if (!hasFeedback) feedback.setAttribute("hidden", "");
+  feedback.append(updateNotice(metadata, state), createNoticeActions(state));
+
   const tooltip = createElement("div", {
     id: "side-panel-tooltip",
     role: "tooltip",
@@ -292,8 +300,7 @@ export function renderSidePanel(root: Element, state: SidePanelState): void {
     header,
     collect,
     count,
-    updateNotice(metadata, state),
-    createNoticeActions(state),
+    feedback,
     createTable(state.records),
     footer,
     tooltip,
