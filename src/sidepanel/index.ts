@@ -21,14 +21,18 @@ function clamp(value: number, maximum: number): number {
 }
 
 function runAction(action: Promise<void>): void {
-  void action.catch(() => undefined);
+  void action.catch((error: unknown) => {
+    console.error("Unexpected side panel action failure", error);
+  });
 }
 
 export function bindSidePanelEvents(
   root: HTMLElement,
   controller: SidePanelController,
 ): () => void {
-  let activeTooltipTrigger: HTMLElement | undefined;
+  let hoveredTooltipTrigger: HTMLElement | undefined;
+  let focusedTooltipTrigger: HTMLElement | undefined;
+  let visibleTooltipTrigger: HTMLElement | undefined;
   const addedDescription = new WeakSet<HTMLElement>();
 
   function tooltipPopover(): HTMLElement | null {
@@ -48,10 +52,10 @@ export function bindSidePanelEvents(
     addedDescription.delete(trigger);
   }
 
-  function hideTooltip(trigger = activeTooltipTrigger): void {
-    if (!trigger || trigger !== activeTooltipTrigger) return;
+  function hideTooltip(trigger = visibleTooltipTrigger): void {
+    if (!trigger || trigger !== visibleTooltipTrigger) return;
     removeTooltipDescription(trigger);
-    activeTooltipTrigger = undefined;
+    visibleTooltipTrigger = undefined;
     const popover = tooltipPopover();
     if (!popover) return;
     popover.hidden = true;
@@ -71,8 +75,8 @@ export function bindSidePanelEvents(
     const popover = tooltipPopover();
     const tooltipText = trigger.dataset.tooltip;
     if (!popover || tooltipText === undefined) return null;
-    if (activeTooltipTrigger && activeTooltipTrigger !== trigger) hideTooltip();
-    activeTooltipTrigger = trigger;
+    if (visibleTooltipTrigger && visibleTooltipTrigger !== trigger) hideTooltip();
+    visibleTooltipTrigger = trigger;
     popover.textContent = tooltipText;
     popover.hidden = false;
     const tokens = (trigger.getAttribute("aria-describedby") ?? "").split(/\s+/).filter(Boolean);
@@ -82,6 +86,20 @@ export function bindSidePanelEvents(
       addedDescription.add(trigger);
     }
     return popover;
+  }
+
+  function validTrigger(trigger: HTMLElement | undefined): HTMLElement | undefined {
+    return trigger && root.contains(trigger) ? trigger : undefined;
+  }
+
+  function showFocusedTooltip(): void {
+    focusedTooltipTrigger = validTrigger(focusedTooltipTrigger);
+    if (!focusedTooltipTrigger || !showTooltip(focusedTooltipTrigger)) {
+      hideTooltip();
+      return;
+    }
+    const rect = focusedTooltipTrigger.getBoundingClientRect();
+    positionTooltip(rect.left, rect.bottom + TOOLTIP_MARGIN);
   }
 
   function tooltipTrigger(event: Event): HTMLElement | null {
@@ -126,34 +144,40 @@ export function bindSidePanelEvents(
   function onPointerOver(event: PointerEvent): void {
     const trigger = tooltipTrigger(event);
     if (!trigger || !root.contains(trigger) || !showTooltip(trigger)) return;
+    hoveredTooltipTrigger = trigger;
     positionTooltip(event.clientX + POINTER_OFFSET, event.clientY + POINTER_OFFSET);
   }
 
   function onPointerOut(event: PointerEvent): void {
     const trigger = tooltipTrigger(event);
-    if (!trigger || trigger !== activeTooltipTrigger) return;
+    if (!trigger || trigger !== hoveredTooltipTrigger) return;
     if (event.relatedTarget instanceof Node && trigger.contains(event.relatedTarget)) return;
-    hideTooltip(trigger);
+    hoveredTooltipTrigger = undefined;
+    showFocusedTooltip();
   }
 
   function onPointerMove(event: PointerEvent): void {
     const trigger = tooltipTrigger(event);
-    if (trigger !== activeTooltipTrigger) return;
+    if (trigger !== validTrigger(hoveredTooltipTrigger)) return;
+    if (visibleTooltipTrigger !== trigger) showTooltip(trigger);
     positionTooltip(event.clientX + POINTER_OFFSET, event.clientY + POINTER_OFFSET);
   }
 
   function onFocusIn(event: FocusEvent): void {
     const trigger = tooltipTrigger(event);
-    if (!trigger || !root.contains(trigger) || !showTooltip(trigger)) return;
-    const rect = trigger.getBoundingClientRect();
-    positionTooltip(rect.left, rect.bottom + TOOLTIP_MARGIN);
+    if (!trigger || !root.contains(trigger)) return;
+    focusedTooltipTrigger = trigger;
+    hoveredTooltipTrigger = validTrigger(hoveredTooltipTrigger);
+    if (!hoveredTooltipTrigger) showFocusedTooltip();
   }
 
   function onFocusOut(event: FocusEvent): void {
     const trigger = tooltipTrigger(event);
-    if (!trigger || trigger !== activeTooltipTrigger) return;
+    if (!trigger || trigger !== focusedTooltipTrigger) return;
     if (event.relatedTarget instanceof Node && trigger.contains(event.relatedTarget)) return;
-    hideTooltip(trigger);
+    focusedTooltipTrigger = undefined;
+    hoveredTooltipTrigger = validTrigger(hoveredTooltipTrigger);
+    if (!hoveredTooltipTrigger) hideTooltip();
   }
 
   root.addEventListener("click", onClick);
@@ -167,6 +191,8 @@ export function bindSidePanelEvents(
 
   return () => {
     hideTooltip();
+    hoveredTooltipTrigger = undefined;
+    focusedTooltipTrigger = undefined;
     root.removeEventListener("click", onClick);
     root.removeEventListener("submit", onSubmit);
     root.removeEventListener("keydown", onKeydown);

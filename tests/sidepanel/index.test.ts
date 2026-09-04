@@ -159,21 +159,29 @@ describe("side panel event binding", () => {
   ] as const)("catches rejected %s actions", async (action, method) => {
     const controller = createController();
     controller[method].mockRejectedValue(new Error(`${action} failed`));
-    const catchSpy = vi.spyOn(Promise.prototype, "catch");
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
     bindSidePanelEvents(root, controller);
     const target = button(action, "boss:1");
     root.append(target);
 
     target.click();
     await Promise.resolve();
+    controller[method].mockResolvedValue(undefined);
+    target.click();
+    await Promise.resolve();
 
-    expect(catchSpy).toHaveBeenCalledOnce();
+    expect(error).toHaveBeenCalledOnce();
+    expect(error).toHaveBeenCalledWith(
+      "Unexpected side panel action failure",
+      expect.objectContaining({ message: `${action} failed` }),
+    );
+    expect(controller[method]).toHaveBeenCalledTimes(2);
   });
 
   it("catches rejected note submissions", async () => {
     const controller = createController();
     controller.saveNote.mockRejectedValue(new Error("save failed"));
-    const catchSpy = vi.spyOn(Promise.prototype, "catch");
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
     bindSidePanelEvents(root, controller);
     const form = document.createElement("form");
     form.dataset.form = "note";
@@ -184,8 +192,16 @@ describe("side panel event binding", () => {
 
     form.dispatchEvent(new SubmitEvent("submit", { bubbles: true, cancelable: true }));
     await Promise.resolve();
+    controller.saveNote.mockResolvedValue(undefined);
+    form.dispatchEvent(new SubmitEvent("submit", { bubbles: true, cancelable: true }));
+    await Promise.resolve();
 
-    expect(catchSpy).toHaveBeenCalledOnce();
+    expect(error).toHaveBeenCalledOnce();
+    expect(error).toHaveBeenCalledWith(
+      "Unexpected side panel action failure",
+      expect.objectContaining({ message: "save failed" }),
+    );
+    expect(controller.saveNote).toHaveBeenCalledTimes(2);
   });
 
   it("leaves click routing active after the renderer replaces root contents", () => {
@@ -346,6 +362,78 @@ describe("side panel tooltip", () => {
     expect(popover.hidden).toBe(false);
     expect(popover.style.left).toBe("62px");
     expect(popover.style.top).toBe("52px");
+  });
+
+  it("keeps a focused tooltip after its matching pointer leaves", () => {
+    bindSidePanelEvents(root, createController());
+    const { first, popover } = mountTooltip();
+    Object.defineProperties(document.documentElement, {
+      clientWidth: { configurable: true, value: 200 },
+      clientHeight: { configurable: true, value: 200 },
+    });
+    Object.defineProperty(first, "getBoundingClientRect", {
+      value: () => ({ left: 20, top: 10, right: 50, bottom: 30, width: 30, height: 20, x: 20, y: 10, toJSON() {} }),
+    });
+
+    first.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
+    first.dispatchEvent(new MouseEvent("pointerover", { bubbles: true, clientX: 70, clientY: 60 }));
+    first.dispatchEvent(new MouseEvent("pointerout", { bubbles: true, relatedTarget: root }));
+
+    expect(popover.hidden).toBe(false);
+    expect(popover.textContent).toBe("完整职位名称");
+    expect(popover.style.left).toBe("20px");
+    expect(popover.style.top).toBe("38px");
+    expect(first.getAttribute("aria-describedby")).toBe("side-panel-tooltip");
+  });
+
+  it("keeps the pointer-positioned tooltip after focus leaves the same trigger", () => {
+    bindSidePanelEvents(root, createController());
+    const { first, popover } = mountTooltip();
+    Object.defineProperties(document.documentElement, {
+      clientWidth: { configurable: true, value: 200 },
+      clientHeight: { configurable: true, value: 200 },
+    });
+
+    first.dispatchEvent(new MouseEvent("pointerover", { bubbles: true, clientX: 30, clientY: 20 }));
+    first.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
+    first.dispatchEvent(new FocusEvent("focusout", { bubbles: true, relatedTarget: root }));
+
+    expect(popover.hidden).toBe(false);
+    expect(popover.textContent).toBe("完整职位名称");
+    expect(popover.style.left).toBe("42px");
+    expect(popover.style.top).toBe("32px");
+    expect(first.getAttribute("aria-describedby")).toBe("side-panel-tooltip");
+  });
+
+  it("restores the focused trigger after a different hovered trigger leaves", () => {
+    bindSidePanelEvents(root, createController());
+    const { first, second, popover } = mountTooltip();
+    Object.defineProperties(document.documentElement, {
+      clientWidth: { configurable: true, value: 200 },
+      clientHeight: { configurable: true, value: 200 },
+    });
+    Object.defineProperty(first, "getBoundingClientRect", {
+      value: () => ({ left: 24, top: 12, right: 54, bottom: 32, width: 30, height: 20, x: 24, y: 12, toJSON() {} }),
+    });
+
+    first.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
+    second.dispatchEvent(new MouseEvent("pointerover", { bubbles: true, clientX: 80, clientY: 70 }));
+    expect(popover.textContent).toBe("第二条详情");
+    expect(first.hasAttribute("aria-describedby")).toBe(false);
+    expect(second.getAttribute("aria-describedby")).toBe("side-panel-tooltip");
+
+    second.dispatchEvent(new MouseEvent("pointerout", { bubbles: true, relatedTarget: root }));
+    expect(popover.hidden).toBe(false);
+    expect(popover.textContent).toBe("完整职位名称");
+    expect(popover.style.left).toBe("24px");
+    expect(popover.style.top).toBe("40px");
+    expect(first.getAttribute("aria-describedby")).toBe("side-panel-tooltip");
+    expect(second.hasAttribute("aria-describedby")).toBe(false);
+
+    first.dispatchEvent(new FocusEvent("focusout", { bubbles: true, relatedTarget: root }));
+    expect(popover.hidden).toBe(true);
+    expect(popover.textContent).toBe("");
+    expect(first.hasAttribute("aria-describedby")).toBe(false);
   });
 });
 
