@@ -1,6 +1,8 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
+import type { SidePanelState } from "../../src/sidepanel/controller";
+import { renderSidePanel } from "../../src/sidepanel/view";
 
 const css = readFileSync(
   resolve(process.cwd(), "src/sidepanel/styles.css"),
@@ -10,7 +12,7 @@ const compactCss = css.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\s+/g, " ");
 
 function rule(selector: string): string {
   const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return compactCss.match(new RegExp(`${escaped}\\s*\\{([^}]*)\\}`))?.[1] ?? "";
+  return compactCss.match(new RegExp(`(?:^|})\\s*${escaped}\\s*\\{([^}]*)\\}`))?.[1] ?? "";
 }
 
 describe("side panel style contract", () => {
@@ -24,11 +26,31 @@ describe("side panel style contract", () => {
   });
 
   it("keeps the application full-height and reserves a minmax row for scrolling", () => {
+    const documentRoots = rule("html, body, #app");
+    expect(documentRoots).toMatch(/min-width:\s*320px/);
+    expect(documentRoots).toMatch(/min-height:\s*100vh/);
+    expect(documentRoots).toMatch(/background:\s*var\(--canvas\)/);
     expect(rule("body")).toMatch(/margin:\s*0/);
     expect(rule("body")).toMatch(/min-width:\s*320px/);
     expect(rule(".panel-shell")).toMatch(/min-height:\s*100vh/);
     expect(rule(".panel-shell")).toMatch(/display:\s*grid/);
     expect(rule(".panel-shell")).toMatch(/grid-template-rows:[^;]*minmax\(0,\s*1fr\)/);
+    expect(rule(".panel-shell")).toMatch(/gap:\s*12px/);
+  });
+
+  it("pins every shell region to its intended grid row", () => {
+    const regions = [
+      [".panel-header", 1],
+      [".panel-collect", 2],
+      [".count-card", 3],
+      [".notice", 4],
+      [".notice-actions", 5],
+      [".job-list-scroll", 6],
+      [".panel-footer", 7],
+    ] as const;
+    for (const [selector, row] of regions) {
+      expect(rule(selector), selector).toMatch(new RegExp(`grid-row:\\s*${row}(?:\\s*\\/\\s*${row + 1})?`));
+    }
   });
 
   it("makes only the job-list region vertically scrollable", () => {
@@ -47,6 +69,8 @@ describe("side panel style contract", () => {
   it("keeps table headers visible and truncates long cell content", () => {
     expect(rule(".job-header")).toMatch(/position:\s*sticky/);
     expect(rule(".job-header")).toMatch(/top:\s*0/);
+    expect(rule(".job-header")).toMatch(/min-height:\s*40px/);
+    expect(rule(".job-row")).toMatch(/min-height:\s*54px/);
     expect(rule(".truncate")).toMatch(/overflow:\s*hidden/);
     expect(rule(".truncate")).toMatch(/text-overflow:\s*ellipsis/);
     expect(rule(".truncate")).toMatch(/white-space:\s*nowrap/);
@@ -57,17 +81,21 @@ describe("side panel style contract", () => {
     expect(rule("[data-tooltip-popover]")).toMatch(
       /max-width:\s*min\(280px,\s*calc\(100vw\s*-\s*16px\)\)/,
     );
+    expect(rule("[data-tooltip-popover]")).toMatch(/padding:\s*9px\s+11px/);
+    expect(rule("[data-tooltip-popover]")).toMatch(/pointer-events:\s*none/);
     expect(rule("[hidden]")).toMatch(/display:\s*none/);
     expect(rule(".dialog-backdrop")).toMatch(/position:\s*fixed/);
     expect(rule(".dialog-backdrop")).toMatch(/inset:\s*0/);
+    expect(rule(".dialog-backdrop")).toMatch(/background:\s*rgba\(22,\s*22,\s*92,\s*0\.(?:78|82)\)/);
     expect(rule(".dialog-card")).toMatch(/max-width:\s*320px/);
   });
 
-  it("provides a denser layout without hiding columns below 360px", () => {
+  it("keeps the narrow delete column wide enough for its button", () => {
     const media = compactCss.match(/@media\s*\(max-width:\s*359px\)\s*\{([\s\S]*)\}\s*$/)?.[1] ?? "";
-    expect(media).toContain("--job-columns:");
+    expect(media).toMatch(/--job-columns:[^;]*\s32px\s*;/);
     expect(media).toMatch(/padding:\s*12px/);
     expect(media).not.toMatch(/display:\s*none/);
+    expect(rule('[data-action="delete"]')).toMatch(/width:\s*32px/);
   });
 
   it("does not introduce remote imagery or decorative motion and depth", () => {
@@ -75,4 +103,41 @@ describe("side panel style contract", () => {
       /url\s*\(|linear-gradient\s*\(|radial-gradient\s*\(|transition\s*:|animation(?:-[\w-]+)?\s*:|box-shadow\s*:/,
     );
   });
+});
+
+describe("side panel layout structure", () => {
+  const states: Array<[string, Partial<SidePanelState>]> = [
+    ["empty notice", {}],
+    ["visible notice", { notice: { kind: "success", text: "已收集" }, noticeRevision: 1 }],
+    ["undo action", { undoAvailable: true }],
+  ];
+
+  it.each(states)(
+    "keeps fixed shell region order with %s",
+    (_name, overrides) => {
+      const root = document.createElement("main");
+      renderSidePanel(root, {
+        records: [],
+        clearConfirmOpen: false,
+        busy: false,
+        undoAvailable: false,
+        noticeRevision: 0,
+        ...overrides,
+      });
+
+      const shell = root.querySelector(".panel-shell")!;
+      expect([...shell.children].slice(0, 7).map((element) => element.className)).toEqual([
+        "panel-header",
+        "panel-collect",
+        "count-card",
+        "notice",
+        "notice-actions",
+        "job-list-scroll",
+        "panel-footer",
+      ]);
+      expect(shell.children[7]?.hasAttribute("data-tooltip-popover")).toBe(true);
+      expect(shell.querySelector(".notice")?.className).toBe("notice");
+      expect(Boolean(shell.querySelector("[data-action=undo-delete]"))).toBe(Boolean(overrides.undoAvailable));
+    },
+  );
 });

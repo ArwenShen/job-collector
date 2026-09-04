@@ -26,7 +26,9 @@ html,
 body,
 #app {
   height: 100%;
-  min-height: 100%;
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--canvas);
 }
 
 body {
@@ -73,15 +75,16 @@ textarea:focus-visible,
   height: 100vh;
   display: grid;
   grid-template-rows: auto auto auto auto auto minmax(0, 1fr) auto;
-  gap: 8px;
+  gap: 12px;
   overflow: hidden;
   padding: 16px;
   background: var(--canvas);
 }
 
 .panel-header {
+  grid-row: 1;
   display: flex;
-  min-height: 28px;
+  min-height: 40px;
   align-items: center;
   justify-content: space-between;
   font-size: 15px;
@@ -93,6 +96,7 @@ textarea:focus-visible,
 }
 
 .panel-collect {
+  grid-row: 2;
   min-height: 40px;
   border-radius: 999px;
   border-color: var(--primary);
@@ -107,6 +111,7 @@ textarea:focus-visible,
 }
 
 .count-card {
+  grid-row: 3;
   padding: 10px 12px;
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -116,6 +121,7 @@ textarea:focus-visible,
 }
 
 .notice {
+  grid-row: 4;
   color: var(--interactive);
   line-height: 1.4;
   overflow-wrap: anywhere;
@@ -131,6 +137,7 @@ textarea:focus-visible,
 }
 
 .notice-actions {
+  grid-row: 5;
   display: flex;
   justify-content: flex-end;
 }
@@ -142,6 +149,7 @@ textarea:focus-visible,
 }
 
 .job-list-scroll {
+  grid-row: 6;
   min-width: 0;
   min-height: 0;
   overflow-y: auto;
@@ -171,7 +179,7 @@ textarea:focus-visible,
   position: sticky;
   top: 0;
   z-index: 2;
-  min-height: 34px;
+  min-height: 40px;
   border-bottom: 1px solid var(--border);
   background: var(--surface);
   color: var(--text-weak);
@@ -180,7 +188,7 @@ textarea:focus-visible,
 }
 
 .job-row {
-  min-height: 52px;
+  min-height: 54px;
   border-bottom: 1px solid var(--border);
   color: var(--text-muted);
   font-size: 12px;
@@ -241,6 +249,7 @@ textarea:focus-visible,
 }
 
 .panel-footer {
+  grid-row: 7;
   display: flex;
   gap: 8px;
 }
@@ -263,7 +272,7 @@ textarea:focus-visible,
   position: fixed;
   z-index: 20;
   max-width: min(280px, calc(100vw - 16px));
-  padding: 7px 9px;
+  padding: 9px 11px;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--surface);
@@ -271,6 +280,7 @@ textarea:focus-visible,
   font-size: 12px;
   line-height: 1.4;
   overflow-wrap: anywhere;
+  pointer-events: none;
   white-space: normal;
 }
 
@@ -285,7 +295,7 @@ textarea:focus-visible,
   display: grid;
   place-items: center;
   padding: 16px;
-  background: rgba(18, 17, 83, 0.82);
+  background: rgba(22, 22, 92, 0.82);
 }
 
 .dialog-card {
@@ -355,7 +365,7 @@ textarea:focus-visible,
 
 @media (max-width: 359px) {
   :root {
-    --job-columns: 24px minmax(38px, 0.6fr) minmax(44px, 0.75fr) minmax(0, 2.4fr) minmax(44px, 0.8fr) minmax(40px, 0.7fr) 30px;
+    --job-columns: 24px minmax(38px, 0.6fr) minmax(44px, 0.75fr) minmax(0, 2.4fr) minmax(44px, 0.8fr) minmax(40px, 0.7fr) 32px;
   }
 
   .panel-shell {
