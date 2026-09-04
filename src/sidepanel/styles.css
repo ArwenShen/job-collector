@@ -218,6 +218,10 @@ textarea:focus-visible,
   align-items: center;
 }
 
+.job-row .cell:has(> button) {
+  overflow: visible;
+}
+
 .cell--index {
   color: var(--text-weak);
   font-variant-numeric: tabular-nums;

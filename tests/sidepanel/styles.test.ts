@@ -86,6 +86,12 @@ describe("side panel style contract", () => {
     expect(rule(".truncate")).toMatch(/white-space:\s*nowrap/);
   });
 
+  it("keeps row action focus rings visible without disabling text clipping", () => {
+    expect(rule(".cell")).toMatch(/overflow:\s*hidden/);
+    expect(rule(".truncate")).toMatch(/overflow:\s*hidden/);
+    expect(rule(".job-row .cell:has(> button)")).toMatch(/overflow:\s*visible/);
+  });
+
   it("positions compact tooltips and modal dialogs above the panel", () => {
     expect(rule("[data-tooltip-popover]")).toMatch(/position:\s*fixed/);
     expect(rule("[data-tooltip-popover]")).toMatch(
