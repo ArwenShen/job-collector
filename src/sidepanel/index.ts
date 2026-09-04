@@ -1,6 +1,10 @@
 import { exportJobs } from "../csv/download";
 import { createJobRepository } from "../storage/job-repository";
-import { createSidePanelController, type SidePanelController } from "./controller";
+import {
+  createSidePanelController,
+  type SidePanelController,
+  type SidePanelRepository,
+} from "./controller";
 import { extractActiveTab } from "./extract-active-tab";
 import { renderSidePanel } from "./view";
 
@@ -14,6 +18,10 @@ function eventElement(event: Event): Element | null {
 
 function clamp(value: number, maximum: number): number {
   return Math.min(Math.max(TOOLTIP_MARGIN, value), Math.max(TOOLTIP_MARGIN, maximum));
+}
+
+function runAction(action: Promise<void>): void {
+  void action.catch(() => undefined);
 }
 
 export function bindSidePanelEvents(
@@ -86,14 +94,14 @@ export function bindSidePanelEvents(
     if (actionTarget && root.contains(actionTarget)) {
       const key = actionTarget.dataset.key;
       switch (actionTarget.dataset.action) {
-        case "collect": void controller.collect(); break;
+        case "collect": runAction(controller.collect()); break;
         case "open-note": if (key !== undefined) controller.openNoteByKey(key); break;
-        case "delete": if (key !== undefined) void controller.deleteByKey(key); break;
-        case "undo-delete": void controller.undoDelete(); break;
-        case "export": void controller.exportCsv(); break;
+        case "delete": if (key !== undefined) runAction(controller.deleteByKey(key)); break;
+        case "undo-delete": runAction(controller.undoDelete()); break;
+        case "export": runAction(controller.exportCsv()); break;
         case "request-clear": controller.requestClear(); break;
         case "cancel-clear": controller.cancelClear(); break;
-        case "confirm-clear": void controller.confirmClear(); break;
+        case "confirm-clear": runAction(controller.confirmClear()); break;
         case "cancel-note": controller.cancelNote(); break;
       }
       return;
@@ -106,7 +114,7 @@ export function bindSidePanelEvents(
     if (!form || !root.contains(form)) return;
     event.preventDefault();
     const input = form.querySelector<HTMLTextAreaElement | HTMLInputElement>("[data-note-input]");
-    if (input) void controller.saveNote(input.value);
+    if (input) runAction(controller.saveNote(input.value));
   }
 
   function onKeydown(event: KeyboardEvent): void {
@@ -115,9 +123,10 @@ export function bindSidePanelEvents(
     controller.cancelOverlay();
   }
 
-  function onPointerOver(event: Event): void {
+  function onPointerOver(event: PointerEvent): void {
     const trigger = tooltipTrigger(event);
-    if (trigger && root.contains(trigger)) showTooltip(trigger);
+    if (!trigger || !root.contains(trigger) || !showTooltip(trigger)) return;
+    positionTooltip(event.clientX + POINTER_OFFSET, event.clientY + POINTER_OFFSET);
   }
 
   function onPointerOut(event: PointerEvent): void {
@@ -169,29 +178,47 @@ export function bindSidePanelEvents(
   };
 }
 
-export function bootstrapSidePanel(): () => void {
-  const root = document.querySelector<HTMLElement>("#app");
+type ControllerFactory = typeof createSidePanelController;
+
+export interface SidePanelBootstrapOptions {
+  root?: HTMLElement;
+  repository?: SidePanelRepository;
+  createController?: ControllerFactory;
+}
+
+export function bootstrapSidePanel(options: SidePanelBootstrapOptions = {}): () => void {
+  const root = options.root ?? document.querySelector<HTMLElement>("#app");
   if (!root) throw new Error("Side panel root is missing");
-  const controller = createSidePanelController({
+  const controller = (options.createController ?? createSidePanelController)({
     extract: extractActiveTab,
-    repository: createJobRepository(),
+    repository: options.repository ?? createJobRepository(),
     download: exportJobs,
     render: (state) => renderSidePanel(root, state),
+    setTimeout: globalThis.setTimeout.bind(globalThis),
+    clearTimeout: globalThis.clearTimeout.bind(globalThis),
   });
   const unbind = bindSidePanelEvents(root, controller);
   let disposed = false;
   const cleanup = () => {
     if (disposed) return;
     disposed = true;
+    window.removeEventListener("unload", cleanup);
+    window.removeEventListener("pagehide", cleanup);
     unbind();
     controller.dispose();
   };
   window.addEventListener("unload", cleanup, { once: true });
   window.addEventListener("pagehide", cleanup, { once: true });
-  void controller.initialize().catch((error: unknown) => {
-    console.error("Side panel initialization failed", error);
-  });
+  runAction(controller.initialize());
   return cleanup;
 }
 
-if (typeof chrome !== "undefined" && chrome.storage?.local) bootstrapSidePanel();
+export function shouldBootstrap(): boolean {
+  return typeof chrome !== "undefined"
+    && Boolean(chrome.storage?.local)
+    && typeof chrome.tabs?.query === "function"
+    && typeof chrome.scripting?.executeScript === "function"
+    && document.querySelector("#app") !== null;
+}
+
+if (shouldBootstrap()) bootstrapSidePanel();

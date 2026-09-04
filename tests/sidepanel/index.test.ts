@@ -1,5 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { bindSidePanelEvents } from "../../src/sidepanel/index";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { exportJobs } from "../../src/csv/download";
+import { createSidePanelController, type SidePanelRepository } from "../../src/sidepanel/controller";
+import { extractActiveTab } from "../../src/sidepanel/extract-active-tab";
+import { bindSidePanelEvents, bootstrapSidePanel, shouldBootstrap } from "../../src/sidepanel/index";
 
 function createController() {
   return {
@@ -34,6 +37,11 @@ beforeEach(() => {
   document.body.replaceChildren();
   root = document.createElement("main");
   document.body.append(root);
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
 });
 
 describe("side panel event binding", () => {
@@ -141,6 +149,93 @@ describe("side panel event binding", () => {
     expect(controller.collect).not.toHaveBeenCalled();
     expect(popover.hidden).toBe(true);
   });
+
+  it.each([
+    ["collect", "collect"],
+    ["delete", "deleteByKey"],
+    ["undo-delete", "undoDelete"],
+    ["export", "exportCsv"],
+    ["confirm-clear", "confirmClear"],
+  ] as const)("catches rejected %s actions", async (action, method) => {
+    const controller = createController();
+    controller[method].mockRejectedValue(new Error(`${action} failed`));
+    const catchSpy = vi.spyOn(Promise.prototype, "catch");
+    bindSidePanelEvents(root, controller);
+    const target = button(action, "boss:1");
+    root.append(target);
+
+    target.click();
+    await Promise.resolve();
+
+    expect(catchSpy).toHaveBeenCalledOnce();
+  });
+
+  it("catches rejected note submissions", async () => {
+    const controller = createController();
+    controller.saveNote.mockRejectedValue(new Error("save failed"));
+    const catchSpy = vi.spyOn(Promise.prototype, "catch");
+    bindSidePanelEvents(root, controller);
+    const form = document.createElement("form");
+    form.dataset.form = "note";
+    const input = document.createElement("textarea");
+    input.dataset.noteInput = "";
+    form.append(input);
+    root.append(form);
+
+    form.dispatchEvent(new SubmitEvent("submit", { bubbles: true, cancelable: true }));
+    await Promise.resolve();
+
+    expect(catchSpy).toHaveBeenCalledOnce();
+  });
+
+  it("leaves click routing active after the renderer replaces root contents", () => {
+    const controller = createController();
+    bindSidePanelEvents(root, controller);
+    root.replaceChildren(button("collect"));
+    root.querySelector<HTMLButtonElement>("[data-action=collect]")?.click();
+    root.replaceChildren(button("export"));
+    root.querySelector<HTMLButtonElement>("[data-action=export]")?.click();
+
+    expect(controller.collect).toHaveBeenCalledOnce();
+    expect(controller.exportCsv).toHaveBeenCalledOnce();
+  });
+
+  it("unbinds submit, keyboard, pointer, and focus listeners", () => {
+    const controller = createController();
+    const form = document.createElement("form");
+    form.dataset.form = "note";
+    const input = document.createElement("textarea");
+    input.dataset.noteInput = "";
+    form.append(input);
+    const dialog = document.createElement("div");
+    dialog.setAttribute("role", "dialog");
+    const trigger = document.createElement("button");
+    trigger.dataset.tooltip = "details";
+    const popover = document.createElement("div");
+    popover.id = "side-panel-tooltip";
+    popover.dataset.tooltipPopover = "";
+    root.append(form, dialog, trigger, popover);
+    const unbind = bindSidePanelEvents(root, controller);
+    unbind();
+    popover.hidden = false;
+    popover.textContent = "unchanged";
+    popover.style.left = "17px";
+
+    form.dispatchEvent(new SubmitEvent("submit", { bubbles: true, cancelable: true }));
+    dialog.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    trigger.dispatchEvent(new MouseEvent("pointerover", { bubbles: true, clientX: 80, clientY: 60 }));
+    trigger.dispatchEvent(new MouseEvent("pointermove", { bubbles: true, clientX: 90, clientY: 70 }));
+    trigger.dispatchEvent(new MouseEvent("pointerout", { bubbles: true, relatedTarget: root }));
+    trigger.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
+    trigger.dispatchEvent(new FocusEvent("focusout", { bubbles: true, relatedTarget: root }));
+
+    expect(controller.saveNote).not.toHaveBeenCalled();
+    expect(controller.cancelOverlay).not.toHaveBeenCalled();
+    expect(popover.hidden).toBe(false);
+    expect(popover.textContent).toBe("unchanged");
+    expect(popover.style.left).toBe("17px");
+    expect(trigger.hasAttribute("aria-describedby")).toBe(false);
+  });
 });
 
 describe("side panel tooltip", () => {
@@ -230,5 +325,92 @@ describe("side panel tooltip", () => {
 
     expect(popover.style.left).toBe("62px");
     expect(popover.style.top).toBe("52px");
+  });
+
+  it("positions and clamps from pointerover coordinates before any pointermove", () => {
+    bindSidePanelEvents(root, createController());
+    const { first, popover } = mountTooltip();
+    Object.defineProperties(document.documentElement, {
+      clientWidth: { configurable: true, value: 100 },
+      clientHeight: { configurable: true, value: 80 },
+    });
+    Object.defineProperties(popover, {
+      offsetWidth: { configurable: true, value: 30 },
+      offsetHeight: { configurable: true, value: 20 },
+    });
+
+    first.dispatchEvent(new MouseEvent("pointerover", {
+      bubbles: true, clientX: 95, clientY: 75,
+    }));
+
+    expect(popover.hidden).toBe(false);
+    expect(popover.style.left).toBe("62px");
+    expect(popover.style.top).toBe("52px");
+  });
+});
+
+describe("side panel bootstrap", () => {
+  const repository = {} as SidePanelRepository;
+
+  it("binds before initialize and injects bound global timers", async () => {
+    const controller = createController();
+    const add = vi.spyOn(root, "addEventListener");
+    const captured: Array<Parameters<typeof createSidePanelController>[0]> = [];
+    const controllerFactory = vi.fn((deps: Parameters<typeof createSidePanelController>[0]) => {
+      captured.push(deps);
+      return controller;
+    });
+
+    const cleanup = bootstrapSidePanel({ root, repository, createController: controllerFactory });
+    await Promise.resolve();
+
+    expect(add).toHaveBeenCalled();
+    expect(add.mock.invocationCallOrder[0]).toBeLessThan(controller.initialize.mock.invocationCallOrder[0]!);
+    const deps = captured[0];
+    expect(deps?.setTimeout).toBeTypeOf("function");
+    expect(deps?.clearTimeout).toBeTypeOf("function");
+    expect(deps?.setTimeout).not.toBe(globalThis.setTimeout);
+    expect(deps?.clearTimeout).not.toBe(globalThis.clearTimeout);
+    expect(deps?.extract).toBe(extractActiveTab);
+    expect(deps?.repository).toBe(repository);
+    expect(deps?.download).toBe(exportJobs);
+    expect(deps?.render).toBeTypeOf("function");
+    deps?.render({
+      records: [], noticeRevision: 0, clearConfirmOpen: false,
+      busy: false, undoAvailable: false,
+    });
+    expect(root.querySelector(".panel-shell")).not.toBeNull();
+    cleanup();
+  });
+
+  it.each([
+    ["pagehide", "unload"],
+    ["unload", "pagehide"],
+  ] as const)("unbinds and disposes once when %s fires before %s", (first, second) => {
+    const controller = createController();
+    const remove = vi.spyOn(root, "removeEventListener");
+    const cleanup = bootstrapSidePanel({
+      root, repository, createController: vi.fn(() => controller),
+    });
+
+    window.dispatchEvent(new Event(first));
+    window.dispatchEvent(new Event(second));
+    cleanup();
+
+    expect(controller.dispose).toHaveBeenCalledOnce();
+    expect(remove).toHaveBeenCalledTimes(8);
+  });
+
+  it("does not auto-bootstrap when Chrome exists without the side panel root", async () => {
+    document.body.replaceChildren();
+    vi.stubGlobal("chrome", {
+      storage: { local: {} },
+      tabs: { query: vi.fn() },
+      scripting: { executeScript: vi.fn() },
+    });
+
+    expect(shouldBootstrap()).toBe(false);
+    vi.resetModules();
+    await expect(import("../../src/sidepanel/index")).resolves.toBeDefined();
   });
 });
