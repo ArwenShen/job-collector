@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createSidePanelController, type SidePanelRepository, type SidePanelState } from "../../src/sidepanel/controller";
-import { extractActiveTab } from "../../src/sidepanel/extract-active-tab";
+import { extractActiveTab, HostAccessRequiredError } from "../../src/sidepanel/extract-active-tab";
+import type { HostAccessCoordinator } from "../../src/sidepanel/host-access";
 import type { PageResult } from "../../src/extractors";
 import type { JobRecord } from "../../src/shared/job-record";
 
@@ -24,6 +25,7 @@ function createHarness(options: {
   render?: (state: SidePanelState) => void;
   setTimeout?: typeof globalThis.setTimeout;
   clearTimeout?: typeof globalThis.clearTimeout;
+  hostAccess?: Pick<HostAccessCoordinator, "request">;
 } = {}) {
   const records = (options.records ?? []).map((record) => ({ ...record }));
   const repository = {
@@ -73,6 +75,7 @@ function createHarness(options: {
     render: options.render ?? vi.fn(),
     setTimeout: options.setTimeout,
     clearTimeout: options.clearTimeout,
+    hostAccess: options.hostAccess,
   };
 }
 
@@ -172,18 +175,113 @@ describe("side panel controller", () => {
   });
 
   it.each([
-    ["Cannot access contents of url", "请在当前职位页再次点击扩展图标后重试"],
-    ["Missing host permission", "请在当前职位页再次点击扩展图标后重试"],
-    ["Cannot inject into chrome://settings", "请在当前职位页再次点击扩展图标后重试"],
-    ["tab disappeared", "无法读取当前页面，请打开职位详情后重试"],
-  ])("maps extraction error %s without losing rows", async (message, expected) => {
-    const harness = createHarness({ records: [sampleRecord], extract: vi.fn().mockRejectedValue(new Error(message)) });
+    "Cannot access contents of url",
+    "Missing host permission",
+    "Cannot inject into chrome://settings",
+    "tab disappeared",
+  ])("maps unstructured extraction error %s without losing rows", async (message) => {
+    const request = vi.fn().mockResolvedValue("requested");
+    const harness = createHarness({
+      records: [sampleRecord],
+      extract: vi.fn().mockRejectedValue(new Error(message)),
+      hostAccess: { request },
+    });
+    const save = vi.spyOn(harness.repository, "save");
     const controller = createSidePanelController(harness);
     await controller.initialize();
     await controller.collect();
+    expect(save).not.toHaveBeenCalled();
+    expect(request).not.toHaveBeenCalled();
     expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
-      records: [sampleRecord], notice: { kind: "error", text: expected }, busy: false,
+      records: [sampleRecord],
+      notice: { kind: "error", text: "无法读取当前页面，请打开职位详情后重试" },
+      busy: false,
     }));
+  });
+
+  it.each<PageResult>([
+    success(sampleRecord),
+    { kind: "unsupported-site" },
+  ])("does not request access when extraction returns a page result", async (page) => {
+    const request = vi.fn().mockResolvedValue("requested");
+    const controller = createSidePanelController(createHarness({
+      extract: vi.fn().mockResolvedValue(page),
+      hostAccess: { request },
+    }));
+    await controller.collect();
+    expect(request).not.toHaveBeenCalled();
+  });
+
+  it("requests current-site access and keeps collect usable", async () => {
+    const request = vi.fn().mockResolvedValue("requested");
+    const harness = createHarness({
+      extract: vi.fn().mockRejectedValue(new HostAccessRequiredError(17, new Error("denied"))),
+      hostAccess: { request },
+    });
+    const controller = createSidePanelController(harness);
+    await controller.collect();
+    expect(request).toHaveBeenCalledWith(17);
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+      busy: false,
+      notice: { kind: "info", text: "请在浏览器工具栏允许访问当前招聘网站" },
+    }));
+  });
+
+  it("uses the activeTab fallback when host access cannot be requested", async () => {
+    const harness = createHarness({
+      extract: vi.fn().mockRejectedValue(new HostAccessRequiredError(17, new Error("denied"))),
+      hostAccess: { request: vi.fn().mockResolvedValue("unavailable") },
+    });
+    const controller = createSidePanelController(harness);
+    await controller.collect();
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+      notice: { kind: "error", text: "请在当前职位页再次点击扩展图标后重试" },
+    }));
+  });
+
+  it("retries a granted pending collection once and saves once", async () => {
+    const extract = vi.fn()
+      .mockRejectedValueOnce(new HostAccessRequiredError(17, new Error("denied")))
+      .mockResolvedValueOnce(success(sampleRecord));
+    const harness = createHarness({
+      extract,
+      hostAccess: { request: vi.fn().mockResolvedValue("requested") },
+    });
+    const controller = createSidePanelController(harness);
+    await controller.collect();
+    await controller.hostAccessChanged({ kind: "granted", tabId: 17 });
+    expect(extract).toHaveBeenCalledTimes(2);
+    expect(harness.records).toHaveLength(1);
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+      notice: { kind: "success", text: "已收集当前职位" },
+    }));
+  });
+
+  it("does not retry a stale permission grant", async () => {
+    const extract = vi.fn().mockRejectedValue(
+      new HostAccessRequiredError(17, new Error("denied")),
+    );
+    const harness = createHarness({
+      extract,
+      hostAccess: { request: vi.fn().mockResolvedValue("requested") },
+    });
+    const controller = createSidePanelController(harness);
+    await controller.collect();
+    await controller.hostAccessChanged({ kind: "stale", tabId: 17 });
+    expect(extract).toHaveBeenCalledOnce();
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+      notice: { kind: "info", text: "网站访问已授权，请回到职位页重新收集" },
+    }));
+  });
+
+  it("does not enter an authorization loop after the automatic retry", async () => {
+    const request = vi.fn().mockResolvedValue("requested");
+    const extract = vi.fn().mockRejectedValue(new HostAccessRequiredError(17, new Error("denied")));
+    const controller = createSidePanelController(createHarness({ extract, hostAccess: { request } }));
+    await controller.collect();
+    await controller.hostAccessChanged({ kind: "granted", tabId: 17 });
+    expect(request).toHaveBeenCalledOnce();
+    expect(extract).toHaveBeenCalledTimes(2);
   });
 
   it("keeps visible rows and reports save failures", async () => {

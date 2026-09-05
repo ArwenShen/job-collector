@@ -8,6 +8,7 @@ function createController() {
   return {
     initialize: vi.fn(async () => undefined),
     collect: vi.fn(async () => undefined),
+    hostAccessChanged: vi.fn(async () => undefined),
     exportCsv: vi.fn(async () => undefined),
     openNote: vi.fn(),
     openNoteByKey: vi.fn(),

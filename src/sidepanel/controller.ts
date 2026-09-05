@@ -1,9 +1,11 @@
 import type { PageResult } from "../extractors";
 import type { JobRecord } from "../shared/job-record";
 import type { RemovedJob } from "../storage/job-repository";
+import { HostAccessRequiredError } from "./extract-active-tab";
+import type { HostAccessCoordinator, HostAccessEvent } from "./host-access";
 
 export type Notice =
-  | { kind: "success" | "error"; text: string }
+  | { kind: "info" | "success" | "error"; text: string }
   | { kind: "undo"; text: string };
 
 export interface NoteEditorState {
@@ -39,6 +41,7 @@ export interface SidePanelRepository {
 export interface SidePanelController {
   initialize(): Promise<void>;
   collect(): Promise<void>;
+  hostAccessChanged(event: HostAccessEvent): Promise<void>;
   exportCsv(): Promise<void>;
   openNote(record: JobRecord): void;
   openNoteByKey(key: string): void;
@@ -61,6 +64,7 @@ export function createSidePanelController(deps: {
   render: (state: SidePanelState) => void;
   setTimeout?: typeof globalThis.setTimeout;
   clearTimeout?: typeof globalThis.clearTimeout;
+  hostAccess?: Pick<HostAccessCoordinator, "request">;
 }): SidePanelController {
   const state: SidePanelState = {
     records: [],
@@ -162,13 +166,6 @@ export function createSidePanelController(deps: {
     render();
   }
 
-  function extractionErrorMessage(error: unknown): string {
-    const message = error instanceof Error ? error.message : String(error);
-    return ["Cannot access", "Missing host permission", "chrome://"].some((part) => message.includes(part))
-      ? "请在当前职位页再次点击扩展图标后重试"
-      : "无法读取当前页面，请打开职位详情后重试";
-  }
-
   function updateNoteLocally(
     target: Pick<JobRecord, "source_site" | "source_job_id">,
     note: string,
@@ -192,6 +189,78 @@ export function createSidePanelController(deps: {
     state.records = state.records.filter((item) => recordKey(item) !== key);
   }
 
+  async function collectCurrent(allowHostRequest: boolean): Promise<void> {
+    if (disposed || state.busy) return;
+    state.busy = true;
+    render();
+
+    try {
+      let page: PageResult;
+      try {
+        page = await deps.extract();
+      } catch (error) {
+        if (disposed) return;
+        if (error instanceof HostAccessRequiredError) {
+          const status = allowHostRequest && deps.hostAccess
+            ? await deps.hostAccess.request(error.tabId)
+            : "unavailable";
+          if (disposed) return;
+          setNotice(status === "requested"
+            ? { kind: "info", text: "请在浏览器工具栏允许访问当前招聘网站" }
+            : { kind: "error", text: "请在当前职位页再次点击扩展图标后重试" });
+          return;
+        }
+        setNotice({
+          kind: "error",
+          text: "无法读取当前页面，请打开职位详情后重试",
+        });
+        return;
+      }
+      if (disposed) return;
+
+      if (page.kind !== "success") {
+        setNotice({ kind: "error", text: "请打开支持平台的职位详情页" });
+        return;
+      }
+      if (!page.extraction.record) {
+        setNotice({
+          kind: "error",
+          text: `无法完整识别该岗位：缺少 ${page.extraction.missingRequiredFields.join("、")}`,
+        });
+        return;
+      }
+
+      let existed: boolean;
+      try {
+        existed = await deps.repository.has(page.extraction.record);
+        if (disposed) return;
+        await deps.repository.save(page.extraction.record);
+      } catch {
+        if (disposed) return;
+        setNotice({ kind: "error", text: "保存失败，请重试" });
+        return;
+      }
+      if (disposed) return;
+
+      try {
+        const refreshed = await readList();
+        if (disposed || !refreshed) return;
+      } catch {
+        if (disposed) return;
+        setNotice({ kind: "error", text: "列表读取失败，请重试" });
+        return;
+      }
+
+      setNotice({
+        kind: "success",
+        text: existed ? "已更新当前职位，没有新增重复记录" : "已收集当前职位",
+      });
+    } finally {
+      state.busy = false;
+      render();
+    }
+  }
+
   return {
     async initialize(): Promise<void> {
       if (disposed) return;
@@ -205,63 +274,21 @@ export function createSidePanelController(deps: {
       }
     },
 
-    async collect(): Promise<void> {
-      if (disposed || state.busy) return;
-      state.busy = true;
-      render();
+    collect(): Promise<void> {
+      return collectCurrent(true);
+    },
 
-      try {
-        let page: PageResult;
-        try {
-          page = await deps.extract();
-        } catch (error) {
-          if (disposed) return;
-          setNotice({ kind: "error", text: extractionErrorMessage(error) });
-          return;
-        }
-        if (disposed) return;
-
-        if (page.kind !== "success") {
-          setNotice({ kind: "error", text: "请打开支持平台的职位详情页" });
-          return;
-        }
-        if (!page.extraction.record) {
-          setNotice({
-            kind: "error",
-            text: `无法完整识别该岗位：缺少 ${page.extraction.missingRequiredFields.join("、")}`,
-          });
-          return;
-        }
-
-        let existed: boolean;
-        try {
-          existed = await deps.repository.has(page.extraction.record);
-          if (disposed) return;
-          await deps.repository.save(page.extraction.record);
-        } catch {
-          if (disposed) return;
-          setNotice({ kind: "error", text: "保存失败，请重试" });
-          return;
-        }
-        if (disposed) return;
-
-        try {
-          const refreshed = await readList();
-          if (disposed || !refreshed) return;
-        } catch {
-          if (disposed) return;
-          setNotice({ kind: "error", text: "列表读取失败，请重试" });
-          return;
-        }
-
+    hostAccessChanged(event: HostAccessEvent): Promise<void> {
+      if (disposed) return Promise.resolve();
+      if (event.kind === "stale") {
         setNotice({
-          kind: "success",
-          text: existed ? "已更新当前职位，没有新增重复记录" : "已收集当前职位",
+          kind: "info",
+          text: "网站访问已授权，请回到职位页重新收集",
         });
-      } finally {
-        state.busy = false;
         render();
+        return Promise.resolve();
       }
+      return collectCurrent(false);
     },
 
     async exportCsv(): Promise<void> {
