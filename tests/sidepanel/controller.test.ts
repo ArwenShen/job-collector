@@ -180,7 +180,7 @@ describe("side panel controller", () => {
     "Cannot inject into chrome://settings",
     "tab disappeared",
   ])("maps unstructured extraction error %s without losing rows", async (message) => {
-    const request = vi.fn().mockResolvedValue("requested");
+    const request = vi.fn().mockResolvedValue("granted");
     const harness = createHarness({
       records: [sampleRecord],
       extract: vi.fn().mockRejectedValue(new Error(message)),
@@ -203,7 +203,7 @@ describe("side panel controller", () => {
     success(sampleRecord),
     { kind: "unsupported-site" },
   ])("does not request access when extraction returns a page result", async (page) => {
-    const request = vi.fn().mockResolvedValue("requested");
+    const request = vi.fn().mockResolvedValue("granted");
     const controller = createSidePanelController(createHarness({
       extract: vi.fn().mockResolvedValue(page),
       hostAccess: { request },
@@ -212,79 +212,114 @@ describe("side panel controller", () => {
     expect(request).not.toHaveBeenCalled();
   });
 
-  it("requests current-site access and keeps collect usable", async () => {
-    const request = vi.fn().mockResolvedValue("requested");
+  it("shows platform choices without requesting permission during collect", async () => {
+    const request = vi.fn().mockResolvedValue("granted");
     const harness = createHarness({
       extract: vi.fn().mockRejectedValue(new HostAccessRequiredError(17, new Error("denied"))),
       hostAccess: { request },
     });
     const controller = createSidePanelController(harness);
     await controller.collect();
-    expect(request).toHaveBeenCalledWith(17);
+    expect(request).not.toHaveBeenCalled();
     expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
       busy: false,
+      authorizationRequired: true,
       notice: {
         kind: "info",
-        text: "请打开浏览器右上角的扩展程序菜单，在岗位收集器旁点击“允许”；授权后将自动收集",
+        text: "请选择当前招聘平台并允许网站访问；每个平台只需授权一次",
       },
     }));
   });
 
-  it("uses the activeTab fallback when host access cannot be requested", async () => {
+  it("keeps platform choices visible when authorization is denied", async () => {
+    const request = vi.fn().mockResolvedValue("denied");
     const harness = createHarness({
       extract: vi.fn().mockRejectedValue(new HostAccessRequiredError(17, new Error("denied"))),
-      hostAccess: { request: vi.fn().mockResolvedValue("unavailable") },
+      hostAccess: { request },
     });
     const controller = createSidePanelController(harness);
     await controller.collect();
+    await controller.authorizePlatform("51job");
+    expect(request).toHaveBeenCalledWith("51job", 17);
     expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
-      notice: { kind: "error", text: "请在当前职位页再次点击扩展图标后重试" },
+      authorizationRequired: true,
+      notice: { kind: "error", text: "未允许访问该平台，请授权后重试" },
     }));
   });
 
-  it("retries a granted pending collection once and saves once", async () => {
+  it("authorizes the selected platform, retries once, and saves once", async () => {
     const extract = vi.fn()
       .mockRejectedValueOnce(new HostAccessRequiredError(17, new Error("denied")))
       .mockResolvedValueOnce(success(sampleRecord));
     const harness = createHarness({
       extract,
-      hostAccess: { request: vi.fn().mockResolvedValue("requested") },
+      hostAccess: { request: vi.fn().mockResolvedValue("granted") },
     });
     const controller = createSidePanelController(harness);
     await controller.collect();
-    await controller.hostAccessChanged({ kind: "granted", tabId: 17 });
+    await controller.authorizePlatform("51job");
+    expect(harness.hostAccess?.request).toHaveBeenCalledWith("51job", 17);
     expect(extract).toHaveBeenCalledTimes(2);
     expect(harness.records).toHaveLength(1);
     expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
       notice: { kind: "success", text: "已收集当前职位" },
+      authorizationRequired: false,
     }));
   });
 
-  it("does not retry a stale permission grant", async () => {
+  it("does not retry after the user switches tabs during authorization", async () => {
     const extract = vi.fn().mockRejectedValue(
       new HostAccessRequiredError(17, new Error("denied")),
     );
     const harness = createHarness({
       extract,
-      hostAccess: { request: vi.fn().mockResolvedValue("requested") },
+      hostAccess: { request: vi.fn().mockResolvedValue("stale") },
     });
     const controller = createSidePanelController(harness);
     await controller.collect();
-    await controller.hostAccessChanged({ kind: "stale", tabId: 17 });
+    await controller.authorizePlatform("liepin");
     expect(extract).toHaveBeenCalledOnce();
     expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
-      notice: { kind: "info", text: "网站访问已授权，请回到职位页重新收集" },
+      authorizationRequired: false,
+      notice: { kind: "info", text: "网站访问已授权，请回到原职位页重新收集" },
     }));
   });
 
-  it("does not enter an authorization loop after the automatic retry", async () => {
-    const request = vi.fn().mockResolvedValue("requested");
+  it("keeps platform choices visible when authorization is unavailable", async () => {
+    const request = vi.fn().mockResolvedValue("unavailable");
     const extract = vi.fn().mockRejectedValue(new HostAccessRequiredError(17, new Error("denied")));
-    const controller = createSidePanelController(createHarness({ extract, hostAccess: { request } }));
+    const harness = createHarness({ extract, hostAccess: { request } });
+    const controller = createSidePanelController(harness);
     await controller.collect();
-    await controller.hostAccessChanged({ kind: "granted", tabId: 17 });
+    await controller.authorizePlatform("zhaopin");
     expect(request).toHaveBeenCalledOnce();
+    expect(extract).toHaveBeenCalledOnce();
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+      authorizationRequired: true,
+      notice: { kind: "error", text: "无法发起网站授权，请重试" },
+    }));
+  });
+
+  it("keeps the chooser and explains a wrong platform selection", async () => {
+    const request = vi.fn().mockResolvedValue("granted");
+    const extract = vi.fn().mockRejectedValue(new HostAccessRequiredError(17, new Error("denied")));
+    const harness = createHarness({ extract, hostAccess: { request } });
+    const controller = createSidePanelController(harness);
+    await controller.collect();
+    await controller.authorizePlatform("boss");
+    expect(request).toHaveBeenCalledWith("boss", 17);
     expect(extract).toHaveBeenCalledTimes(2);
+    expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
+      authorizationRequired: true,
+      notice: { kind: "error", text: "所选平台与当前页面不一致，请重新选择" },
+    }));
+  });
+
+  it("ignores platform authorization when no collection is pending", async () => {
+    const request = vi.fn().mockResolvedValue("granted");
+    const controller = createSidePanelController(createHarness({ hostAccess: { request } }));
+    await controller.authorizePlatform("boss");
+    expect(request).not.toHaveBeenCalled();
   });
 
   it("keeps visible rows and reports save failures", async () => {

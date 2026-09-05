@@ -156,6 +156,18 @@ function updateNotice(metadata: RenderMetadata, state: SidePanelState): HTMLElem
 
 function createNoticeActions(state: SidePanelState): HTMLElement {
   const actions = createElement("div", { class: "notice-actions" });
+  if (state.authorizationRequired) {
+    for (const [site, label] of Object.entries(PLATFORM_LABELS)) {
+      const authorize = createElement("button", {
+        class: "permission-choice",
+        type: "button",
+        "data-action": "authorize-platform",
+        "data-site": site,
+      }, label.full);
+      if (state.busy) authorize.setAttribute("disabled", "");
+      actions.append(authorize);
+    }
+  }
   if (state.undoAvailable) {
     const undo = createElement("button", {
       type: "button",
@@ -255,7 +267,7 @@ export function renderSidePanel(root: Element, state: SidePanelState): void {
   if (focusIdentity && !wasOverlayOpen) {
     metadata.pendingFocus = focusIdentity;
   }
-  const hasFeedback = Boolean(state.notice || state.undoAvailable);
+  const hasFeedback = Boolean(state.notice || state.undoAvailable || state.authorizationRequired);
   const shell = createElement("div", {
     class: hasFeedback ? "panel-shell panel-shell--with-feedback" : "panel-shell",
     tabindex: "-1",

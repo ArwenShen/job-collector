@@ -2,14 +2,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { exportJobs } from "../../src/csv/download";
 import { createSidePanelController, type SidePanelRepository } from "../../src/sidepanel/controller";
 import { extractActiveTab } from "../../src/sidepanel/extract-active-tab";
-import type { HostAccessCoordinator, HostAccessEvent } from "../../src/sidepanel/host-access";
+import type { HostAccessCoordinator } from "../../src/sidepanel/host-access";
 import { bindSidePanelEvents, bootstrapSidePanel, shouldBootstrap } from "../../src/sidepanel/index";
 
 function createController() {
   return {
     initialize: vi.fn(async () => undefined),
     collect: vi.fn(async () => undefined),
-    hostAccessChanged: vi.fn(async () => undefined),
+    authorizePlatform: vi.fn(async () => undefined),
     exportCsv: vi.fn(async () => undefined),
     openNote: vi.fn(),
     openNoteByKey: vi.fn(),
@@ -66,6 +66,18 @@ describe("side panel event binding", () => {
     child.click();
 
     expect(controller[method]).toHaveBeenCalledOnce();
+  });
+
+  it("routes platform authorization with the selected site", () => {
+    const controller = createController();
+    bindSidePanelEvents(root, controller);
+    const target = button("authorize-platform");
+    target.dataset.site = "51job";
+    root.append(target);
+
+    target.click();
+
+    expect(controller.authorizePlatform).toHaveBeenCalledWith("51job");
   });
 
   it.each([
@@ -444,8 +456,7 @@ describe("side panel bootstrap", () => {
 
   function hostAccessStub(): HostAccessCoordinator {
     return {
-      request: vi.fn().mockResolvedValue("requested"),
-      subscribe: vi.fn(() => vi.fn()),
+      request: vi.fn().mockResolvedValue("unavailable"),
       dispose: vi.fn(),
     };
   }
@@ -478,7 +489,7 @@ describe("side panel bootstrap", () => {
     expect(deps?.render).toBeTypeOf("function");
     expect(deps?.hostAccess).toBe(hostAccess);
     deps?.render({
-      records: [], noticeRevision: 0, clearConfirmOpen: false,
+      records: [], noticeRevision: 0, authorizationRequired: false, clearConfirmOpen: false,
       busy: false, undoAvailable: false,
     });
     expect(root.querySelector(".panel-shell")).not.toBeNull();
@@ -505,29 +516,15 @@ describe("side panel bootstrap", () => {
     expect(remove).toHaveBeenCalledTimes(8);
   });
 
-  it("routes host grants to the controller and disposes the coordinator once", async () => {
+  it("disposes the coordinator once", async () => {
     const controller = createController();
-    let listener: ((event: HostAccessEvent) => void) | undefined;
-    const unsubscribe = vi.fn();
-    const hostAccess: HostAccessCoordinator = {
-      request: vi.fn().mockResolvedValue("requested"),
-      subscribe: vi.fn((next) => {
-        listener = next;
-        return unsubscribe;
-      }),
-      dispose: vi.fn(),
-    };
+    const hostAccess = hostAccessStub();
     const cleanup = bootstrapSidePanel({
       root, repository, createController: vi.fn(() => controller), hostAccess,
     });
 
-    listener?.({ kind: "granted", tabId: 17 });
-    await Promise.resolve();
-    expect(controller.hostAccessChanged).toHaveBeenCalledWith({ kind: "granted", tabId: 17 });
-
     cleanup();
     cleanup();
-    expect(unsubscribe).toHaveBeenCalledOnce();
     expect(hostAccess.dispose).toHaveBeenCalledOnce();
   });
 

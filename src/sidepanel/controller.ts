@@ -1,8 +1,8 @@
 import type { PageResult } from "../extractors";
-import type { JobRecord } from "../shared/job-record";
+import type { JobRecord, SourceSite } from "../shared/job-record";
 import type { RemovedJob } from "../storage/job-repository";
 import { HostAccessRequiredError } from "./extract-active-tab";
-import type { HostAccessCoordinator, HostAccessEvent } from "./host-access";
+import type { HostAccessCoordinator } from "./host-access";
 
 export type Notice =
   | { kind: "info" | "success" | "error"; text: string }
@@ -17,6 +17,7 @@ export interface SidePanelState {
   records: JobRecord[];
   notice?: Notice;
   noticeRevision: number;
+  authorizationRequired: boolean;
   noteEditor?: NoteEditorState;
   clearConfirmOpen: boolean;
   busy: boolean;
@@ -41,7 +42,7 @@ export interface SidePanelRepository {
 export interface SidePanelController {
   initialize(): Promise<void>;
   collect(): Promise<void>;
-  hostAccessChanged(event: HostAccessEvent): Promise<void>;
+  authorizePlatform(site: SourceSite): Promise<void>;
   exportCsv(): Promise<void>;
   openNote(record: JobRecord): void;
   openNoteByKey(key: string): void;
@@ -69,6 +70,7 @@ export function createSidePanelController(deps: {
   const state: SidePanelState = {
     records: [],
     noticeRevision: 0,
+    authorizationRequired: false,
     clearConfirmOpen: false,
     busy: false,
     undoAvailable: false,
@@ -77,6 +79,7 @@ export function createSidePanelController(deps: {
   let mutationBusy = false;
   let disposed = false;
   let noteIdentity: Pick<JobRecord, "source_site" | "source_job_id"> | undefined;
+  let pendingAuthorizationTabId: number | undefined;
   let pendingDelete: RemovedJob | undefined;
   let undoTimer: ReturnType<typeof globalThis.setTimeout> | undefined;
   const schedule = deps.setTimeout ?? globalThis.setTimeout.bind(globalThis);
@@ -189,7 +192,12 @@ export function createSidePanelController(deps: {
     state.records = state.records.filter((item) => recordKey(item) !== key);
   }
 
-  async function collectCurrent(allowHostRequest: boolean): Promise<void> {
+  function clearAuthorization(): void {
+    pendingAuthorizationTabId = undefined;
+    state.authorizationRequired = false;
+  }
+
+  async function collectCurrent(authorizationRetry = false): Promise<void> {
     if (disposed || state.busy) return;
     state.busy = true;
     render();
@@ -201,18 +209,14 @@ export function createSidePanelController(deps: {
       } catch (error) {
         if (disposed) return;
         if (error instanceof HostAccessRequiredError) {
-          const status = allowHostRequest && deps.hostAccess
-            ? await deps.hostAccess.request(error.tabId)
-            : "unavailable";
-          if (disposed) return;
-          setNotice(status === "requested"
-            ? {
-                kind: "info",
-                text: "请打开浏览器右上角的扩展程序菜单，在岗位收集器旁点击“允许”；授权后将自动收集",
-              }
-            : { kind: "error", text: "请在当前职位页再次点击扩展图标后重试" });
+          pendingAuthorizationTabId = error.tabId;
+          state.authorizationRequired = true;
+          setNotice(authorizationRetry
+            ? { kind: "error", text: "所选平台与当前页面不一致，请重新选择" }
+            : { kind: "info", text: "请选择当前招聘平台并允许网站访问；每个平台只需授权一次" });
           return;
         }
+        clearAuthorization();
         setNotice({
           kind: "error",
           text: "无法读取当前页面，请打开职位详情后重试",
@@ -222,10 +226,12 @@ export function createSidePanelController(deps: {
       if (disposed) return;
 
       if (page.kind !== "success") {
+        clearAuthorization();
         setNotice({ kind: "error", text: "请打开支持平台的职位详情页" });
         return;
       }
       if (!page.extraction.record) {
+        clearAuthorization();
         setNotice({
           kind: "error",
           text: `无法完整识别该岗位：缺少 ${page.extraction.missingRequiredFields.join("、")}`,
@@ -258,6 +264,7 @@ export function createSidePanelController(deps: {
         kind: "success",
         text: existed ? "已更新当前职位，没有新增重复记录" : "已收集当前职位",
       });
+      clearAuthorization();
     } finally {
       state.busy = false;
       render();
@@ -278,20 +285,47 @@ export function createSidePanelController(deps: {
     },
 
     collect(): Promise<void> {
-      return collectCurrent(true);
+      return collectCurrent();
     },
 
-    hostAccessChanged(event: HostAccessEvent): Promise<void> {
-      if (disposed) return Promise.resolve();
-      if (event.kind === "stale") {
+    async authorizePlatform(site: SourceSite): Promise<void> {
+      const tabId = pendingAuthorizationTabId;
+      if (disposed || state.busy || tabId === undefined || !deps.hostAccess) return;
+      state.busy = true;
+      render();
+
+      const request = deps.hostAccess.request(site, tabId);
+      let status: Awaited<typeof request>;
+      try {
+        status = await request;
+      } catch {
+        status = "unavailable";
+      }
+      if (disposed) return;
+      state.busy = false;
+
+      if (status === "denied") {
+        setNotice({ kind: "error", text: "未允许访问该平台，请授权后重试" });
+        render();
+        return;
+      }
+      if (status === "unavailable") {
+        setNotice({ kind: "error", text: "无法发起网站授权，请重试" });
+        render();
+        return;
+      }
+      if (status === "stale") {
+        clearAuthorization();
         setNotice({
           kind: "info",
-          text: "网站访问已授权，请回到职位页重新收集",
+          text: "网站访问已授权，请回到原职位页重新收集",
         });
         render();
-        return Promise.resolve();
+        return;
       }
-      return collectCurrent(false);
+
+      clearAuthorization();
+      await collectCurrent(true);
     },
 
     async exportCsv(): Promise<void> {

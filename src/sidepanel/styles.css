@@ -149,6 +149,8 @@ textarea:focus-visible,
 
 .notice-actions {
   display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
   justify-content: flex-end;
 }
 
@@ -156,6 +158,17 @@ textarea:focus-visible,
   min-height: 30px;
   padding: 3px 10px;
   color: var(--interactive);
+}
+
+.notice-actions .permission-choice {
+  min-height: 30px;
+  padding: 5px 10px;
+  color: var(--interactive);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .job-list-scroll {

@@ -1,4 +1,5 @@
 import { exportJobs } from "../csv/download";
+import type { SourceSite } from "../shared/job-record";
 import { createJobRepository } from "../storage/job-repository";
 import {
   createSidePanelController,
@@ -15,6 +16,7 @@ import { renderSidePanel } from "./view";
 const TOOLTIP_MARGIN = 8;
 const POINTER_OFFSET = 12;
 const TOOLTIP_ID = "side-panel-tooltip";
+const SOURCE_SITES = new Set<SourceSite>(["boss", "liepin", "zhaopin", "51job"]);
 
 function eventElement(event: Event): Element | null {
   return event.target instanceof Element ? event.target : null;
@@ -117,6 +119,11 @@ export function bindSidePanelEvents(
       const key = actionTarget.dataset.key;
       switch (actionTarget.dataset.action) {
         case "collect": runAction(controller.collect()); break;
+        case "authorize-platform": {
+          const site = actionTarget.dataset.site as SourceSite | undefined;
+          if (site && SOURCE_SITES.has(site)) runAction(controller.authorizePlatform(site));
+          break;
+        }
         case "open-note": if (key !== undefined) controller.openNoteByKey(key); break;
         case "delete": if (key !== undefined) runAction(controller.deleteByKey(key)); break;
         case "undo-delete": runAction(controller.undoDelete()); break;
@@ -232,9 +239,6 @@ export function bootstrapSidePanel(options: SidePanelBootstrapOptions = {}): () 
     hostAccess,
   });
   const unbind = bindSidePanelEvents(root, controller);
-  const unsubscribeHostAccess = hostAccess.subscribe((event) => {
-    runAction(controller.hostAccessChanged(event));
-  });
   let disposed = false;
   const cleanup = () => {
     if (disposed) return;
@@ -242,7 +246,6 @@ export function bootstrapSidePanel(options: SidePanelBootstrapOptions = {}): () 
     window.removeEventListener("unload", cleanup);
     window.removeEventListener("pagehide", cleanup);
     unbind();
-    unsubscribeHostAccess();
     hostAccess.dispose();
     controller.dispose();
   };

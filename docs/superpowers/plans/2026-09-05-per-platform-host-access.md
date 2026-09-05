@@ -8,6 +8,8 @@
 
 **Tech Stack:** Chrome Manifest V3, TypeScript, Vitest, JSDOM, Vite
 
+> **2026-09-05 implementation revision:** Real Chrome validation showed that the original `permissions.addHostAccessRequest` flow granted only the current-tab access mode in the test profile. Tasks 3 onward below are superseded by the approved Side Panel platform chooser: show four transient buttons only after a structured host-access failure, call `permissions.request({ origins: [selectedPlatformOrigin] })` directly from that button gesture, verify the active tab still matches the pending tab, and automatically retry once. The final source and tests are authoritative for this revision.
+
 ---
 
 ### Task 1: Declare Exact Optional Platform Permissions

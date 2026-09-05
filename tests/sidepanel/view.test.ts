@@ -18,7 +18,8 @@ function makeRecord(source_site: SourceSite, source_job_id: string): JobRecord {
 
 function state(records: JobRecord[] = []): SidePanelState {
   return {
-    records, clearConfirmOpen: false, busy: false, undoAvailable: false, noticeRevision: 0,
+    records, authorizationRequired: false, clearConfirmOpen: false, busy: false,
+    undoAvailable: false, noticeRevision: 0,
   };
 }
 
@@ -81,6 +82,24 @@ describe("side panel view", () => {
     expect(feedback.querySelector(".notice")?.getAttribute("aria-live")).toBe("polite");
     await Promise.resolve();
     expect(feedback.querySelector(".notice")?.textContent).toBe("已收集");
+  });
+
+  it("renders transient platform authorization choices only when required", () => {
+    renderSidePanel(root, {
+      ...state(), authorizationRequired: true,
+      notice: { kind: "info", text: "请选择平台" }, noticeRevision: 1,
+    });
+
+    const buttons = [...root.querySelectorAll<HTMLElement>("[data-action=authorize-platform]")];
+    expect(buttons.map((button) => [button.dataset.site, button.textContent])).toEqual([
+      ["boss", "BOSS直聘"],
+      ["liepin", "猎聘"],
+      ["zhaopin", "智联招聘"],
+      ["51job", "前程无忧"],
+    ]);
+
+    renderSidePanel(root, state());
+    expect(root.querySelector("[data-action=authorize-platform]")).toBeNull();
   });
 
   it.each([
