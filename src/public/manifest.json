@@ -4,6 +4,12 @@
   "description": "收集当前职位详情并导出为 CSV。",
   "version": "0.2.0",
   "permissions": ["activeTab", "scripting", "storage", "sidePanel"],
+  "optional_host_permissions": [
+    "https://*.zhipin.com/*",
+    "https://*.liepin.com/*",
+    "https://*.zhaopin.com/*",
+    "https://*.51job.com/*"
+  ],
   "action": {
     "default_title": "岗位收集器"
   },
