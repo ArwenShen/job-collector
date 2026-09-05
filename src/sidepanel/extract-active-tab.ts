@@ -33,20 +33,20 @@ export async function extractActiveTab(): Promise<PageResult> {
 
   try {
     await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ["content.js"] });
+    const [injection] = await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      func: () => {
+        const key = "__JOB_COLLECTOR_RESULT__";
+        const scope = globalThis as unknown as Record<string, unknown>;
+        const result = scope[key];
+        delete scope[key];
+        return result;
+      },
+    });
+
+    return (injection?.result as PageResult | undefined) ?? { kind: "unsupported-site" };
   } catch (error) {
     if (isSupportedPermissionError(error)) throw new HostAccessRequiredError(tab.id, error);
     throw error;
   }
-  const [injection] = await chrome.scripting.executeScript({
-    target: { tabId: tab.id },
-    func: () => {
-      const key = "__JOB_COLLECTOR_RESULT__";
-      const scope = globalThis as unknown as Record<string, unknown>;
-      const result = scope[key];
-      delete scope[key];
-      return result;
-    },
-  });
-
-  return (injection?.result as PageResult | undefined) ?? { kind: "unsupported-site" };
 }

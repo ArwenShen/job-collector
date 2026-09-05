@@ -35,6 +35,7 @@ describe("extractActiveTab host access failures", () => {
     `Missing host permission for the tab "https://example.com/jobs/1"`,
     `Cannot inject into chrome://settings`,
     "Cannot access contents of url https://www.zhipin.com/jobs/1",
+    `Cannot access contents of url "https://[invalid"`,
     "tab disappeared",
   ])("rethrows unsupported or unrelated injection error: %s", async (message) => {
     const cause = new Error(message);
@@ -57,5 +58,19 @@ describe("extractActiveTab host access failures", () => {
 
     await expect(extractActiveTab()).resolves.toEqual({ kind: "unsupported-site" });
     expect(executeScript).not.toHaveBeenCalled();
+  });
+
+  it("classifies permission denial while consuming the page result", async () => {
+    const cause = new Error('Cannot access contents of url "https://www.zhipin.com/jobs/1"');
+    const query = vi.fn().mockResolvedValue([{ id: 7, url: "https://www.zhipin.com/jobs/1" }]);
+    const executeScript = vi.fn()
+      .mockResolvedValueOnce([])
+      .mockRejectedValueOnce(cause);
+    vi.stubGlobal("chrome", { tabs: { query }, scripting: { executeScript } });
+
+    await expect(extractActiveTab()).rejects.toMatchObject({
+      name: "HostAccessRequiredError", tabId: 7, cause,
+    });
+    expect(executeScript).toHaveBeenCalledTimes(2);
   });
 });
