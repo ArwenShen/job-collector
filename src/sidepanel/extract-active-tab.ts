@@ -1,6 +1,8 @@
 import type { PageResult } from "../extractors";
 
 const SUPPORTED_HOSTS = ["zhipin.com", "liepin.com", "zhaopin.com", "51job.com"] as const;
+const URL_FREE_PAGE_PERMISSION_ERROR =
+  "Cannot access contents of the page. Extension manifest must request permission to access the respective host.";
 
 export class HostAccessRequiredError extends Error {
   readonly tabId: number;
@@ -14,6 +16,7 @@ export class HostAccessRequiredError extends Error {
 
 function isSupportedPermissionError(error: unknown): boolean {
   if (!(error instanceof Error)) return false;
+  if (error.message === URL_FREE_PAGE_PERMISSION_ERROR) return true;
   if (!error.message.includes("Cannot access contents of url")
     && !error.message.includes("Missing host permission")) return false;
 

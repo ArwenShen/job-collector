@@ -53,6 +53,17 @@ describe("extractActiveTab host access failures", () => {
     });
   });
 
+  it("classifies Chromium's URL-free page permission denial", async () => {
+    const cause = new Error(
+      "Cannot access contents of the page. Extension manifest must request permission to access the respective host.",
+    );
+    stubChrome({ id: 7 }, cause);
+
+    await expect(extractActiveTab()).rejects.toMatchObject({
+      name: "HostAccessRequiredError", tabId: 7, cause,
+    });
+  });
+
   it("returns unsupported without injecting when the tab has no id", async () => {
     const { executeScript } = stubChrome({ url: "https://www.zhipin.com/jobs/1" });
 
