@@ -77,6 +77,49 @@ describe("host access coordinator", () => {
     expect(listener).not.toHaveBeenCalled();
   });
 
+  it.each(["missing", "rejected"] as const)(
+    "replaces the logical pending request when Chrome removal is %s",
+    async (removal) => {
+      const h = harness(true, removal !== "missing");
+      if (removal === "rejected") {
+        h.removeHostAccessRequest?.mockRejectedValueOnce(new Error("remove failed"));
+      }
+      await h.coordinator.request(21);
+
+      await expect(h.coordinator.request(22)).resolves.toBe("requested");
+      expect(h.addHostAccessRequest).toHaveBeenNthCalledWith(2, { tabId: 22 });
+    },
+  );
+
+  it("does not retain the old pending request when its replacement cannot be added", async () => {
+    const h = harness();
+    const listener = vi.fn();
+    h.coordinator.subscribe(listener);
+    await h.coordinator.request(21);
+    h.removeHostAccessRequest?.mockRejectedValueOnce(new Error("remove failed"));
+    h.addHostAccessRequest?.mockRejectedValueOnce(new Error("add failed"));
+
+    await expect(h.coordinator.request(22)).resolves.toBe("unavailable");
+    h.onAdded.emit({ origins: ["https://www.liepin.com/*"] });
+    expect(listener).not.toHaveBeenCalled();
+  });
+
+  it("does not register a replacement after disposal during best-effort removal", async () => {
+    const h = harness();
+    let finishRemoval: (() => void) | undefined;
+    h.removeHostAccessRequest?.mockImplementationOnce(() => new Promise<void>((resolve) => {
+      finishRemoval = resolve;
+    }));
+    await h.coordinator.request(21);
+
+    const replacement = h.coordinator.request(22);
+    h.coordinator.dispose();
+    finishRemoval?.();
+
+    await expect(replacement).resolves.toBe("unavailable");
+    expect(h.addHostAccessRequest).toHaveBeenCalledOnce();
+  });
+
   it.each(["activated", "removed", "updated"] as const)(
     "cancels a pending Chrome request when the tab becomes %s",
     async (cause) => {
@@ -91,6 +134,7 @@ describe("host access coordinator", () => {
       await vi.waitFor(() => {
         expect(h.removeHostAccessRequest).toHaveBeenCalledWith({ tabId: 21 });
       });
+      await h.removeHostAccessRequest!.mock.results[0]!.value;
       h.onAdded.emit({ origins: ["https://www.zhaopin.com/*"] });
       expect(listener).not.toHaveBeenCalled();
     },

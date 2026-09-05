@@ -42,11 +42,10 @@ export function createHostAccessCoordinator(
       .some((host) => hostname === host || hostname.endsWith(`.${host}`));
   }) ?? false;
 
-  const cancelPending = async (current: { tabId: number; stale: boolean }) => {
+  const removeChromeRequest = async (tabId: number) => {
     if (!permissions.removeHostAccessRequest) return false;
     try {
-      await permissions.removeHostAccessRequest({ tabId: current.tabId });
-      if (pending === current) pending = undefined;
+      await permissions.removeHostAccessRequest({ tabId });
       return true;
     } catch {
       return false;
@@ -57,7 +56,9 @@ export function createHostAccessCoordinator(
     if (pending?.tabId !== tabId || pending.stale) return;
     const current = pending;
     current.stale = true;
-    void cancelPending(current);
+    void removeChromeRequest(current.tabId).then((removed) => {
+      if (removed && pending === current) pending = undefined;
+    });
   };
   const onActivated = ({ tabId }: { tabId: number }) => {
     if (pending && pending.tabId !== tabId) markStale(pending.tabId);
@@ -87,9 +88,11 @@ export function createHostAccessCoordinator(
 
       if (pending) {
         const previous = pending;
+        pending = undefined;
         previous.stale = true;
-        if (!await cancelPending(previous)) return "unavailable";
+        await removeChromeRequest(previous.tabId);
       }
+      if (disposed) return "unavailable";
 
       const current = { tabId, stale: false };
       pending = current;
