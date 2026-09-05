@@ -120,6 +120,44 @@ describe("host access coordinator", () => {
     expect(h.addHostAccessRequest).toHaveBeenCalledOnce();
   });
 
+  it("downgrades and cleans up an add request that resolves after disposal", async () => {
+    const h = harness();
+    let finishAdd: (() => void) | undefined;
+    h.addHostAccessRequest?.mockImplementationOnce(() => new Promise<void>((resolve) => {
+      finishAdd = resolve;
+    }));
+    const request = h.coordinator.request(21);
+    await vi.waitFor(() => expect(h.addHostAccessRequest).toHaveBeenCalledOnce());
+
+    h.coordinator.dispose();
+    h.removeHostAccessRequest?.mockClear();
+    finishAdd?.();
+
+    await expect(request).resolves.toBe("unavailable");
+    expect(h.removeHostAccessRequest).toHaveBeenCalledWith({ tabId: 21 });
+  });
+
+  it("downgrades an in-flight add after replacement without disturbing the new pending request", async () => {
+    const h = harness();
+    const listener = vi.fn();
+    h.coordinator.subscribe(listener);
+    let finishFirstAdd: (() => void) | undefined;
+    h.addHostAccessRequest?.mockImplementationOnce(() => new Promise<void>((resolve) => {
+      finishFirstAdd = resolve;
+    }));
+    const first = h.coordinator.request(21);
+    await vi.waitFor(() => expect(h.addHostAccessRequest).toHaveBeenCalledOnce());
+
+    await expect(h.coordinator.request(22)).resolves.toBe("requested");
+    h.removeHostAccessRequest?.mockClear();
+    finishFirstAdd?.();
+
+    await expect(first).resolves.toBe("unavailable");
+    expect(h.removeHostAccessRequest).toHaveBeenCalledWith({ tabId: 21 });
+    h.onAdded.emit({ origins: ["https://www.liepin.com/*"] });
+    expect(listener).toHaveBeenCalledWith({ kind: "granted", tabId: 22 });
+  });
+
   it.each(["activated", "removed", "updated"] as const)(
     "cancels a pending Chrome request when the tab becomes %s",
     async (cause) => {
