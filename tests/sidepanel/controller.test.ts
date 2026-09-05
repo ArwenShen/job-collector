@@ -223,7 +223,10 @@ describe("side panel controller", () => {
     expect(request).toHaveBeenCalledWith(17);
     expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
       busy: false,
-      notice: { kind: "info", text: "请在浏览器工具栏允许访问当前招聘网站" },
+      notice: {
+        kind: "info",
+        text: "请打开浏览器右上角的扩展程序菜单，在岗位收集器旁点击“允许”；授权后将自动收集",
+      },
     }));
   });
 

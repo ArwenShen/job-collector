@@ -497,7 +497,10 @@ it("requests current-site access and keeps collect usable", async () => {
   expect(request).toHaveBeenCalledWith(17);
   expect(harness.render).toHaveBeenLastCalledWith(expect.objectContaining({
     busy: false,
-    notice: { kind: "info", text: "请在浏览器工具栏允许访问当前招聘网站" },
+    notice: {
+      kind: "info",
+      text: "请打开浏览器右上角的扩展程序菜单，在岗位收集器旁点击“允许”；授权后将自动收集",
+    },
   }));
 });
 
@@ -604,7 +607,10 @@ Extract the existing `collect()` body into `async function collectCurrent(allowH
       : "unavailable";
     if (disposed) return;
     setNotice(status === "requested"
-      ? { kind: "info", text: "请在浏览器工具栏允许访问当前招聘网站" }
+      ? {
+          kind: "info",
+          text: "请打开浏览器右上角的扩展程序菜单，在岗位收集器旁点击“允许”；授权后将自动收集",
+        }
       : { kind: "error", text: "请在当前职位页再次点击扩展图标后重试" });
     return;
   }
@@ -802,7 +808,7 @@ git commit -m "feat: wire host access lifecycle"
 Replace README usage step 3 with:
 
 ```markdown
-3. 点击“收集当前职位”。如果该平台尚未获得网站访问权限，请在 Chrome 官方权限入口允许访问；授权后插件会自动继续收集。每个平台只需授权一次，之后该平台的新职位标签页可以直接收集。BOSS 收藏列表在同一标签页内切换职位时通常不需要额外授权。
+3. 点击“收集当前职位”。如果该平台尚未获得网站访问权限，请打开浏览器右上角的“扩展程序”菜单，在“岗位收集器”旁点击“允许”；授权后插件会自动继续收集。每个平台只需授权一次，之后该平台的新职位标签页可以直接收集。BOSS 收藏列表在同一标签页内切换职位时通常不需要额外授权。直接点击固定在工具栏上的插件图标通常只会获得当前页签的临时访问权限，不等同于完成平台授权。
 ```
 
 Replace the privacy paragraph with:

@@ -206,7 +206,10 @@ export function createSidePanelController(deps: {
             : "unavailable";
           if (disposed) return;
           setNotice(status === "requested"
-            ? { kind: "info", text: "请在浏览器工具栏允许访问当前招聘网站" }
+            ? {
+                kind: "info",
+                text: "请打开浏览器右上角的扩展程序菜单，在岗位收集器旁点击“允许”；授权后将自动收集",
+              }
             : { kind: "error", text: "请在当前职位页再次点击扩展图标后重试" });
           return;
         }
