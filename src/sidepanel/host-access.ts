@@ -30,9 +30,15 @@ export function createHostAccessCoordinator(
   permissions: PermissionsApi,
   tabs: TabsApi,
 ): HostAccessCoordinator {
-  let pending: { tabId: number; stale: boolean } | undefined;
+  type Pending = { tabId: number; stale: boolean; removal?: Promise<boolean> };
+  let pending: Pending | undefined;
   let disposed = false;
   let latestRequestGeneration = 0;
+  let cancellationBarrier: Promise<void> = Promise.resolve();
+  let signalDisposed: (() => void) | undefined;
+  const disposedSignal = new Promise<void>((resolve) => {
+    signalDisposed = resolve;
+  });
   const subscribers = new Set<(event: HostAccessEvent) => void>();
 
   const hasSupportedOrigin = (origins: string[] | undefined) => origins?.some((origin) => {
@@ -53,11 +59,23 @@ export function createHostAccessCoordinator(
     }
   };
 
+  const queueChromeRemoval = (tabId: number) => {
+    const removal = cancellationBarrier.then(() => removeChromeRequest(tabId));
+    cancellationBarrier = removal.then(() => undefined);
+    return removal;
+  };
+
+  const waitForCancellationBarrier = () => Promise.race([
+    cancellationBarrier,
+    disposedSignal,
+  ]);
+
   const markStale = (tabId: number) => {
     if (pending?.tabId !== tabId || pending.stale) return;
     const current = pending;
     current.stale = true;
-    void removeChromeRequest(current.tabId).then((removed) => {
+    current.removal = queueChromeRemoval(current.tabId);
+    void current.removal.then((removed) => {
       if (removed && pending === current) pending = undefined;
     });
   };
@@ -92,8 +110,9 @@ export function createHostAccessCoordinator(
         const previous = pending;
         pending = undefined;
         previous.stale = true;
-        await removeChromeRequest(previous.tabId);
+        previous.removal ??= queueChromeRemoval(previous.tabId);
       }
+      await waitForCancellationBarrier();
       if (disposed || generation !== latestRequestGeneration) return "unavailable";
 
       const addHostAccessRequest = permissions.addHostAccessRequest;
@@ -124,16 +143,11 @@ export function createHostAccessCoordinator(
     dispose() {
       if (disposed) return;
       disposed = true;
+      signalDisposed?.();
       const current = pending;
       pending = undefined;
       subscribers.clear();
-      if (current && permissions.removeHostAccessRequest) {
-        try {
-          void permissions.removeHostAccessRequest({ tabId: current.tabId }).catch(() => undefined);
-        } catch {
-          // A best-effort cleanup must not prevent listener removal.
-        }
-      }
+      if (current) current.removal ??= queueChromeRemoval(current.tabId);
       permissions.onAdded.removeListener(onAdded);
       tabs.onActivated.removeListener(onActivated);
       tabs.onRemoved.removeListener(onRemoved);

@@ -196,15 +196,34 @@ describe("host access coordinator", () => {
 
       const middle = h.coordinator.request(22);
       await vi.waitFor(() => expect(h.removeHostAccessRequest).toHaveBeenCalledOnce());
-      await expect(h.coordinator.request(newestTabId)).resolves.toBe("requested");
+      const newest = h.coordinator.request(newestTabId);
+      h.onAdded.emit({ origins: ["https://www.zhaopin.com/*"] });
+      expect(listener).not.toHaveBeenCalled();
+      expect(h.addHostAccessRequest).toHaveBeenCalledOnce();
       finishRemoval?.();
 
       await expect(middle).resolves.toBe("unavailable");
+      await expect(newest).resolves.toBe("requested");
       expect(h.addHostAccessRequest).toHaveBeenCalledTimes(2);
       h.onAdded.emit({ origins: ["https://www.zhaopin.com/*"] });
       expect(listener).toHaveBeenCalledWith({ kind: "granted", tabId: newestTabId });
     },
   );
+
+  it("releases requests waiting on cancellation when disposed", async () => {
+    const h = harness();
+    await h.coordinator.request(21);
+    h.removeHostAccessRequest?.mockImplementationOnce(() => new Promise<void>(() => undefined));
+
+    const middle = h.coordinator.request(22);
+    await vi.waitFor(() => expect(h.removeHostAccessRequest).toHaveBeenCalledOnce());
+    const newest = h.coordinator.request(23);
+    h.coordinator.dispose();
+
+    await expect(middle).resolves.toBe("unavailable");
+    await expect(newest).resolves.toBe("unavailable");
+    expect(h.addHostAccessRequest).toHaveBeenCalledOnce();
+  });
 
   it.each(["activated", "removed", "updated"] as const)(
     "cancels a pending Chrome request when the tab becomes %s",
@@ -266,7 +285,9 @@ describe("host access coordinator", () => {
     h.coordinator.subscribe(listener);
     await h.coordinator.request(21);
     h.coordinator.dispose();
-    expect(h.removeHostAccessRequest).toHaveBeenCalledWith({ tabId: 21 });
+    await vi.waitFor(() => {
+      expect(h.removeHostAccessRequest).toHaveBeenCalledWith({ tabId: 21 });
+    });
     expect(h.onAdded.removeListener).toHaveBeenCalledOnce();
     expect(h.onActivated.removeListener).toHaveBeenCalledOnce();
     expect(h.onRemoved.removeListener).toHaveBeenCalledOnce();
