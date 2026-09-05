@@ -10,17 +10,26 @@ function event<T extends (...args: any[]) => void>() {
   };
 }
 
-function harness(withRequest = true) {
+function harness(withRequest = true, withRemove = true) {
   const onAdded = event<(permissions: { origins?: string[] }) => void>();
   const onActivated = event<(info: { tabId: number }) => void>();
   const onRemoved = event<(tabId: number) => void>();
   const onUpdated = event<(tabId: number, info: { status?: string }) => void>();
   const addHostAccessRequest = withRequest ? vi.fn().mockResolvedValue(undefined) : undefined;
+  const removeHostAccessRequest = withRemove ? vi.fn().mockResolvedValue(undefined) : undefined;
   const coordinator = createHostAccessCoordinator(
-    { addHostAccessRequest, onAdded },
+    { addHostAccessRequest, removeHostAccessRequest, onAdded },
     { onActivated, onRemoved, onUpdated },
   );
-  return { coordinator, addHostAccessRequest, onAdded, onActivated, onRemoved, onUpdated };
+  return {
+    coordinator,
+    addHostAccessRequest,
+    removeHostAccessRequest,
+    onAdded,
+    onActivated,
+    onRemoved,
+    onUpdated,
+  };
 }
 
 describe("host access coordinator", () => {
@@ -39,9 +48,9 @@ describe("host access coordinator", () => {
   });
 
   it.each(["activated", "removed", "updated"] as const)(
-    "marks the pending collection stale when the tab is %s",
+    "retains a stale guard when cancellation is unavailable and the tab is %s",
     async (cause) => {
-      const h = harness();
+      const h = harness(true, false);
       const listener = vi.fn();
       h.coordinator.subscribe(listener);
       await h.coordinator.request(21);
@@ -53,16 +62,63 @@ describe("host access coordinator", () => {
     },
   );
 
-  it("replaces an older pending request and ignores events without origins", async () => {
+  it("cancels an older pending request before registering its replacement", async () => {
     const h = harness();
     const listener = vi.fn();
     h.coordinator.subscribe(listener);
     await h.coordinator.request(21);
     await h.coordinator.request(22);
+
+    expect(h.removeHostAccessRequest).toHaveBeenCalledWith({ tabId: 21 });
+    expect(h.removeHostAccessRequest!.mock.invocationCallOrder[0]).toBeLessThan(
+      h.addHostAccessRequest!.mock.invocationCallOrder[1]!,
+    );
     h.onAdded.emit({});
     expect(listener).not.toHaveBeenCalled();
-    h.onAdded.emit({ origins: ["https://www.51job.com/*"] });
-    expect(listener).toHaveBeenCalledWith({ kind: "granted", tabId: 22 });
+  });
+
+  it.each(["activated", "removed", "updated"] as const)(
+    "cancels a pending Chrome request when the tab becomes %s",
+    async (cause) => {
+      const h = harness();
+      const listener = vi.fn();
+      h.coordinator.subscribe(listener);
+      await h.coordinator.request(21);
+      if (cause === "activated") h.onActivated.emit({ tabId: 22 });
+      if (cause === "removed") h.onRemoved.emit(21);
+      if (cause === "updated") h.onUpdated.emit(21, { status: "loading" });
+
+      await vi.waitFor(() => {
+        expect(h.removeHostAccessRequest).toHaveBeenCalledWith({ tabId: 21 });
+      });
+      h.onAdded.emit({ origins: ["https://www.zhaopin.com/*"] });
+      expect(listener).not.toHaveBeenCalled();
+    },
+  );
+
+  it("keeps a stale guard when cancelling the Chrome request fails", async () => {
+    const h = harness();
+    const listener = vi.fn();
+    h.coordinator.subscribe(listener);
+    h.removeHostAccessRequest?.mockRejectedValueOnce(new Error("remove failed"));
+    await h.coordinator.request(21);
+    h.onActivated.emit({ tabId: 22 });
+    await vi.waitFor(() => expect(h.removeHostAccessRequest).toHaveBeenCalledOnce());
+
+    h.onAdded.emit({ origins: ["https://www.zhaopin.com/*"] });
+    expect(listener).toHaveBeenCalledWith({ kind: "stale", tabId: 21 });
+  });
+
+  it("ignores permission events outside the declared recruitment platforms", async () => {
+    const h = harness();
+    const listener = vi.fn();
+    h.coordinator.subscribe(listener);
+    await h.coordinator.request(21);
+
+    h.onAdded.emit({ origins: ["https://example.com/*"] });
+    expect(listener).not.toHaveBeenCalled();
+    h.onAdded.emit({ origins: ["https://www.liepin.com/*"] });
+    expect(listener).toHaveBeenCalledWith({ kind: "granted", tabId: 21 });
   });
 
   it("falls back when the API is unavailable or rejects", async () => {
@@ -74,11 +130,13 @@ describe("host access coordinator", () => {
     await expect(rejected.coordinator.request(22)).resolves.toBe("unavailable");
   });
 
-  it("removes Chrome listeners and stops publishing on dispose", () => {
+  it("cancels pending access, removes Chrome listeners and stops publishing on dispose", async () => {
     const h = harness();
     const listener = vi.fn();
     h.coordinator.subscribe(listener);
+    await h.coordinator.request(21);
     h.coordinator.dispose();
+    expect(h.removeHostAccessRequest).toHaveBeenCalledWith({ tabId: 21 });
     expect(h.onAdded.removeListener).toHaveBeenCalledOnce();
     expect(h.onActivated.removeListener).toHaveBeenCalledOnce();
     expect(h.onRemoved.removeListener).toHaveBeenCalledOnce();
