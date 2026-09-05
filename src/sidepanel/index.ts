@@ -6,6 +6,10 @@ import {
   type SidePanelRepository,
 } from "./controller";
 import { extractActiveTab } from "./extract-active-tab";
+import {
+  createHostAccessCoordinator,
+  type HostAccessCoordinator,
+} from "./host-access";
 import { renderSidePanel } from "./view";
 
 const TOOLTIP_MARGIN = 8;
@@ -210,11 +214,14 @@ export interface SidePanelBootstrapOptions {
   root?: HTMLElement;
   repository?: SidePanelRepository;
   createController?: ControllerFactory;
+  hostAccess?: HostAccessCoordinator;
 }
 
 export function bootstrapSidePanel(options: SidePanelBootstrapOptions = {}): () => void {
   const root = options.root ?? document.querySelector<HTMLElement>("#app");
   if (!root) throw new Error("Side panel root is missing");
+  const hostAccess = options.hostAccess
+    ?? createHostAccessCoordinator(chrome.permissions, chrome.tabs);
   const controller = (options.createController ?? createSidePanelController)({
     extract: extractActiveTab,
     repository: options.repository ?? createJobRepository(),
@@ -222,8 +229,12 @@ export function bootstrapSidePanel(options: SidePanelBootstrapOptions = {}): () 
     render: (state) => renderSidePanel(root, state),
     setTimeout: globalThis.setTimeout.bind(globalThis),
     clearTimeout: globalThis.clearTimeout.bind(globalThis),
+    hostAccess,
   });
   const unbind = bindSidePanelEvents(root, controller);
+  const unsubscribeHostAccess = hostAccess.subscribe((event) => {
+    runAction(controller.hostAccessChanged(event));
+  });
   let disposed = false;
   const cleanup = () => {
     if (disposed) return;
@@ -231,6 +242,8 @@ export function bootstrapSidePanel(options: SidePanelBootstrapOptions = {}): () 
     window.removeEventListener("unload", cleanup);
     window.removeEventListener("pagehide", cleanup);
     unbind();
+    unsubscribeHostAccess();
+    hostAccess.dispose();
     controller.dispose();
   };
   window.addEventListener("unload", cleanup, { once: true });

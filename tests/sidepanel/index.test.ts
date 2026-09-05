@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { exportJobs } from "../../src/csv/download";
 import { createSidePanelController, type SidePanelRepository } from "../../src/sidepanel/controller";
 import { extractActiveTab } from "../../src/sidepanel/extract-active-tab";
+import type { HostAccessCoordinator, HostAccessEvent } from "../../src/sidepanel/host-access";
 import { bindSidePanelEvents, bootstrapSidePanel, shouldBootstrap } from "../../src/sidepanel/index";
 
 function createController() {
@@ -441,6 +442,14 @@ describe("side panel tooltip", () => {
 describe("side panel bootstrap", () => {
   const repository = {} as SidePanelRepository;
 
+  function hostAccessStub(): HostAccessCoordinator {
+    return {
+      request: vi.fn().mockResolvedValue("requested"),
+      subscribe: vi.fn(() => vi.fn()),
+      dispose: vi.fn(),
+    };
+  }
+
   it("binds before initialize and injects bound global timers", async () => {
     const controller = createController();
     const add = vi.spyOn(root, "addEventListener");
@@ -450,7 +459,10 @@ describe("side panel bootstrap", () => {
       return controller;
     });
 
-    const cleanup = bootstrapSidePanel({ root, repository, createController: controllerFactory });
+    const hostAccess = hostAccessStub();
+    const cleanup = bootstrapSidePanel({
+      root, repository, createController: controllerFactory, hostAccess,
+    });
     await Promise.resolve();
 
     expect(add).toHaveBeenCalled();
@@ -464,6 +476,7 @@ describe("side panel bootstrap", () => {
     expect(deps?.repository).toBe(repository);
     expect(deps?.download).toBe(exportJobs);
     expect(deps?.render).toBeTypeOf("function");
+    expect(deps?.hostAccess).toBe(hostAccess);
     deps?.render({
       records: [], noticeRevision: 0, clearConfirmOpen: false,
       busy: false, undoAvailable: false,
@@ -477,9 +490,10 @@ describe("side panel bootstrap", () => {
     ["unload", "pagehide"],
   ] as const)("unbinds and disposes once when %s fires before %s", (first, second) => {
     const controller = createController();
+    const hostAccess = hostAccessStub();
     const remove = vi.spyOn(root, "removeEventListener");
     const cleanup = bootstrapSidePanel({
-      root, repository, createController: vi.fn(() => controller),
+      root, repository, createController: vi.fn(() => controller), hostAccess,
     });
 
     window.dispatchEvent(new Event(first));
@@ -487,7 +501,34 @@ describe("side panel bootstrap", () => {
     cleanup();
 
     expect(controller.dispose).toHaveBeenCalledOnce();
+    expect(hostAccess.dispose).toHaveBeenCalledOnce();
     expect(remove).toHaveBeenCalledTimes(8);
+  });
+
+  it("routes host grants to the controller and disposes the coordinator once", async () => {
+    const controller = createController();
+    let listener: ((event: HostAccessEvent) => void) | undefined;
+    const unsubscribe = vi.fn();
+    const hostAccess: HostAccessCoordinator = {
+      request: vi.fn().mockResolvedValue("requested"),
+      subscribe: vi.fn((next) => {
+        listener = next;
+        return unsubscribe;
+      }),
+      dispose: vi.fn(),
+    };
+    const cleanup = bootstrapSidePanel({
+      root, repository, createController: vi.fn(() => controller), hostAccess,
+    });
+
+    listener?.({ kind: "granted", tabId: 17 });
+    await Promise.resolve();
+    expect(controller.hostAccessChanged).toHaveBeenCalledWith({ kind: "granted", tabId: 17 });
+
+    cleanup();
+    cleanup();
+    expect(unsubscribe).toHaveBeenCalledOnce();
+    expect(hostAccess.dispose).toHaveBeenCalledOnce();
   });
 
   it("does not auto-bootstrap when Chrome exists without the side panel root", async () => {
