@@ -179,6 +179,33 @@ describe("host access coordinator", () => {
     expect(listener).toHaveBeenCalledWith({ kind: "granted", tabId: 21 });
   });
 
+  it.each([
+    { label: "same tab", newestTabId: 22 },
+    { label: "different tab", newestTabId: 23 },
+  ])(
+    "does not let a request awaiting old removal overwrite a newer request on $label",
+    async ({ newestTabId }) => {
+      const h = harness();
+      const listener = vi.fn();
+      h.coordinator.subscribe(listener);
+      await h.coordinator.request(21);
+      let finishRemoval: (() => void) | undefined;
+      h.removeHostAccessRequest?.mockImplementationOnce(() => new Promise<void>((resolve) => {
+        finishRemoval = resolve;
+      }));
+
+      const middle = h.coordinator.request(22);
+      await vi.waitFor(() => expect(h.removeHostAccessRequest).toHaveBeenCalledOnce());
+      await expect(h.coordinator.request(newestTabId)).resolves.toBe("requested");
+      finishRemoval?.();
+
+      await expect(middle).resolves.toBe("unavailable");
+      expect(h.addHostAccessRequest).toHaveBeenCalledTimes(2);
+      h.onAdded.emit({ origins: ["https://www.zhaopin.com/*"] });
+      expect(listener).toHaveBeenCalledWith({ kind: "granted", tabId: newestTabId });
+    },
+  );
+
   it.each(["activated", "removed", "updated"] as const)(
     "cancels a pending Chrome request when the tab becomes %s",
     async (cause) => {

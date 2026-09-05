@@ -32,6 +32,7 @@ export function createHostAccessCoordinator(
 ): HostAccessCoordinator {
   let pending: { tabId: number; stale: boolean } | undefined;
   let disposed = false;
+  let latestRequestGeneration = 0;
   const subscribers = new Set<(event: HostAccessEvent) => void>();
 
   const hasSupportedOrigin = (origins: string[] | undefined) => origins?.some((origin) => {
@@ -84,7 +85,8 @@ export function createHostAccessCoordinator(
 
   return {
     async request(tabId) {
-      if (disposed || !permissions.addHostAccessRequest) return "unavailable";
+      const generation = ++latestRequestGeneration;
+      if (disposed) return "unavailable";
 
       if (pending) {
         const previous = pending;
@@ -92,13 +94,19 @@ export function createHostAccessCoordinator(
         previous.stale = true;
         await removeChromeRequest(previous.tabId);
       }
-      if (disposed) return "unavailable";
+      if (disposed || generation !== latestRequestGeneration) return "unavailable";
+
+      const addHostAccessRequest = permissions.addHostAccessRequest;
+      if (!addHostAccessRequest) return "unavailable";
 
       const current = { tabId, stale: false };
       pending = current;
       try {
-        await permissions.addHostAccessRequest({ tabId });
-        if (disposed || pending !== current || current.stale) {
+        await addHostAccessRequest({ tabId });
+        if (disposed
+          || generation !== latestRequestGeneration
+          || pending !== current
+          || current.stale) {
           if (pending === current) pending = undefined;
           if (!pending || pending.tabId !== tabId) void removeChromeRequest(tabId);
           return "unavailable";
