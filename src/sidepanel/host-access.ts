@@ -100,7 +100,7 @@ export function createHostAccessCoordinator(
         await permissions.addHostAccessRequest({ tabId });
         if (disposed || pending !== current || current.stale) {
           if (pending === current) pending = undefined;
-          void removeChromeRequest(tabId);
+          if (!pending || pending.tabId !== tabId) void removeChromeRequest(tabId);
           return "unavailable";
         }
         return "requested";
